@@ -176,4 +176,13 @@ public class DictDataServiceImpl implements DictDataService {
         return list;
     }
 
+    /**
+     * 删除指定字典类型的字典数据
+     *
+     * @param dictType 字典类型
+     */
+    @Override
+    public void removeDictDataByDictType(String dictType) {
+        dictDataMapper.delete(DictDataDO::getDictType, dictType);
+    }
 }

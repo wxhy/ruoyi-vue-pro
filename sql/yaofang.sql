@@ -1,0 +1,4380 @@
+/*
+ Navicat Premium Data Transfer
+
+ Source Server         : localhost_3306
+ Source Server Type    : MySQL
+ Source Server Version : 80028 (8.0.28)
+ Source Host           : localhost:3306
+ Source Schema         : yaofang
+
+ Target Server Type    : MySQL
+ Target Server Version : 80028 (8.0.28)
+ File Encoding         : 65001
+
+ Date: 11/05/2024 15:05:42
+*/
+
+SET NAMES utf8mb4;
+SET FOREIGN_KEY_CHECKS = 0;
+
+-- ----------------------------
+-- Table structure for infra_api_access_log
+-- ----------------------------
+DROP TABLE IF EXISTS `infra_api_access_log`;
+CREATE TABLE `infra_api_access_log`  (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '日志主键',
+  `trace_id` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT '链路追踪编号',
+  `user_id` bigint NOT NULL DEFAULT 0 COMMENT '用户编号',
+  `user_type` tinyint NOT NULL DEFAULT 0 COMMENT '用户类型',
+  `application_name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '应用名',
+  `request_method` varchar(16) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT '请求方法名',
+  `request_url` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT '请求地址',
+  `request_params` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL COMMENT '请求参数',
+  `response_body` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL COMMENT '响应结果',
+  `user_ip` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '用户 IP',
+  `user_agent` varchar(512) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '浏览器 UA',
+  `operate_module` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '操作模块',
+  `operate_name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '操作名',
+  `operate_type` tinyint NULL DEFAULT 0 COMMENT '操作分类',
+  `begin_time` datetime NOT NULL COMMENT '开始请求时间',
+  `end_time` datetime NOT NULL COMMENT '结束请求时间',
+  `duration` int NOT NULL COMMENT '执行时长',
+  `result_code` int NOT NULL DEFAULT 0 COMMENT '结果码',
+  `result_msg` varchar(512) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '结果提示',
+  `creator` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '创建者',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `updater` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '更新者',
+  `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `deleted` bit(1) NOT NULL DEFAULT b'0' COMMENT '是否删除',
+  `tenant_id` bigint NOT NULL DEFAULT 0 COMMENT '租户编号',
+  PRIMARY KEY (`id`) USING BTREE,
+  INDEX `idx_create_time`(`create_time` ASC) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 35934 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = 'API 访问日志表' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of infra_api_access_log
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for infra_api_error_log
+-- ----------------------------
+DROP TABLE IF EXISTS `infra_api_error_log`;
+CREATE TABLE `infra_api_error_log`  (
+  `id` int NOT NULL AUTO_INCREMENT COMMENT '编号',
+  `trace_id` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '链路追踪编号\n     *\n     * 一般来说，通过链路追踪编号，可以将访问日志，错误日志，链路追踪日志，logger 打印日志等，结合在一起，从而进行排错。',
+  `user_id` int NOT NULL DEFAULT 0 COMMENT '用户编号',
+  `user_type` tinyint NOT NULL DEFAULT 0 COMMENT '用户类型',
+  `application_name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '应用名\n     *\n     * 目前读取 spring.application.name',
+  `request_method` varchar(16) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '请求方法名',
+  `request_url` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '请求地址',
+  `request_params` varchar(8000) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '请求参数',
+  `user_ip` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '用户 IP',
+  `user_agent` varchar(512) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '浏览器 UA',
+  `exception_time` datetime NOT NULL COMMENT '异常发生时间',
+  `exception_name` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT '异常名\n     *\n     * {@link Throwable#getClass()} 的类全名',
+  `exception_message` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '异常导致的消息\n     *\n     * {@link cn.iocoder.common.framework.util.ExceptionUtil#getMessage(Throwable)}',
+  `exception_root_cause_message` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '异常导致的根消息\n     *\n     * {@link cn.iocoder.common.framework.util.ExceptionUtil#getRootCauseMessage(Throwable)}',
+  `exception_stack_trace` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '异常的栈轨迹\n     *\n     * {@link cn.iocoder.common.framework.util.ExceptionUtil#getServiceException(Exception)}',
+  `exception_class_name` varchar(512) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '异常发生的类全名\n     *\n     * {@link StackTraceElement#getClassName()}',
+  `exception_file_name` varchar(512) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '异常发生的类文件\n     *\n     * {@link StackTraceElement#getFileName()}',
+  `exception_method_name` varchar(512) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '异常发生的方法名\n     *\n     * {@link StackTraceElement#getMethodName()}',
+  `exception_line_number` int NOT NULL COMMENT '异常发生的方法所在行\n     *\n     * {@link StackTraceElement#getLineNumber()}',
+  `process_status` tinyint NOT NULL COMMENT '处理状态',
+  `process_time` datetime NULL DEFAULT NULL COMMENT '处理时间',
+  `process_user_id` int NULL DEFAULT 0 COMMENT '处理用户编号',
+  `creator` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '创建者',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `updater` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '更新者',
+  `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `deleted` bit(1) NOT NULL DEFAULT b'0' COMMENT '是否删除',
+  `tenant_id` bigint NOT NULL DEFAULT 0 COMMENT '租户编号',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 16535 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '系统异常日志' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of infra_api_error_log
+-- ----------------------------
+INSERT INTO `infra_api_error_log` VALUES (16530, '', 1, 2, 'yudao-server', 'GET', '/admin-api/member/config/get', '{\"query\":{},\"body\":null}', '0:0:0:0:0:0:0:1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36 Edg/124.0.0.0', '2024-05-11 13:36:06', 'org.springframework.jdbc.BadSqlGrammarException', 'BadSqlGrammarException: \r\n### Error querying database.  Cause: java.sql.SQLSyntaxErrorException: Table \'yaofang.member_config\' doesn\'t exist\r\n### The error may exist in cn/iocoder/yudao/module/member/dal/mysql/config/MemberConfigMapper.java (best guess)\r\n### The error may involve defaultParameterMap\r\n### The error occurred while setting parameters\r\n### SQL: SELECT id, point_trade_deduct_enable, point_trade_deduct_unit_price, point_trade_deduct_max_price, point_trade_give_point, create_time, update_time, creator, updater, deleted FROM member_config WHERE deleted = 0\r\n### Cause: java.sql.SQLSyntaxErrorException: Table \'yaofang.member_config\' doesn\'t exist\n; bad SQL grammar []; nested exception is java.sql.SQLSyntaxErrorException: Table \'yaofang.member_config\' doesn\'t exist', 'SQLSyntaxErrorException: Table \'yaofang.member_config\' doesn\'t exist', 'org.springframework.jdbc.BadSqlGrammarException: \r\n### Error querying database.  Cause: java.sql.SQLSyntaxErrorException: Table \'yaofang.member_config\' doesn\'t exist\r\n### The error may exist in cn/iocoder/yudao/module/member/dal/mysql/config/MemberConfigMapper.java (best guess)\r\n### The error may involve defaultParameterMap\r\n### The error occurred while setting parameters\r\n### SQL: SELECT id, point_trade_deduct_enable, point_trade_deduct_unit_price, point_trade_deduct_max_price, point_trade_give_point, create_time, update_time, creator, updater, deleted FROM member_config WHERE deleted = 0\r\n### Cause: java.sql.SQLSyntaxErrorException: Table \'yaofang.member_config\' doesn\'t exist\n; bad SQL grammar []; nested exception is java.sql.SQLSyntaxErrorException: Table \'yaofang.member_config\' doesn\'t exist\r\n	at org.springframework.jdbc.support.SQLErrorCodeSQLExceptionTranslator.doTranslate(SQLErrorCodeSQLExceptionTranslator.java:236)\r\n	at org.springframework.jdbc.support.AbstractFallbackSQLExceptionTranslator.translate(AbstractFallbackSQLExceptionTranslator.java:73)\r\n	at org.mybatis.spring.MyBatisExceptionTranslator.translateExceptionIfPossible(MyBatisExceptionTranslator.java:92)\r\n	at org.mybatis.spring.SqlSessionTemplate$SqlSessionInterceptor.invoke(SqlSessionTemplate.java:439)\r\n	at com.sun.proxy.$Proxy128.selectList(Unknown Source)\r\n	at org.mybatis.spring.SqlSessionTemplate.selectList(SqlSessionTemplate.java:224)\r\n	at com.baomidou.mybatisplus.core.override.MybatisMapperMethod.executeForMany(MybatisMapperMethod.java:164)\r\n	at com.baomidou.mybatisplus.core.override.MybatisMapperMethod.execute(MybatisMapperMethod.java:77)\r\n	at com.baomidou.mybatisplus.core.override.MybatisMapperProxy$PlainMethodInvoker.invoke(MybatisMapperProxy.java:152)\r\n	at com.baomidou.mybatisplus.core.override.MybatisMapperProxy.invoke(MybatisMapperProxy.java:89)\r\n	at com.sun.proxy.$Proxy258.selectList(Unknown Source)\r\n	at cn.iocoder.yudao.framework.mybatis.core.mapper.BaseMapperX.selectList(BaseMapperX.java:113)\r\n	at java.lang.invoke.MethodHandle.invokeWithArguments(MethodHandle.java:627)\r\n	at com.baomidou.mybatisplus.core.override.MybatisMapperProxy$DefaultMethodInvoker.invoke(MybatisMapperProxy.java:166)\r\n	at com.baomidou.mybatisplus.core.override.MybatisMapperProxy.invoke(MybatisMapperProxy.java:89)\r\n	at com.sun.proxy.$Proxy258.selectList(Unknown Source)\r\n	at cn.iocoder.yudao.module.member.service.config.MemberConfigServiceImpl.getConfig(MemberConfigServiceImpl.java:40)\r\n	at cn.iocoder.yudao.module.member.service.config.MemberConfigServiceImpl$$FastClassBySpringCGLIB$$3b4790a2.invoke(<generated>)\r\n	at org.springframework.cglib.proxy.MethodProxy.invoke(MethodProxy.java:218)\r\n	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.invokeJoinpoint(CglibAopProxy.java:792)\r\n	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:163)\r\n	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.proceed(CglibAopProxy.java:762)\r\n	at org.springframework.validation.beanvalidation.MethodValidationInterceptor.invoke(MethodValidationInterceptor.java:123)\r\n	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:186)\r\n	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.proceed(CglibAopProxy.java:762)\r\n	at org.springframework.aop.framework.CglibAopProxy$DynamicAdvisedInterceptor.intercept(CglibAopProxy.java:707)\r\n	at cn.iocoder.yudao.module.member.service.config.MemberConfigServiceImpl$$EnhancerBySpringCGLIB$$7e30301f.getConfig(<generated>)\r\n	at cn.iocoder.yudao.module.member.controller.admin.config.MemberConfigController.getConfig(MemberConfigController.java:41)\r\n	at cn.iocoder.yudao.module.member.controller.admin.config.MemberConfigController$$FastClassBySpringCGLIB$$d3c55e8f.invoke(<generated>)\r\n	at org.springframework.cglib.proxy.MethodProxy.invoke(MethodProxy.java:218)\r\n	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.invokeJoinpoint(CglibAopProxy.java:792)\r\n	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:163)\r\n	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.proceed(CglibAopProxy.java:762)\r\n	at org.springframework.validation.beanvalidation.MethodValidationInterceptor.invoke(MethodValidationInterceptor.java:123)\r\n	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:186)\r\n	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.proceed(CglibAopProxy.java:762)\r\n	at org.springframework.security.access.intercept.aopalliance.MethodSecurityInterceptor.invoke(MethodSecurityInterceptor.java:61)\r\n	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:186)\r\n	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.proceed(CglibAopProxy.java:762)\r\n	at org.springframework.aop.framework.CglibAopProxy$DynamicAdvisedInterceptor.intercept(CglibAopProxy.java:707)\r\n	at cn.iocoder.yudao.module.member.controller.admin.config.MemberConfigController$$EnhancerBySpringCGLIB$$378225d1.getConfig(<generated>)\r\n	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\r\n	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)\r\n	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)\r\n	at java.lang.reflect.Method.invoke(Method.java:498)\r\n	at org.springframework.web.method.support.InvocableHandlerMethod.doInvoke(InvocableHandlerMethod.java:205)\r\n	at org.springframework.web.method.support.InvocableHandlerMethod.invokeForRequest(InvocableHandlerMethod.java:150)\r\n	at org.springframework.web.servlet.mvc.method.annotation.ServletInvocableHandlerMethod.invokeAndHandle(ServletInvocableHandlerMethod.java:117)\r\n	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.invokeHandlerMethod(RequestMappingHandlerAdapter.java:895)\r\n	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.handleInternal(RequestMappingHandlerAdapter.java:808)\r\n	at org.springframework.web.servlet.mvc.method.AbstractHandlerMethodAdapter.handle(AbstractHandlerMethodAdapter.java:87)\r\n	at org.springframework.web.servlet.DispatcherServlet.doDispatch(DispatcherServlet.java:1072)\r\n	at org.springframework.web.servlet.DispatcherServlet.doService(DispatcherServlet.java:965)\r\n	at org.springframework.web.servlet.FrameworkServlet.processRequest(FrameworkServlet.java:1006)\r\n	at org.springframework.web.servlet.FrameworkServlet.doGet(FrameworkServlet.java:898)\r\n	at javax.servlet.http.HttpServlet.service(HttpServlet.java:529)\r\n	at org.springframework.web.servlet.FrameworkServlet.service(FrameworkServlet.java:883)\r\n	at javax.servlet.http.HttpServlet.service(HttpServlet.java:623)\r\n	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:209)\r\n	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:153)\r\n	at org.apache.tomcat.websocket.server.WsFilter.doFilter(WsFilter.java:51)\r\n	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:178)\r\n	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:153)\r\n	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:111)\r\n	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:178)\r\n	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:153)\r\n	at org.springframework.web.servlet.resource.ResourceUrlEncodingFilter.doFilter(ResourceUrlEncodingFilter.java:67)\r\n	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:178)\r\n	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:153)\r\n	at com.alibaba.druid.support.http.WebStatFilter.doFilter(WebStatFilter.java:114)\r\n	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:178)\r\n	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:153)\r\n	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:337)\r\n	at org.springframework.security.web.access.intercept.FilterSecurityInterceptor.invoke(FilterSecurityInterceptor.java:115)\r\n	at org.springframework.security.web.access.intercept.FilterSecurityInterceptor.doFilter(FilterSecurityInterceptor.java:81)\r\n	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:346)\r\n	at org.springframework.security.web.access.ExceptionTranslationFilter.doFilter(ExceptionTranslationFilter.java:122)\r\n	at org.springframework.security.web.access.ExceptionTranslationFilter.doFilter(ExceptionTranslationFilter.java:116)\r\n	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:346)\r\n	at org.springframework.security.web.session.SessionManagementFilter.doFilter(SessionManagementFilter.java:126)\r\n	at org.springframework.security.web.session.SessionManagementFilter.doFilter(SessionManagementFilter.java:81)\r\n	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:346)\r\n	at org.springframework.security.web.authentication.AnonymousAuthenticationFilter.doFilter(AnonymousAuthenticationFilter.java:109)\r\n	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:346)\r\n	at org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter.doFilter(SecurityContextHolderAwareRequestFilter.java:149)\r\n	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:346)\r\n	at org.springframework.security.web.savedrequest.RequestCacheAwareFilter.doFilter(RequestCacheAwareFilter.java:63)\r\n	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:346)\r\n	at cn.iocoder.yudao.framework.security.core.filter.TokenAuthenticationFilter.doFilterInternal(TokenAuthenticationFilter.java:68)\r\n	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:117)\r\n	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:346)\r\n	at org.springframework.security.web.authentication.logout.LogoutFilter.doFilter(LogoutFilter.java:103)\r\n	at org.springframework.security.web.authentication.logout.LogoutFilter.doFilter(LogoutFilter.java:89)\r\n	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:346)\r\n	at org.springframework.web.filter.CorsFilter.doFilterInternal(CorsFilter.java:91)\r\n	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:117)\r\n	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:346)\r\n	at org.springframework.security.web.header.HeaderWriterFilter.doHeadersAfter(HeaderWriterFilter.java:90)\r\n	at org.springframework.security.web.header.HeaderWriterFilter.doFilterInternal(HeaderWriterFilter.java:75)\r\n	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:117)\r\n	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:346)\r\n	at org.springframework.security.web.context.SecurityContextPersistenceFilter.doFilter(SecurityContextPersistenceFilter.java:112)\r\n	at org.springframework.security.web.context.SecurityContextPersistenceFilter.doFilter(SecurityContextPersistenceFilter.java:82)\r\n	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:346)\r\n	at org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter.doFilterInternal(WebAsyncManagerIntegrationFilter.java:55)\r\n	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:117)\r\n	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:346)\r\n	at org.springframework.security.web.session.DisableEncodeUrlFilter.doFilterInternal(DisableEncodeUrlFilter.java:42)\r\n	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:117)\r\n	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:346)\r\n	at org.springframework.security.web.FilterChainProxy.doFilterInternal(FilterChainProxy.java:221)\r\n	at org.springframework.security.web.FilterChainProxy.doFilter(FilterChainProxy.java:186)\r\n	at org.springframework.web.filter.DelegatingFilterProxy.invokeDelegate(DelegatingFilterProxy.java:354)\r\n	at org.springframework.web.filter.DelegatingFilterProxy.doFilter(DelegatingFilterProxy.java:267)\r\n	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:178)\r\n	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:153)\r\n	at org.springframework.web.filter.RequestContextFilter.doFilterInternal(RequestContextFilter.java:100)\r\n	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:117)\r\n	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:178)\r\n	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:153)\r\n	at org.springframework.web.filter.FormContentFilter.doFilterInternal(FormContentFilter.java:93)\r\n	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:117)\r\n	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:178)\r\n	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:153)\r\n	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:102)\r\n	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:178)\r\n	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:153)\r\n	at org.springframework.boot.actuate.metrics.web.servlet.WebMvcMetricsFilter.doFilterInternal(WebMvcMetricsFilter.java:96)\r\n	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:117)\r\n	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:178)\r\n	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:153)\r\n	at cn.iocoder.yudao.framework.tracer.core.filter.TraceFilter.doFilterInternal(TraceFilter.java:30)\r\n	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:117)\r\n	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:178)\r\n	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:153)\r\n	at org.springframework.web.filter.CharacterEncodingFilter.doFilterInternal(CharacterEncodingFilter.java:201)\r\n	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:117)\r\n	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:178)\r\n	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:153)\r\n	at org.springframework.web.filter.CorsFilter.doFilterInternal(CorsFilter.java:91)\r\n	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:117)\r\n	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:178)\r\n	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:153)\r\n	at org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:168)\r\n	at org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:90)\r\n	at org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:481)\r\n	at org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:130)\r\n	at org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:93)\r\n	at org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:74)\r\n	at org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:342)\r\n	at org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:390)\r\n	at org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:63)\r\n	at org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:928)\r\n	at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1794)\r\n	at org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:52)\r\n	at org.apache.tomcat.util.threads.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1191)\r\n	at org.apache.tomcat.util.threads.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:659)\r\n	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:61)\r\n	at java.lang.Thread.run(Thread.java:750)\r\nCaused by: java.sql.SQLSyntaxErrorException: Table \'yaofang.member_config\' doesn\'t exist\r\n	at com.mysql.cj.jdbc.exceptions.SQLError.createSQLException(SQLError.java:121)\r\n	at com.mysql.cj.jdbc.exceptions.SQLExceptionsMapping.translateException(SQLExceptionsMapping.java:122)\r\n	at com.mysql.cj.jdbc.ClientPreparedStatement.executeInternal(ClientPreparedStatement.java:916)\r\n	at com.mysql.cj.jdbc.ClientPreparedStatement.execute(ClientPreparedStatement.java:354)\r\n	at com.alibaba.druid.filter.FilterChainImpl.preparedStatement_execute(FilterChainImpl.java:3462)\r\n	at com.alibaba.druid.filter.FilterEventAdapter.preparedStatement_execute(FilterEventAdapter.java:434)\r\n	at com.alibaba.druid.filter.FilterChainImpl.preparedStatement_execute(FilterChainImpl.java:3460)\r\n	at com.alibaba.druid.proxy.jdbc.PreparedStatementProxyImpl.execute(PreparedStatementProxyImpl.java:158)\r\n	at com.alibaba.druid.pool.DruidPooledPreparedStatement.execute(DruidPooledPreparedStatement.java:483)\r\n	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\r\n	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)\r\n	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)\r\n	at java.lang.reflect.Method.invoke(Method.java:498)\r\n	at org.apache.ibatis.logging.jdbc.PreparedStatementLogger.invoke(PreparedStatementLogger.java:58)\r\n	at com.sun.proxy.$Proxy326.execute(Unknown Source)\r\n	at org.apache.ibatis.executor.statement.PreparedStatementHandler.query(PreparedStatementHandler.java:65)\r\n	at org.apache.ibatis.executor.statement.RoutingStatementHandler.query(RoutingStatementHandler.java:80)\r\n	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\r\n	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)\r\n	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)\r\n	at java.lang.reflect.Method.invoke(Method.java:498)\r\n	at org.apache.ibatis.plugin.Plugin.invoke(Plugin.java:61)\r\n	at com.sun.proxy.$Proxy324.query(Unknown Source)\r\n	at org.apache.ibatis.executor.SimpleExecutor.doQuery(SimpleExecutor.java:65)\r\n	at org.apache.ibatis.executor.BaseExecutor.queryFromDatabase(BaseExecutor.java:336)\r\n	at org.apache.ibatis.executor.BaseExecutor.query(BaseExecutor.java:158)\r\n	at org.apache.ibatis.executor.CachingExecutor.query(CachingExecutor.java:110)\r\n	at com.baomidou.mybatisplus.extension.plugins.MybatisPlusInterceptor.intercept(MybatisPlusInterceptor.java:81)\r\n	at org.apache.ibatis.plugin.Plugin.invoke(Plugin.java:59)\r\n	at com.sun.proxy.$Proxy323.query(Unknown Source)\r\n	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\r\n	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)\r\n	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)\r\n	at java.lang.reflect.Method.invoke(Method.java:498)\r\n	at org.apache.ibatis.plugin.Invocation.proceed(Invocation.java:49)\r\n	at com.github.yulichang.interceptor.MPJInterceptor.intercept(MPJInterceptor.java:90)\r\n	at org.apache.ibatis.plugin.Plugin.invoke(Plugin.java:59)\r\n	at com.sun.proxy.$Proxy323.query(Unknown Source)\r\n	at org.apache.ibatis.session.defaults.DefaultSqlSession.selectList(DefaultSqlSession.java:154)\r\n	at org.apache.ibatis.session.defaults.DefaultSqlSession.selectList(DefaultSqlSession.java:147)\r\n	at org.apache.ibatis.session.defaults.DefaultSqlSession.selectList(DefaultSqlSession.java:142)\r\n	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\r\n	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)\r\n	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)\r\n	at java.lang.reflect.Method.invoke(Method.java:498)\r\n	at org.mybatis.spring.SqlSessionTemplate$SqlSessionInterceptor.invoke(SqlSessionTemplate.java:425)\r\n	... 155 more\r\n', 'org.springframework.jdbc.support.SQLErrorCodeSQLExceptionTranslator', 'SQLErrorCodeSQLExceptionTranslator.java', 'doTranslate', 236, 0, NULL, 0, NULL, '2024-05-11 13:36:06', NULL, '2024-05-11 13:36:06', b'0', 0);
+INSERT INTO `infra_api_error_log` VALUES (16531, '', 1, 2, 'yudao-server', 'GET', '/admin-api/member/tag/list-all-simple', '{\"query\":{},\"body\":null}', '0:0:0:0:0:0:0:1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36 Edg/124.0.0.0', '2024-05-11 13:36:09', 'org.springframework.jdbc.BadSqlGrammarException', 'BadSqlGrammarException: \r\n### Error querying database.  Cause: java.sql.SQLSyntaxErrorException: Table \'yaofang.member_tag\' doesn\'t exist\r\n### The error may exist in cn/iocoder/yudao/module/member/dal/mysql/tag/MemberTagMapper.java (best guess)\r\n### The error may involve defaultParameterMap\r\n### The error occurred while setting parameters\r\n### SQL: SELECT id, name, create_time, update_time, creator, updater, deleted FROM member_tag WHERE deleted = 0\r\n### Cause: java.sql.SQLSyntaxErrorException: Table \'yaofang.member_tag\' doesn\'t exist\n; bad SQL grammar []; nested exception is java.sql.SQLSyntaxErrorException: Table \'yaofang.member_tag\' doesn\'t exist', 'SQLSyntaxErrorException: Table \'yaofang.member_tag\' doesn\'t exist', 'org.springframework.jdbc.BadSqlGrammarException: \r\n### Error querying database.  Cause: java.sql.SQLSyntaxErrorException: Table \'yaofang.member_tag\' doesn\'t exist\r\n### The error may exist in cn/iocoder/yudao/module/member/dal/mysql/tag/MemberTagMapper.java (best guess)\r\n### The error may involve defaultParameterMap\r\n### The error occurred while setting parameters\r\n### SQL: SELECT id, name, create_time, update_time, creator, updater, deleted FROM member_tag WHERE deleted = 0\r\n### Cause: java.sql.SQLSyntaxErrorException: Table \'yaofang.member_tag\' doesn\'t exist\n; bad SQL grammar []; nested exception is java.sql.SQLSyntaxErrorException: Table \'yaofang.member_tag\' doesn\'t exist\r\n	at org.springframework.jdbc.support.SQLErrorCodeSQLExceptionTranslator.doTranslate(SQLErrorCodeSQLExceptionTranslator.java:236)\r\n	at org.springframework.jdbc.support.AbstractFallbackSQLExceptionTranslator.translate(AbstractFallbackSQLExceptionTranslator.java:73)\r\n	at org.mybatis.spring.MyBatisExceptionTranslator.translateExceptionIfPossible(MyBatisExceptionTranslator.java:92)\r\n	at org.mybatis.spring.SqlSessionTemplate$SqlSessionInterceptor.invoke(SqlSessionTemplate.java:439)\r\n	at com.sun.proxy.$Proxy128.selectList(Unknown Source)\r\n	at org.mybatis.spring.SqlSessionTemplate.selectList(SqlSessionTemplate.java:224)\r\n	at com.baomidou.mybatisplus.core.override.MybatisMapperMethod.executeForMany(MybatisMapperMethod.java:164)\r\n	at com.baomidou.mybatisplus.core.override.MybatisMapperMethod.execute(MybatisMapperMethod.java:77)\r\n	at com.baomidou.mybatisplus.core.override.MybatisMapperProxy$PlainMethodInvoker.invoke(MybatisMapperProxy.java:152)\r\n	at com.baomidou.mybatisplus.core.override.MybatisMapperProxy.invoke(MybatisMapperProxy.java:89)\r\n	at com.sun.proxy.$Proxy275.selectList(Unknown Source)\r\n	at cn.iocoder.yudao.framework.mybatis.core.mapper.BaseMapperX.selectList(BaseMapperX.java:113)\r\n	at java.lang.invoke.MethodHandle.invokeWithArguments(MethodHandle.java:627)\r\n	at com.baomidou.mybatisplus.core.override.MybatisMapperProxy$DefaultMethodInvoker.invoke(MybatisMapperProxy.java:166)\r\n	at com.baomidou.mybatisplus.core.override.MybatisMapperProxy.invoke(MybatisMapperProxy.java:89)\r\n	at com.sun.proxy.$Proxy275.selectList(Unknown Source)\r\n	at cn.iocoder.yudao.module.member.service.tag.MemberTagServiceImpl.getTagList(MemberTagServiceImpl.java:122)\r\n	at cn.iocoder.yudao.module.member.service.tag.MemberTagServiceImpl$$FastClassBySpringCGLIB$$da917a7e.invoke(<generated>)\r\n	at org.springframework.cglib.proxy.MethodProxy.invoke(MethodProxy.java:218)\r\n	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.invokeJoinpoint(CglibAopProxy.java:792)\r\n	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:163)\r\n	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.proceed(CglibAopProxy.java:762)\r\n	at org.springframework.validation.beanvalidation.MethodValidationInterceptor.invoke(MethodValidationInterceptor.java:123)\r\n	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:186)\r\n	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.proceed(CglibAopProxy.java:762)\r\n	at org.springframework.aop.framework.CglibAopProxy$DynamicAdvisedInterceptor.intercept(CglibAopProxy.java:707)\r\n	at cn.iocoder.yudao.module.member.service.tag.MemberTagServiceImpl$$EnhancerBySpringCGLIB$$1ab0f733.getTagList(<generated>)\r\n	at cn.iocoder.yudao.module.member.controller.admin.tag.MemberTagController.getSimpleTagList(MemberTagController.java:72)\r\n	at cn.iocoder.yudao.module.member.controller.admin.tag.MemberTagController$$FastClassBySpringCGLIB$$9127d933.invoke(<generated>)\r\n	at org.springframework.cglib.proxy.MethodProxy.invoke(MethodProxy.java:218)\r\n	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.invokeJoinpoint(CglibAopProxy.java:792)\r\n	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:163)\r\n	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.proceed(CglibAopProxy.java:762)\r\n	at org.springframework.validation.beanvalidation.MethodValidationInterceptor.invoke(MethodValidationInterceptor.java:123)\r\n	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:186)\r\n	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.proceed(CglibAopProxy.java:762)\r\n	at org.springframework.aop.framework.CglibAopProxy$DynamicAdvisedInterceptor.intercept(CglibAopProxy.java:707)\r\n	at cn.iocoder.yudao.module.member.controller.admin.tag.MemberTagController$$EnhancerBySpringCGLIB$$8ba95c3d.getSimpleTagList(<generated>)\r\n	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\r\n	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)\r\n	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)\r\n	at java.lang.reflect.Method.invoke(Method.java:498)\r\n	at org.springframework.web.method.support.InvocableHandlerMethod.doInvoke(InvocableHandlerMethod.java:205)\r\n	at org.springframework.web.method.support.InvocableHandlerMethod.invokeForRequest(InvocableHandlerMethod.java:150)\r\n	at org.springframework.web.servlet.mvc.method.annotation.ServletInvocableHandlerMethod.invokeAndHandle(ServletInvocableHandlerMethod.java:117)\r\n	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.invokeHandlerMethod(RequestMappingHandlerAdapter.java:895)\r\n	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.handleInternal(RequestMappingHandlerAdapter.java:808)\r\n	at org.springframework.web.servlet.mvc.method.AbstractHandlerMethodAdapter.handle(AbstractHandlerMethodAdapter.java:87)\r\n	at org.springframework.web.servlet.DispatcherServlet.doDispatch(DispatcherServlet.java:1072)\r\n	at org.springframework.web.servlet.DispatcherServlet.doService(DispatcherServlet.java:965)\r\n	at org.springframework.web.servlet.FrameworkServlet.processRequest(FrameworkServlet.java:1006)\r\n	at org.springframework.web.servlet.FrameworkServlet.doGet(FrameworkServlet.java:898)\r\n	at javax.servlet.http.HttpServlet.service(HttpServlet.java:529)\r\n	at org.springframework.web.servlet.FrameworkServlet.service(FrameworkServlet.java:883)\r\n	at javax.servlet.http.HttpServlet.service(HttpServlet.java:623)\r\n	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:209)\r\n	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:153)\r\n	at org.apache.tomcat.websocket.server.WsFilter.doFilter(WsFilter.java:51)\r\n	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:178)\r\n	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:153)\r\n	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:111)\r\n	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:178)\r\n	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:153)\r\n	at org.springframework.web.servlet.resource.ResourceUrlEncodingFilter.doFilter(ResourceUrlEncodingFilter.java:67)\r\n	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:178)\r\n	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:153)\r\n	at com.alibaba.druid.support.http.WebStatFilter.doFilter(WebStatFilter.java:114)\r\n	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:178)\r\n	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:153)\r\n	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:337)\r\n	at org.springframework.security.web.access.intercept.FilterSecurityInterceptor.invoke(FilterSecurityInterceptor.java:115)\r\n	at org.springframework.security.web.access.intercept.FilterSecurityInterceptor.doFilter(FilterSecurityInterceptor.java:81)\r\n	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:346)\r\n	at org.springframework.security.web.access.ExceptionTranslationFilter.doFilter(ExceptionTranslationFilter.java:122)\r\n	at org.springframework.security.web.access.ExceptionTranslationFilter.doFilter(ExceptionTranslationFilter.java:116)\r\n	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:346)\r\n	at org.springframework.security.web.session.SessionManagementFilter.doFilter(SessionManagementFilter.java:126)\r\n	at org.springframework.security.web.session.SessionManagementFilter.doFilter(SessionManagementFilter.java:81)\r\n	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:346)\r\n	at org.springframework.security.web.authentication.AnonymousAuthenticationFilter.doFilter(AnonymousAuthenticationFilter.java:109)\r\n	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:346)\r\n	at org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter.doFilter(SecurityContextHolderAwareRequestFilter.java:149)\r\n	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:346)\r\n	at org.springframework.security.web.savedrequest.RequestCacheAwareFilter.doFilter(RequestCacheAwareFilter.java:63)\r\n	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:346)\r\n	at cn.iocoder.yudao.framework.security.core.filter.TokenAuthenticationFilter.doFilterInternal(TokenAuthenticationFilter.java:68)\r\n	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:117)\r\n	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:346)\r\n	at org.springframework.security.web.authentication.logout.LogoutFilter.doFilter(LogoutFilter.java:103)\r\n	at org.springframework.security.web.authentication.logout.LogoutFilter.doFilter(LogoutFilter.java:89)\r\n	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:346)\r\n	at org.springframework.web.filter.CorsFilter.doFilterInternal(CorsFilter.java:91)\r\n	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:117)\r\n	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:346)\r\n	at org.springframework.security.web.header.HeaderWriterFilter.doHeadersAfter(HeaderWriterFilter.java:90)\r\n	at org.springframework.security.web.header.HeaderWriterFilter.doFilterInternal(HeaderWriterFilter.java:75)\r\n	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:117)\r\n	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:346)\r\n	at org.springframework.security.web.context.SecurityContextPersistenceFilter.doFilter(SecurityContextPersistenceFilter.java:112)\r\n	at org.springframework.security.web.context.SecurityContextPersistenceFilter.doFilter(SecurityContextPersistenceFilter.java:82)\r\n	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:346)\r\n	at org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter.doFilterInternal(WebAsyncManagerIntegrationFilter.java:55)\r\n	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:117)\r\n	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:346)\r\n	at org.springframework.security.web.session.DisableEncodeUrlFilter.doFilterInternal(DisableEncodeUrlFilter.java:42)\r\n	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:117)\r\n	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:346)\r\n	at org.springframework.security.web.FilterChainProxy.doFilterInternal(FilterChainProxy.java:221)\r\n	at org.springframework.security.web.FilterChainProxy.doFilter(FilterChainProxy.java:186)\r\n	at org.springframework.web.filter.DelegatingFilterProxy.invokeDelegate(DelegatingFilterProxy.java:354)\r\n	at org.springframework.web.filter.DelegatingFilterProxy.doFilter(DelegatingFilterProxy.java:267)\r\n	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:178)\r\n	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:153)\r\n	at org.springframework.web.filter.RequestContextFilter.doFilterInternal(RequestContextFilter.java:100)\r\n	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:117)\r\n	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:178)\r\n	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:153)\r\n	at org.springframework.web.filter.FormContentFilter.doFilterInternal(FormContentFilter.java:93)\r\n	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:117)\r\n	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:178)\r\n	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:153)\r\n	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:102)\r\n	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:178)\r\n	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:153)\r\n	at org.springframework.boot.actuate.metrics.web.servlet.WebMvcMetricsFilter.doFilterInternal(WebMvcMetricsFilter.java:96)\r\n	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:117)\r\n	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:178)\r\n	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:153)\r\n	at cn.iocoder.yudao.framework.tracer.core.filter.TraceFilter.doFilterInternal(TraceFilter.java:30)\r\n	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:117)\r\n	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:178)\r\n	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:153)\r\n	at org.springframework.web.filter.CharacterEncodingFilter.doFilterInternal(CharacterEncodingFilter.java:201)\r\n	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:117)\r\n	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:178)\r\n	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:153)\r\n	at org.springframework.web.filter.CorsFilter.doFilterInternal(CorsFilter.java:91)\r\n	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:117)\r\n	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:178)\r\n	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:153)\r\n	at org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:168)\r\n	at org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:90)\r\n	at org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:481)\r\n	at org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:130)\r\n	at org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:93)\r\n	at org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:74)\r\n	at org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:342)\r\n	at org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:390)\r\n	at org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:63)\r\n	at org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:928)\r\n	at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1794)\r\n	at org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:52)\r\n	at org.apache.tomcat.util.threads.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1191)\r\n	at org.apache.tomcat.util.threads.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:659)\r\n	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:61)\r\n	at java.lang.Thread.run(Thread.java:750)\r\nCaused by: java.sql.SQLSyntaxErrorException: Table \'yaofang.member_tag\' doesn\'t exist\r\n	at com.mysql.cj.jdbc.exceptions.SQLError.createSQLException(SQLError.java:121)\r\n	at com.mysql.cj.jdbc.exceptions.SQLExceptionsMapping.translateException(SQLExceptionsMapping.java:122)\r\n	at com.mysql.cj.jdbc.ClientPreparedStatement.executeInternal(ClientPreparedStatement.java:916)\r\n	at com.mysql.cj.jdbc.ClientPreparedStatement.execute(ClientPreparedStatement.java:354)\r\n	at com.alibaba.druid.filter.FilterChainImpl.preparedStatement_execute(FilterChainImpl.java:3462)\r\n	at com.alibaba.druid.filter.FilterEventAdapter.preparedStatement_execute(FilterEventAdapter.java:434)\r\n	at com.alibaba.druid.filter.FilterChainImpl.preparedStatement_execute(FilterChainImpl.java:3460)\r\n	at com.alibaba.druid.proxy.jdbc.PreparedStatementProxyImpl.execute(PreparedStatementProxyImpl.java:158)\r\n	at com.alibaba.druid.pool.DruidPooledPreparedStatement.execute(DruidPooledPreparedStatement.java:483)\r\n	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\r\n	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)\r\n	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)\r\n	at java.lang.reflect.Method.invoke(Method.java:498)\r\n	at org.apache.ibatis.logging.jdbc.PreparedStatementLogger.invoke(PreparedStatementLogger.java:58)\r\n	at com.sun.proxy.$Proxy326.execute(Unknown Source)\r\n	at org.apache.ibatis.executor.statement.PreparedStatementHandler.query(PreparedStatementHandler.java:65)\r\n	at org.apache.ibatis.executor.statement.RoutingStatementHandler.query(RoutingStatementHandler.java:80)\r\n	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\r\n	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)\r\n	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)\r\n	at java.lang.reflect.Method.invoke(Method.java:498)\r\n	at org.apache.ibatis.plugin.Plugin.invoke(Plugin.java:61)\r\n	at com.sun.proxy.$Proxy324.query(Unknown Source)\r\n	at org.apache.ibatis.executor.SimpleExecutor.doQuery(SimpleExecutor.java:65)\r\n	at org.apache.ibatis.executor.BaseExecutor.queryFromDatabase(BaseExecutor.java:336)\r\n	at org.apache.ibatis.executor.BaseExecutor.query(BaseExecutor.java:158)\r\n	at org.apache.ibatis.executor.CachingExecutor.query(CachingExecutor.java:110)\r\n	at com.baomidou.mybatisplus.extension.plugins.MybatisPlusInterceptor.intercept(MybatisPlusInterceptor.java:81)\r\n	at org.apache.ibatis.plugin.Plugin.invoke(Plugin.java:59)\r\n	at com.sun.proxy.$Proxy323.query(Unknown Source)\r\n	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\r\n	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)\r\n	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)\r\n	at java.lang.reflect.Method.invoke(Method.java:498)\r\n	at org.apache.ibatis.plugin.Invocation.proceed(Invocation.java:49)\r\n	at com.github.yulichang.interceptor.MPJInterceptor.intercept(MPJInterceptor.java:90)\r\n	at org.apache.ibatis.plugin.Plugin.invoke(Plugin.java:59)\r\n	at com.sun.proxy.$Proxy323.query(Unknown Source)\r\n	at org.apache.ibatis.session.defaults.DefaultSqlSession.selectList(DefaultSqlSession.java:154)\r\n	at org.apache.ibatis.session.defaults.DefaultSqlSession.selectList(DefaultSqlSession.java:147)\r\n	at org.apache.ibatis.session.defaults.DefaultSqlSession.selectList(DefaultSqlSession.java:142)\r\n	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\r\n	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)\r\n	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)\r\n	at java.lang.reflect.Method.invoke(Method.java:498)\r\n	at org.mybatis.spring.SqlSessionTemplate$SqlSessionInterceptor.invoke(SqlSessionTemplate.java:425)\r\n	... 152 more\r\n', 'org.springframework.jdbc.support.SQLErrorCodeSQLExceptionTranslator', 'SQLErrorCodeSQLExceptionTranslator.java', 'doTranslate', 236, 0, NULL, 0, NULL, '2024-05-11 13:36:09', NULL, '2024-05-11 13:36:09', b'0', 0);
+INSERT INTO `infra_api_error_log` VALUES (16532, '', 1, 2, 'yudao-server', 'GET', '/admin-api/member/group/list-all-simple', '{\"query\":{},\"body\":null}', '0:0:0:0:0:0:0:1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36 Edg/124.0.0.0', '2024-05-11 13:36:09', 'org.springframework.jdbc.BadSqlGrammarException', 'BadSqlGrammarException: \r\n### Error querying database.  Cause: java.sql.SQLSyntaxErrorException: Table \'yaofang.member_group\' doesn\'t exist\r\n### The error may exist in cn/iocoder/yudao/module/member/dal/mysql/group/MemberGroupMapper.java (best guess)\r\n### The error may involve defaultParameterMap\r\n### The error occurred while setting parameters\r\n### SQL: SELECT id, name, remark, status, create_time, update_time, creator, updater, deleted FROM member_group WHERE deleted = 0 AND (status = ?)\r\n### Cause: java.sql.SQLSyntaxErrorException: Table \'yaofang.member_group\' doesn\'t exist\n; bad SQL grammar []; nested exception is java.sql.SQLSyntaxErrorException: Table \'yaofang.member_group\' doesn\'t exist', 'SQLSyntaxErrorException: Table \'yaofang.member_group\' doesn\'t exist', 'org.springframework.jdbc.BadSqlGrammarException: \r\n### Error querying database.  Cause: java.sql.SQLSyntaxErrorException: Table \'yaofang.member_group\' doesn\'t exist\r\n### The error may exist in cn/iocoder/yudao/module/member/dal/mysql/group/MemberGroupMapper.java (best guess)\r\n### The error may involve defaultParameterMap\r\n### The error occurred while setting parameters\r\n### SQL: SELECT id, name, remark, status, create_time, update_time, creator, updater, deleted FROM member_group WHERE deleted = 0 AND (status = ?)\r\n### Cause: java.sql.SQLSyntaxErrorException: Table \'yaofang.member_group\' doesn\'t exist\n; bad SQL grammar []; nested exception is java.sql.SQLSyntaxErrorException: Table \'yaofang.member_group\' doesn\'t exist\r\n	at org.springframework.jdbc.support.SQLErrorCodeSQLExceptionTranslator.doTranslate(SQLErrorCodeSQLExceptionTranslator.java:236)\r\n	at org.springframework.jdbc.support.AbstractFallbackSQLExceptionTranslator.translate(AbstractFallbackSQLExceptionTranslator.java:73)\r\n	at org.mybatis.spring.MyBatisExceptionTranslator.translateExceptionIfPossible(MyBatisExceptionTranslator.java:92)\r\n	at org.mybatis.spring.SqlSessionTemplate$SqlSessionInterceptor.invoke(SqlSessionTemplate.java:439)\r\n	at com.sun.proxy.$Proxy128.selectList(Unknown Source)\r\n	at org.mybatis.spring.SqlSessionTemplate.selectList(SqlSessionTemplate.java:224)\r\n	at com.baomidou.mybatisplus.core.override.MybatisMapperMethod.executeForMany(MybatisMapperMethod.java:164)\r\n	at com.baomidou.mybatisplus.core.override.MybatisMapperMethod.execute(MybatisMapperMethod.java:77)\r\n	at com.baomidou.mybatisplus.core.override.MybatisMapperProxy$PlainMethodInvoker.invoke(MybatisMapperProxy.java:152)\r\n	at com.baomidou.mybatisplus.core.override.MybatisMapperProxy.invoke(MybatisMapperProxy.java:89)\r\n	at com.sun.proxy.$Proxy269.selectList(Unknown Source)\r\n	at cn.iocoder.yudao.framework.mybatis.core.mapper.BaseMapperX.selectList(BaseMapperX.java:121)\r\n	at java.lang.invoke.MethodHandle.invokeWithArguments(MethodHandle.java:627)\r\n	at com.baomidou.mybatisplus.core.override.MybatisMapperProxy$DefaultMethodInvoker.invoke(MybatisMapperProxy.java:166)\r\n	at com.baomidou.mybatisplus.core.override.MybatisMapperProxy.invoke(MybatisMapperProxy.java:89)\r\n	at com.sun.proxy.$Proxy269.selectList(Unknown Source)\r\n	at cn.iocoder.yudao.module.member.dal.mysql.group.MemberGroupMapper.selectListByStatus(MemberGroupMapper.java:29)\r\n	at java.lang.invoke.MethodHandle.invokeWithArguments(MethodHandle.java:627)\r\n	at com.baomidou.mybatisplus.core.override.MybatisMapperProxy$DefaultMethodInvoker.invoke(MybatisMapperProxy.java:166)\r\n	at com.baomidou.mybatisplus.core.override.MybatisMapperProxy.invoke(MybatisMapperProxy.java:89)\r\n	at com.sun.proxy.$Proxy269.selectListByStatus(Unknown Source)\r\n	at cn.iocoder.yudao.module.member.service.group.MemberGroupServiceImpl.getGroupListByStatus(MemberGroupServiceImpl.java:100)\r\n	at cn.iocoder.yudao.module.member.service.group.MemberGroupService.getEnableGroupList(MemberGroupService.java:81)\r\n	at cn.iocoder.yudao.module.member.service.group.MemberGroupService$$FastClassBySpringCGLIB$$313ce7b4.invoke(<generated>)\r\n	at org.springframework.cglib.proxy.MethodProxy.invoke(MethodProxy.java:218)\r\n	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.invokeJoinpoint(CglibAopProxy.java:792)\r\n	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:163)\r\n	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.proceed(CglibAopProxy.java:762)\r\n	at org.springframework.validation.beanvalidation.MethodValidationInterceptor.invoke(MethodValidationInterceptor.java:123)\r\n	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:186)\r\n	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.proceed(CglibAopProxy.java:762)\r\n	at org.springframework.aop.framework.CglibAopProxy$DynamicAdvisedInterceptor.intercept(CglibAopProxy.java:707)\r\n	at cn.iocoder.yudao.module.member.service.group.MemberGroupServiceImpl$$EnhancerBySpringCGLIB$$d6f96d55.getEnableGroupList(<generated>)\r\n	at cn.iocoder.yudao.module.member.controller.admin.group.MemberGroupController.getSimpleGroupList(MemberGroupController.java:69)\r\n	at cn.iocoder.yudao.module.member.controller.admin.group.MemberGroupController$$FastClassBySpringCGLIB$$84e728fd.invoke(<generated>)\r\n	at org.springframework.cglib.proxy.MethodProxy.invoke(MethodProxy.java:218)\r\n	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.invokeJoinpoint(CglibAopProxy.java:792)\r\n	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:163)\r\n	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.proceed(CglibAopProxy.java:762)\r\n	at org.springframework.validation.beanvalidation.MethodValidationInterceptor.invoke(MethodValidationInterceptor.java:123)\r\n	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:186)\r\n	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.proceed(CglibAopProxy.java:762)\r\n	at org.springframework.aop.framework.CglibAopProxy$DynamicAdvisedInterceptor.intercept(CglibAopProxy.java:707)\r\n	at cn.iocoder.yudao.module.member.controller.admin.group.MemberGroupController$$EnhancerBySpringCGLIB$$ae2a79db.getSimpleGroupList(<generated>)\r\n	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\r\n	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)\r\n	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)\r\n	at java.lang.reflect.Method.invoke(Method.java:498)\r\n	at org.springframework.web.method.support.InvocableHandlerMethod.doInvoke(InvocableHandlerMethod.java:205)\r\n	at org.springframework.web.method.support.InvocableHandlerMethod.invokeForRequest(InvocableHandlerMethod.java:150)\r\n	at org.springframework.web.servlet.mvc.method.annotation.ServletInvocableHandlerMethod.invokeAndHandle(ServletInvocableHandlerMethod.java:117)\r\n	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.invokeHandlerMethod(RequestMappingHandlerAdapter.java:895)\r\n	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.handleInternal(RequestMappingHandlerAdapter.java:808)\r\n	at org.springframework.web.servlet.mvc.method.AbstractHandlerMethodAdapter.handle(AbstractHandlerMethodAdapter.java:87)\r\n	at org.springframework.web.servlet.DispatcherServlet.doDispatch(DispatcherServlet.java:1072)\r\n	at org.springframework.web.servlet.DispatcherServlet.doService(DispatcherServlet.java:965)\r\n	at org.springframework.web.servlet.FrameworkServlet.processRequest(FrameworkServlet.java:1006)\r\n	at org.springframework.web.servlet.FrameworkServlet.doGet(FrameworkServlet.java:898)\r\n	at javax.servlet.http.HttpServlet.service(HttpServlet.java:529)\r\n	at org.springframework.web.servlet.FrameworkServlet.service(FrameworkServlet.java:883)\r\n	at javax.servlet.http.HttpServlet.service(HttpServlet.java:623)\r\n	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:209)\r\n	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:153)\r\n	at org.apache.tomcat.websocket.server.WsFilter.doFilter(WsFilter.java:51)\r\n	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:178)\r\n	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:153)\r\n	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:111)\r\n	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:178)\r\n	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:153)\r\n	at org.springframework.web.servlet.resource.ResourceUrlEncodingFilter.doFilter(ResourceUrlEncodingFilter.java:67)\r\n	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:178)\r\n	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:153)\r\n	at com.alibaba.druid.support.http.WebStatFilter.doFilter(WebStatFilter.java:114)\r\n	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:178)\r\n	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:153)\r\n	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:337)\r\n	at org.springframework.security.web.access.intercept.FilterSecurityInterceptor.invoke(FilterSecurityInterceptor.java:115)\r\n	at org.springframework.security.web.access.intercept.FilterSecurityInterceptor.doFilter(FilterSecurityInterceptor.java:81)\r\n	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:346)\r\n	at org.springframework.security.web.access.ExceptionTranslationFilter.doFilter(ExceptionTranslationFilter.java:122)\r\n	at org.springframework.security.web.access.ExceptionTranslationFilter.doFilter(ExceptionTranslationFilter.java:116)\r\n	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:346)\r\n	at org.springframework.security.web.session.SessionManagementFilter.doFilter(SessionManagementFilter.java:126)\r\n	at org.springframework.security.web.session.SessionManagementFilter.doFilter(SessionManagementFilter.java:81)\r\n	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:346)\r\n	at org.springframework.security.web.authentication.AnonymousAuthenticationFilter.doFilter(AnonymousAuthenticationFilter.java:109)\r\n	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:346)\r\n	at org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter.doFilter(SecurityContextHolderAwareRequestFilter.java:149)\r\n	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:346)\r\n	at org.springframework.security.web.savedrequest.RequestCacheAwareFilter.doFilter(RequestCacheAwareFilter.java:63)\r\n	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:346)\r\n	at cn.iocoder.yudao.framework.security.core.filter.TokenAuthenticationFilter.doFilterInternal(TokenAuthenticationFilter.java:68)\r\n	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:117)\r\n	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:346)\r\n	at org.springframework.security.web.authentication.logout.LogoutFilter.doFilter(LogoutFilter.java:103)\r\n	at org.springframework.security.web.authentication.logout.LogoutFilter.doFilter(LogoutFilter.java:89)\r\n	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:346)\r\n	at org.springframework.web.filter.CorsFilter.doFilterInternal(CorsFilter.java:91)\r\n	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:117)\r\n	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:346)\r\n	at org.springframework.security.web.header.HeaderWriterFilter.doHeadersAfter(HeaderWriterFilter.java:90)\r\n	at org.springframework.security.web.header.HeaderWriterFilter.doFilterInternal(HeaderWriterFilter.java:75)\r\n	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:117)\r\n	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:346)\r\n	at org.springframework.security.web.context.SecurityContextPersistenceFilter.doFilter(SecurityContextPersistenceFilter.java:112)\r\n	at org.springframework.security.web.context.SecurityContextPersistenceFilter.doFilter(SecurityContextPersistenceFilter.java:82)\r\n	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:346)\r\n	at org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter.doFilterInternal(WebAsyncManagerIntegrationFilter.java:55)\r\n	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:117)\r\n	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:346)\r\n	at org.springframework.security.web.session.DisableEncodeUrlFilter.doFilterInternal(DisableEncodeUrlFilter.java:42)\r\n	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:117)\r\n	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:346)\r\n	at org.springframework.security.web.FilterChainProxy.doFilterInternal(FilterChainProxy.java:221)\r\n	at org.springframework.security.web.FilterChainProxy.doFilter(FilterChainProxy.java:186)\r\n	at org.springframework.web.filter.DelegatingFilterProxy.invokeDelegate(DelegatingFilterProxy.java:354)\r\n	at org.springframework.web.filter.DelegatingFilterProxy.doFilter(DelegatingFilterProxy.java:267)\r\n	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:178)\r\n	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:153)\r\n	at org.springframework.web.filter.RequestContextFilter.doFilterInternal(RequestContextFilter.java:100)\r\n	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:117)\r\n	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:178)\r\n	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:153)\r\n	at org.springframework.web.filter.FormContentFilter.doFilterInternal(FormContentFilter.java:93)\r\n	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:117)\r\n	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:178)\r\n	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:153)\r\n	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:102)\r\n	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:178)\r\n	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:153)\r\n	at org.springframework.boot.actuate.metrics.web.servlet.WebMvcMetricsFilter.doFilterInternal(WebMvcMetricsFilter.java:96)\r\n	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:117)\r\n	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:178)\r\n	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:153)\r\n	at cn.iocoder.yudao.framework.tracer.core.filter.TraceFilter.doFilterInternal(TraceFilter.java:30)\r\n	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:117)\r\n	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:178)\r\n	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:153)\r\n	at org.springframework.web.filter.CharacterEncodingFilter.doFilterInternal(CharacterEncodingFilter.java:201)\r\n	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:117)\r\n	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:178)\r\n	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:153)\r\n	at org.springframework.web.filter.CorsFilter.doFilterInternal(CorsFilter.java:91)\r\n	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:117)\r\n	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:178)\r\n	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:153)\r\n	at org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:168)\r\n	at org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:90)\r\n	at org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:481)\r\n	at org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:130)\r\n	at org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:93)\r\n	at org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:74)\r\n	at org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:342)\r\n	at org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:390)\r\n	at org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:63)\r\n	at org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:928)\r\n	at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1794)\r\n	at org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:52)\r\n	at org.apache.tomcat.util.threads.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1191)\r\n	at org.apache.tomcat.util.threads.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:659)\r\n	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:61)\r\n	at java.lang.Thread.run(Thread.java:750)\r\nCaused by: java.sql.SQLSyntaxErrorException: Table \'yaofang.member_group\' doesn\'t exist\r\n	at com.mysql.cj.jdbc.exceptions.SQLError.createSQLException(SQLError.java:121)\r\n	at com.mysql.cj.jdbc.exceptions.SQLExceptionsMapping.translateException(SQLExceptionsMapping.java:122)\r\n	at com.mysql.cj.jdbc.ClientPreparedStatement.executeInternal(ClientPreparedStatement.java:916)\r\n	at com.mysql.cj.jdbc.ClientPreparedStatement.execute(ClientPreparedStatement.java:354)\r\n	at com.alibaba.druid.filter.FilterChainImpl.preparedStatement_execute(FilterChainImpl.java:3462)\r\n	at com.alibaba.druid.filter.FilterEventAdapter.preparedStatement_execute(FilterEventAdapter.java:434)\r\n	at com.alibaba.druid.filter.FilterChainImpl.preparedStatement_execute(FilterChainImpl.java:3460)\r\n	at com.alibaba.druid.proxy.jdbc.PreparedStatementProxyImpl.execute(PreparedStatementProxyImpl.java:158)\r\n	at com.alibaba.druid.pool.DruidPooledPreparedStatement.execute(DruidPooledPreparedStatement.java:483)\r\n	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\r\n	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)\r\n	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)\r\n	at java.lang.reflect.Method.invoke(Method.java:498)\r\n	at org.apache.ibatis.logging.jdbc.PreparedStatementLogger.invoke(PreparedStatementLogger.java:58)\r\n	at com.sun.proxy.$Proxy326.execute(Unknown Source)\r\n	at org.apache.ibatis.executor.statement.PreparedStatementHandler.query(PreparedStatementHandler.java:65)\r\n	at org.apache.ibatis.executor.statement.RoutingStatementHandler.query(RoutingStatementHandler.java:80)\r\n	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\r\n	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)\r\n	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)\r\n	at java.lang.reflect.Method.invoke(Method.java:498)\r\n	at org.apache.ibatis.plugin.Plugin.invoke(Plugin.java:61)\r\n	at com.sun.proxy.$Proxy324.query(Unknown Source)\r\n	at org.apache.ibatis.executor.SimpleExecutor.doQuery(SimpleExecutor.java:65)\r\n	at org.apache.ibatis.executor.BaseExecutor.queryFromDatabase(BaseExecutor.java:336)\r\n	at org.apache.ibatis.executor.BaseExecutor.query(BaseExecutor.java:158)\r\n	at org.apache.ibatis.executor.CachingExecutor.query(CachingExecutor.java:110)\r\n	at com.baomidou.mybatisplus.extension.plugins.MybatisPlusInterceptor.intercept(MybatisPlusInterceptor.java:81)\r\n	at org.apache.ibatis.plugin.Plugin.invoke(Plugin.java:59)\r\n	at com.sun.proxy.$Proxy323.query(Unknown Source)\r\n	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\r\n	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)\r\n	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)\r\n	at java.lang.reflect.Method.invoke(Method.java:498)\r\n	at org.apache.ibatis.plugin.Invocation.proceed(Invocation.java:49)\r\n	at com.github.yulichang.interceptor.MPJInterceptor.intercept(MPJInterceptor.java:90)\r\n	at org.apache.ibatis.plugin.Plugin.invoke(Plugin.java:59)\r\n	at com.sun.proxy.$Proxy323.query(Unknown Source)\r\n	at org.apache.ibatis.session.defaults.DefaultSqlSession.selectList(DefaultSqlSession.java:154)\r\n	at org.apache.ibatis.session.defaults.DefaultSqlSession.selectList(DefaultSqlSession.java:147)\r\n	at org.apache.ibatis.session.defaults.DefaultSqlSession.selectList(DefaultSqlSession.java:142)\r\n	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\r\n	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)\r\n	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)\r\n	at java.lang.reflect.Method.invoke(Method.java:498)\r\n	at org.mybatis.spring.SqlSessionTemplate$SqlSessionInterceptor.invoke(SqlSessionTemplate.java:425)\r\n	... 158 more\r\n', 'org.springframework.jdbc.support.SQLErrorCodeSQLExceptionTranslator', 'SQLErrorCodeSQLExceptionTranslator.java', 'doTranslate', 236, 0, NULL, 0, NULL, '2024-05-11 13:36:09', NULL, '2024-05-11 13:36:09', b'0', 0);
+INSERT INTO `infra_api_error_log` VALUES (16533, '', 1, 2, 'yudao-server', 'GET', '/admin-api/member/level/list-all-simple', '{\"query\":{},\"body\":null}', '0:0:0:0:0:0:0:1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36 Edg/124.0.0.0', '2024-05-11 13:36:09', 'org.springframework.jdbc.BadSqlGrammarException', 'BadSqlGrammarException: \r\n### Error querying database.  Cause: java.sql.SQLSyntaxErrorException: Table \'yaofang.member_level\' doesn\'t exist\r\n### The error may exist in cn/iocoder/yudao/module/member/dal/mysql/level/MemberLevelMapper.java (best guess)\r\n### The error may involve defaultParameterMap\r\n### The error occurred while setting parameters\r\n### SQL: SELECT id, name, level, experience, discount_percent, icon, background_url, status, create_time, update_time, creator, updater, deleted FROM member_level WHERE deleted = 0 AND (status = ?) ORDER BY level ASC\r\n### Cause: java.sql.SQLSyntaxErrorException: Table \'yaofang.member_level\' doesn\'t exist\n; bad SQL grammar []; nested exception is java.sql.SQLSyntaxErrorException: Table \'yaofang.member_level\' doesn\'t exist', 'SQLSyntaxErrorException: Table \'yaofang.member_level\' doesn\'t exist', 'org.springframework.jdbc.BadSqlGrammarException: \r\n### Error querying database.  Cause: java.sql.SQLSyntaxErrorException: Table \'yaofang.member_level\' doesn\'t exist\r\n### The error may exist in cn/iocoder/yudao/module/member/dal/mysql/level/MemberLevelMapper.java (best guess)\r\n### The error may involve defaultParameterMap\r\n### The error occurred while setting parameters\r\n### SQL: SELECT id, name, level, experience, discount_percent, icon, background_url, status, create_time, update_time, creator, updater, deleted FROM member_level WHERE deleted = 0 AND (status = ?) ORDER BY level ASC\r\n### Cause: java.sql.SQLSyntaxErrorException: Table \'yaofang.member_level\' doesn\'t exist\n; bad SQL grammar []; nested exception is java.sql.SQLSyntaxErrorException: Table \'yaofang.member_level\' doesn\'t exist\r\n	at org.springframework.jdbc.support.SQLErrorCodeSQLExceptionTranslator.doTranslate(SQLErrorCodeSQLExceptionTranslator.java:236)\r\n	at org.springframework.jdbc.support.AbstractFallbackSQLExceptionTranslator.translate(AbstractFallbackSQLExceptionTranslator.java:73)\r\n	at org.mybatis.spring.MyBatisExceptionTranslator.translateExceptionIfPossible(MyBatisExceptionTranslator.java:92)\r\n	at org.mybatis.spring.SqlSessionTemplate$SqlSessionInterceptor.invoke(SqlSessionTemplate.java:439)\r\n	at com.sun.proxy.$Proxy128.selectList(Unknown Source)\r\n	at org.mybatis.spring.SqlSessionTemplate.selectList(SqlSessionTemplate.java:224)\r\n	at com.baomidou.mybatisplus.core.override.MybatisMapperMethod.executeForMany(MybatisMapperMethod.java:164)\r\n	at com.baomidou.mybatisplus.core.override.MybatisMapperMethod.execute(MybatisMapperMethod.java:77)\r\n	at com.baomidou.mybatisplus.core.override.MybatisMapperProxy$PlainMethodInvoker.invoke(MybatisMapperProxy.java:152)\r\n	at com.baomidou.mybatisplus.core.override.MybatisMapperProxy.invoke(MybatisMapperProxy.java:89)\r\n	at com.sun.proxy.$Proxy259.selectList(Unknown Source)\r\n	at cn.iocoder.yudao.module.member.dal.mysql.level.MemberLevelMapper.selectListByStatus(MemberLevelMapper.java:28)\r\n	at java.lang.invoke.MethodHandle.invokeWithArguments(MethodHandle.java:627)\r\n	at com.baomidou.mybatisplus.core.override.MybatisMapperProxy$DefaultMethodInvoker.invoke(MybatisMapperProxy.java:166)\r\n	at com.baomidou.mybatisplus.core.override.MybatisMapperProxy.invoke(MybatisMapperProxy.java:89)\r\n	at com.sun.proxy.$Proxy259.selectListByStatus(Unknown Source)\r\n	at cn.iocoder.yudao.module.member.service.level.MemberLevelServiceImpl.getLevelListByStatus(MemberLevelServiceImpl.java:183)\r\n	at cn.iocoder.yudao.module.member.service.level.MemberLevelService.getEnableLevelList(MemberLevelService.java:82)\r\n	at cn.iocoder.yudao.module.member.service.level.MemberLevelService$$FastClassBySpringCGLIB$$ff62edea.invoke(<generated>)\r\n	at org.springframework.cglib.proxy.MethodProxy.invoke(MethodProxy.java:218)\r\n	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.invokeJoinpoint(CglibAopProxy.java:792)\r\n	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:163)\r\n	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.proceed(CglibAopProxy.java:762)\r\n	at org.springframework.validation.beanvalidation.MethodValidationInterceptor.invoke(MethodValidationInterceptor.java:123)\r\n	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:186)\r\n	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.proceed(CglibAopProxy.java:762)\r\n	at org.springframework.aop.framework.CglibAopProxy$DynamicAdvisedInterceptor.intercept(CglibAopProxy.java:707)\r\n	at cn.iocoder.yudao.module.member.service.level.MemberLevelServiceImpl$$EnhancerBySpringCGLIB$$5359ec8c.getEnableLevelList(<generated>)\r\n	at cn.iocoder.yudao.module.member.controller.admin.level.MemberLevelController.getSimpleLevelList(MemberLevelController.java:67)\r\n	at cn.iocoder.yudao.module.member.controller.admin.level.MemberLevelController$$FastClassBySpringCGLIB$$3fd3ef07.invoke(<generated>)\r\n	at org.springframework.cglib.proxy.MethodProxy.invoke(MethodProxy.java:218)\r\n	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.invokeJoinpoint(CglibAopProxy.java:792)\r\n	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:163)\r\n	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.proceed(CglibAopProxy.java:762)\r\n	at org.springframework.validation.beanvalidation.MethodValidationInterceptor.invoke(MethodValidationInterceptor.java:123)\r\n	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:186)\r\n	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.proceed(CglibAopProxy.java:762)\r\n	at org.springframework.aop.framework.CglibAopProxy$DynamicAdvisedInterceptor.intercept(CglibAopProxy.java:707)\r\n	at cn.iocoder.yudao.module.member.controller.admin.level.MemberLevelController$$EnhancerBySpringCGLIB$$222fe239.getSimpleLevelList(<generated>)\r\n	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\r\n	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)\r\n	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)\r\n	at java.lang.reflect.Method.invoke(Method.java:498)\r\n	at org.springframework.web.method.support.InvocableHandlerMethod.doInvoke(InvocableHandlerMethod.java:205)\r\n	at org.springframework.web.method.support.InvocableHandlerMethod.invokeForRequest(InvocableHandlerMethod.java:150)\r\n	at org.springframework.web.servlet.mvc.method.annotation.ServletInvocableHandlerMethod.invokeAndHandle(ServletInvocableHandlerMethod.java:117)\r\n	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.invokeHandlerMethod(RequestMappingHandlerAdapter.java:895)\r\n	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.handleInternal(RequestMappingHandlerAdapter.java:808)\r\n	at org.springframework.web.servlet.mvc.method.AbstractHandlerMethodAdapter.handle(AbstractHandlerMethodAdapter.java:87)\r\n	at org.springframework.web.servlet.DispatcherServlet.doDispatch(DispatcherServlet.java:1072)\r\n	at org.springframework.web.servlet.DispatcherServlet.doService(DispatcherServlet.java:965)\r\n	at org.springframework.web.servlet.FrameworkServlet.processRequest(FrameworkServlet.java:1006)\r\n	at org.springframework.web.servlet.FrameworkServlet.doGet(FrameworkServlet.java:898)\r\n	at javax.servlet.http.HttpServlet.service(HttpServlet.java:529)\r\n	at org.springframework.web.servlet.FrameworkServlet.service(FrameworkServlet.java:883)\r\n	at javax.servlet.http.HttpServlet.service(HttpServlet.java:623)\r\n	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:209)\r\n	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:153)\r\n	at org.apache.tomcat.websocket.server.WsFilter.doFilter(WsFilter.java:51)\r\n	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:178)\r\n	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:153)\r\n	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:111)\r\n	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:178)\r\n	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:153)\r\n	at org.springframework.web.servlet.resource.ResourceUrlEncodingFilter.doFilter(ResourceUrlEncodingFilter.java:67)\r\n	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:178)\r\n	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:153)\r\n	at com.alibaba.druid.support.http.WebStatFilter.doFilter(WebStatFilter.java:114)\r\n	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:178)\r\n	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:153)\r\n	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:337)\r\n	at org.springframework.security.web.access.intercept.FilterSecurityInterceptor.invoke(FilterSecurityInterceptor.java:115)\r\n	at org.springframework.security.web.access.intercept.FilterSecurityInterceptor.doFilter(FilterSecurityInterceptor.java:81)\r\n	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:346)\r\n	at org.springframework.security.web.access.ExceptionTranslationFilter.doFilter(ExceptionTranslationFilter.java:122)\r\n	at org.springframework.security.web.access.ExceptionTranslationFilter.doFilter(ExceptionTranslationFilter.java:116)\r\n	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:346)\r\n	at org.springframework.security.web.session.SessionManagementFilter.doFilter(SessionManagementFilter.java:126)\r\n	at org.springframework.security.web.session.SessionManagementFilter.doFilter(SessionManagementFilter.java:81)\r\n	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:346)\r\n	at org.springframework.security.web.authentication.AnonymousAuthenticationFilter.doFilter(AnonymousAuthenticationFilter.java:109)\r\n	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:346)\r\n	at org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter.doFilter(SecurityContextHolderAwareRequestFilter.java:149)\r\n	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:346)\r\n	at org.springframework.security.web.savedrequest.RequestCacheAwareFilter.doFilter(RequestCacheAwareFilter.java:63)\r\n	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:346)\r\n	at cn.iocoder.yudao.framework.security.core.filter.TokenAuthenticationFilter.doFilterInternal(TokenAuthenticationFilter.java:68)\r\n	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:117)\r\n	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:346)\r\n	at org.springframework.security.web.authentication.logout.LogoutFilter.doFilter(LogoutFilter.java:103)\r\n	at org.springframework.security.web.authentication.logout.LogoutFilter.doFilter(LogoutFilter.java:89)\r\n	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:346)\r\n	at org.springframework.web.filter.CorsFilter.doFilterInternal(CorsFilter.java:91)\r\n	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:117)\r\n	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:346)\r\n	at org.springframework.security.web.header.HeaderWriterFilter.doHeadersAfter(HeaderWriterFilter.java:90)\r\n	at org.springframework.security.web.header.HeaderWriterFilter.doFilterInternal(HeaderWriterFilter.java:75)\r\n	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:117)\r\n	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:346)\r\n	at org.springframework.security.web.context.SecurityContextPersistenceFilter.doFilter(SecurityContextPersistenceFilter.java:112)\r\n	at org.springframework.security.web.context.SecurityContextPersistenceFilter.doFilter(SecurityContextPersistenceFilter.java:82)\r\n	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:346)\r\n	at org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter.doFilterInternal(WebAsyncManagerIntegrationFilter.java:55)\r\n	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:117)\r\n	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:346)\r\n	at org.springframework.security.web.session.DisableEncodeUrlFilter.doFilterInternal(DisableEncodeUrlFilter.java:42)\r\n	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:117)\r\n	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:346)\r\n	at org.springframework.security.web.FilterChainProxy.doFilterInternal(FilterChainProxy.java:221)\r\n	at org.springframework.security.web.FilterChainProxy.doFilter(FilterChainProxy.java:186)\r\n	at org.springframework.web.filter.DelegatingFilterProxy.invokeDelegate(DelegatingFilterProxy.java:354)\r\n	at org.springframework.web.filter.DelegatingFilterProxy.doFilter(DelegatingFilterProxy.java:267)\r\n	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:178)\r\n	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:153)\r\n	at org.springframework.web.filter.RequestContextFilter.doFilterInternal(RequestContextFilter.java:100)\r\n	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:117)\r\n	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:178)\r\n	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:153)\r\n	at org.springframework.web.filter.FormContentFilter.doFilterInternal(FormContentFilter.java:93)\r\n	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:117)\r\n	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:178)\r\n	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:153)\r\n	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:102)\r\n	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:178)\r\n	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:153)\r\n	at org.springframework.boot.actuate.metrics.web.servlet.WebMvcMetricsFilter.doFilterInternal(WebMvcMetricsFilter.java:96)\r\n	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:117)\r\n	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:178)\r\n	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:153)\r\n	at cn.iocoder.yudao.framework.tracer.core.filter.TraceFilter.doFilterInternal(TraceFilter.java:30)\r\n	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:117)\r\n	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:178)\r\n	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:153)\r\n	at org.springframework.web.filter.CharacterEncodingFilter.doFilterInternal(CharacterEncodingFilter.java:201)\r\n	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:117)\r\n	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:178)\r\n	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:153)\r\n	at org.springframework.web.filter.CorsFilter.doFilterInternal(CorsFilter.java:91)\r\n	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:117)\r\n	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:178)\r\n	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:153)\r\n	at org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:168)\r\n	at org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:90)\r\n	at org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:481)\r\n	at org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:130)\r\n	at org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:93)\r\n	at org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:74)\r\n	at org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:342)\r\n	at org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:390)\r\n	at org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:63)\r\n	at org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:928)\r\n	at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1794)\r\n	at org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:52)\r\n	at org.apache.tomcat.util.threads.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1191)\r\n	at org.apache.tomcat.util.threads.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:659)\r\n	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:61)\r\n	at java.lang.Thread.run(Thread.java:750)\r\nCaused by: java.sql.SQLSyntaxErrorException: Table \'yaofang.member_level\' doesn\'t exist\r\n	at com.mysql.cj.jdbc.exceptions.SQLError.createSQLException(SQLError.java:121)\r\n	at com.mysql.cj.jdbc.exceptions.SQLExceptionsMapping.translateException(SQLExceptionsMapping.java:122)\r\n	at com.mysql.cj.jdbc.ClientPreparedStatement.executeInternal(ClientPreparedStatement.java:916)\r\n	at com.mysql.cj.jdbc.ClientPreparedStatement.execute(ClientPreparedStatement.java:354)\r\n	at com.alibaba.druid.filter.FilterChainImpl.preparedStatement_execute(FilterChainImpl.java:3462)\r\n	at com.alibaba.druid.filter.FilterEventAdapter.preparedStatement_execute(FilterEventAdapter.java:434)\r\n	at com.alibaba.druid.filter.FilterChainImpl.preparedStatement_execute(FilterChainImpl.java:3460)\r\n	at com.alibaba.druid.proxy.jdbc.PreparedStatementProxyImpl.execute(PreparedStatementProxyImpl.java:158)\r\n	at com.alibaba.druid.pool.DruidPooledPreparedStatement.execute(DruidPooledPreparedStatement.java:483)\r\n	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\r\n	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)\r\n	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)\r\n	at java.lang.reflect.Method.invoke(Method.java:498)\r\n	at org.apache.ibatis.logging.jdbc.PreparedStatementLogger.invoke(PreparedStatementLogger.java:58)\r\n	at com.sun.proxy.$Proxy326.execute(Unknown Source)\r\n	at org.apache.ibatis.executor.statement.PreparedStatementHandler.query(PreparedStatementHandler.java:65)\r\n	at org.apache.ibatis.executor.statement.RoutingStatementHandler.query(RoutingStatementHandler.java:80)\r\n	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\r\n	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)\r\n	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)\r\n	at java.lang.reflect.Method.invoke(Method.java:498)\r\n	at org.apache.ibatis.plugin.Plugin.invoke(Plugin.java:61)\r\n	at com.sun.proxy.$Proxy324.query(Unknown Source)\r\n	at org.apache.ibatis.executor.SimpleExecutor.doQuery(SimpleExecutor.java:65)\r\n	at org.apache.ibatis.executor.BaseExecutor.queryFromDatabase(BaseExecutor.java:336)\r\n	at org.apache.ibatis.executor.BaseExecutor.query(BaseExecutor.java:158)\r\n	at org.apache.ibatis.executor.CachingExecutor.query(CachingExecutor.java:110)\r\n	at com.baomidou.mybatisplus.extension.plugins.MybatisPlusInterceptor.intercept(MybatisPlusInterceptor.java:81)\r\n	at org.apache.ibatis.plugin.Plugin.invoke(Plugin.java:59)\r\n	at com.sun.proxy.$Proxy323.query(Unknown Source)\r\n	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\r\n	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)\r\n	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)\r\n	at java.lang.reflect.Method.invoke(Method.java:498)\r\n	at org.apache.ibatis.plugin.Invocation.proceed(Invocation.java:49)\r\n	at com.github.yulichang.interceptor.MPJInterceptor.intercept(MPJInterceptor.java:90)\r\n	at org.apache.ibatis.plugin.Plugin.invoke(Plugin.java:59)\r\n	at com.sun.proxy.$Proxy323.query(Unknown Source)\r\n	at org.apache.ibatis.session.defaults.DefaultSqlSession.selectList(DefaultSqlSession.java:154)\r\n	at org.apache.ibatis.session.defaults.DefaultSqlSession.selectList(DefaultSqlSession.java:147)\r\n	at org.apache.ibatis.session.defaults.DefaultSqlSession.selectList(DefaultSqlSession.java:142)\r\n	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\r\n	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)\r\n	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)\r\n	at java.lang.reflect.Method.invoke(Method.java:498)\r\n	at org.mybatis.spring.SqlSessionTemplate$SqlSessionInterceptor.invoke(SqlSessionTemplate.java:425)\r\n	... 153 more\r\n', 'org.springframework.jdbc.support.SQLErrorCodeSQLExceptionTranslator', 'SQLErrorCodeSQLExceptionTranslator.java', 'doTranslate', 236, 0, NULL, 0, NULL, '2024-05-11 13:36:09', NULL, '2024-05-11 13:36:09', b'0', 0);
+INSERT INTO `infra_api_error_log` VALUES (16534, '', 1, 2, 'yudao-server', 'GET', '/admin-api/member/user/page', '{\"query\":{\"pageNo\":\"1\",\"pageSize\":\"10\"},\"body\":null}', '0:0:0:0:0:0:0:1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36 Edg/124.0.0.0', '2024-05-11 13:36:09', 'org.springframework.jdbc.BadSqlGrammarException', 'BadSqlGrammarException: \r\n### Error querying database.  Cause: java.sql.SQLSyntaxErrorException: Table \'yaofang.member_user\' doesn\'t exist\r\n### The error may exist in cn/iocoder/yudao/module/member/dal/mysql/user/MemberUserMapper.java (best guess)\r\n### The error may involve defaultParameterMap\r\n### The error occurred while setting parameters\r\n### SQL: SELECT COUNT(*) AS total FROM member_user WHERE deleted = 0\r\n### Cause: java.sql.SQLSyntaxErrorException: Table \'yaofang.member_user\' doesn\'t exist\n; bad SQL grammar []; nested exception is java.sql.SQLSyntaxErrorException: Table \'yaofang.member_user\' doesn\'t exist', 'SQLSyntaxErrorException: Table \'yaofang.member_user\' doesn\'t exist', 'org.springframework.jdbc.BadSqlGrammarException: \r\n### Error querying database.  Cause: java.sql.SQLSyntaxErrorException: Table \'yaofang.member_user\' doesn\'t exist\r\n### The error may exist in cn/iocoder/yudao/module/member/dal/mysql/user/MemberUserMapper.java (best guess)\r\n### The error may involve defaultParameterMap\r\n### The error occurred while setting parameters\r\n### SQL: SELECT COUNT(*) AS total FROM member_user WHERE deleted = 0\r\n### Cause: java.sql.SQLSyntaxErrorException: Table \'yaofang.member_user\' doesn\'t exist\n; bad SQL grammar []; nested exception is java.sql.SQLSyntaxErrorException: Table \'yaofang.member_user\' doesn\'t exist\r\n	at org.springframework.jdbc.support.SQLErrorCodeSQLExceptionTranslator.doTranslate(SQLErrorCodeSQLExceptionTranslator.java:236)\r\n	at org.springframework.jdbc.support.AbstractFallbackSQLExceptionTranslator.translate(AbstractFallbackSQLExceptionTranslator.java:73)\r\n	at org.mybatis.spring.MyBatisExceptionTranslator.translateExceptionIfPossible(MyBatisExceptionTranslator.java:92)\r\n	at org.mybatis.spring.SqlSessionTemplate$SqlSessionInterceptor.invoke(SqlSessionTemplate.java:439)\r\n	at com.sun.proxy.$Proxy128.selectList(Unknown Source)\r\n	at org.mybatis.spring.SqlSessionTemplate.selectList(SqlSessionTemplate.java:224)\r\n	at com.baomidou.mybatisplus.core.override.MybatisMapperMethod.executeForMany(MybatisMapperMethod.java:164)\r\n	at com.baomidou.mybatisplus.core.override.MybatisMapperMethod.execute(MybatisMapperMethod.java:77)\r\n	at com.baomidou.mybatisplus.core.override.MybatisMapperProxy$PlainMethodInvoker.invoke(MybatisMapperProxy.java:152)\r\n	at com.baomidou.mybatisplus.core.override.MybatisMapperProxy.invoke(MybatisMapperProxy.java:89)\r\n	at com.sun.proxy.$Proxy265.selectList(Unknown Source)\r\n	at com.baomidou.mybatisplus.core.mapper.BaseMapper.selectPage(BaseMapper.java:348)\r\n	at java.lang.invoke.MethodHandle.invokeWithArguments(MethodHandle.java:627)\r\n	at com.baomidou.mybatisplus.core.override.MybatisMapperProxy$DefaultMethodInvoker.invoke(MybatisMapperProxy.java:166)\r\n	at com.baomidou.mybatisplus.core.override.MybatisMapperProxy.invoke(MybatisMapperProxy.java:89)\r\n	at com.sun.proxy.$Proxy265.selectPage(Unknown Source)\r\n	at cn.iocoder.yudao.framework.mybatis.core.mapper.BaseMapperX.selectPage(BaseMapperX.java:52)\r\n	at java.lang.invoke.MethodHandle.invokeWithArguments(MethodHandle.java:627)\r\n	at com.baomidou.mybatisplus.core.override.MybatisMapperProxy$DefaultMethodInvoker.invoke(MybatisMapperProxy.java:166)\r\n	at com.baomidou.mybatisplus.core.override.MybatisMapperProxy.invoke(MybatisMapperProxy.java:89)\r\n	at com.sun.proxy.$Proxy265.selectPage(Unknown Source)\r\n	at cn.iocoder.yudao.framework.mybatis.core.mapper.BaseMapperX.selectPage(BaseMapperX.java:40)\r\n	at java.lang.invoke.MethodHandle.invokeWithArguments(MethodHandle.java:627)\r\n	at com.baomidou.mybatisplus.core.override.MybatisMapperProxy$DefaultMethodInvoker.invoke(MybatisMapperProxy.java:166)\r\n	at com.baomidou.mybatisplus.core.override.MybatisMapperProxy.invoke(MybatisMapperProxy.java:89)\r\n	at com.sun.proxy.$Proxy265.selectPage(Unknown Source)\r\n	at cn.iocoder.yudao.module.member.dal.mysql.user.MemberUserMapper.selectPage(MemberUserMapper.java:43)\r\n	at java.lang.invoke.MethodHandle.invokeWithArguments(MethodHandle.java:627)\r\n	at com.baomidou.mybatisplus.core.override.MybatisMapperProxy$DefaultMethodInvoker.invoke(MybatisMapperProxy.java:166)\r\n	at com.baomidou.mybatisplus.core.override.MybatisMapperProxy.invoke(MybatisMapperProxy.java:89)\r\n	at com.sun.proxy.$Proxy265.selectPage(Unknown Source)\r\n	at cn.iocoder.yudao.module.member.service.user.MemberUserServiceImpl.getUserPage(MemberUserServiceImpl.java:279)\r\n	at cn.iocoder.yudao.module.member.service.user.MemberUserServiceImpl$$FastClassBySpringCGLIB$$e45b0d42.invoke(<generated>)\r\n	at org.springframework.cglib.proxy.MethodProxy.invoke(MethodProxy.java:218)\r\n	at org.springframework.aop.framework.CglibAopProxy.invokeMethod(CglibAopProxy.java:386)\r\n	at org.springframework.aop.framework.CglibAopProxy.access$000(CglibAopProxy.java:85)\r\n	at org.springframework.aop.framework.CglibAopProxy$DynamicAdvisedInterceptor.intercept(CglibAopProxy.java:703)\r\n	at cn.iocoder.yudao.module.member.service.user.MemberUserServiceImpl$$EnhancerBySpringCGLIB$$446665d4.getUserPage(<generated>)\r\n	at cn.iocoder.yudao.module.member.controller.admin.user.MemberUserController.getUserPage(MemberUserController.java:100)\r\n	at cn.iocoder.yudao.module.member.controller.admin.user.MemberUserController$$FastClassBySpringCGLIB$$14532def.invoke(<generated>)\r\n	at org.springframework.cglib.proxy.MethodProxy.invoke(MethodProxy.java:218)\r\n	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.invokeJoinpoint(CglibAopProxy.java:792)\r\n	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:163)\r\n	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.proceed(CglibAopProxy.java:762)\r\n	at org.springframework.validation.beanvalidation.MethodValidationInterceptor.invoke(MethodValidationInterceptor.java:123)\r\n	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:186)\r\n	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.proceed(CglibAopProxy.java:762)\r\n	at org.springframework.security.access.intercept.aopalliance.MethodSecurityInterceptor.invoke(MethodSecurityInterceptor.java:61)\r\n	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:186)\r\n	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.proceed(CglibAopProxy.java:762)\r\n	at org.springframework.aop.framework.CglibAopProxy$DynamicAdvisedInterceptor.intercept(CglibAopProxy.java:707)\r\n	at cn.iocoder.yudao.module.member.controller.admin.user.MemberUserController$$EnhancerBySpringCGLIB$$57182ff1.getUserPage(<generated>)\r\n	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\r\n	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)\r\n	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)\r\n	at java.lang.reflect.Method.invoke(Method.java:498)\r\n	at org.springframework.web.method.support.InvocableHandlerMethod.doInvoke(InvocableHandlerMethod.java:205)\r\n	at org.springframework.web.method.support.InvocableHandlerMethod.invokeForRequest(InvocableHandlerMethod.java:150)\r\n	at org.springframework.web.servlet.mvc.method.annotation.ServletInvocableHandlerMethod.invokeAndHandle(ServletInvocableHandlerMethod.java:117)\r\n	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.invokeHandlerMethod(RequestMappingHandlerAdapter.java:895)\r\n	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.handleInternal(RequestMappingHandlerAdapter.java:808)\r\n	at org.springframework.web.servlet.mvc.method.AbstractHandlerMethodAdapter.handle(AbstractHandlerMethodAdapter.java:87)\r\n	at org.springframework.web.servlet.DispatcherServlet.doDispatch(DispatcherServlet.java:1072)\r\n	at org.springframework.web.servlet.DispatcherServlet.doService(DispatcherServlet.java:965)\r\n	at org.springframework.web.servlet.FrameworkServlet.processRequest(FrameworkServlet.java:1006)\r\n	at org.springframework.web.servlet.FrameworkServlet.doGet(FrameworkServlet.java:898)\r\n	at javax.servlet.http.HttpServlet.service(HttpServlet.java:529)\r\n	at org.springframework.web.servlet.FrameworkServlet.service(FrameworkServlet.java:883)\r\n	at javax.servlet.http.HttpServlet.service(HttpServlet.java:623)\r\n	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:209)\r\n	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:153)\r\n	at org.apache.tomcat.websocket.server.WsFilter.doFilter(WsFilter.java:51)\r\n	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:178)\r\n	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:153)\r\n	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:111)\r\n	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:178)\r\n	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:153)\r\n	at org.springframework.web.servlet.resource.ResourceUrlEncodingFilter.doFilter(ResourceUrlEncodingFilter.java:67)\r\n	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:178)\r\n	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:153)\r\n	at com.alibaba.druid.support.http.WebStatFilter.doFilter(WebStatFilter.java:114)\r\n	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:178)\r\n	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:153)\r\n	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:337)\r\n	at org.springframework.security.web.access.intercept.FilterSecurityInterceptor.invoke(FilterSecurityInterceptor.java:115)\r\n	at org.springframework.security.web.access.intercept.FilterSecurityInterceptor.doFilter(FilterSecurityInterceptor.java:81)\r\n	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:346)\r\n	at org.springframework.security.web.access.ExceptionTranslationFilter.doFilter(ExceptionTranslationFilter.java:122)\r\n	at org.springframework.security.web.access.ExceptionTranslationFilter.doFilter(ExceptionTranslationFilter.java:116)\r\n	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:346)\r\n	at org.springframework.security.web.session.SessionManagementFilter.doFilter(SessionManagementFilter.java:126)\r\n	at org.springframework.security.web.session.SessionManagementFilter.doFilter(SessionManagementFilter.java:81)\r\n	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:346)\r\n	at org.springframework.security.web.authentication.AnonymousAuthenticationFilter.doFilter(AnonymousAuthenticationFilter.java:109)\r\n	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:346)\r\n	at org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter.doFilter(SecurityContextHolderAwareRequestFilter.java:149)\r\n	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:346)\r\n	at org.springframework.security.web.savedrequest.RequestCacheAwareFilter.doFilter(RequestCacheAwareFilter.java:63)\r\n	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:346)\r\n	at cn.iocoder.yudao.framework.security.core.filter.TokenAuthenticationFilter.doFilterInternal(TokenAuthenticationFilter.java:68)\r\n	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:117)\r\n	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:346)\r\n	at org.springframework.security.web.authentication.logout.LogoutFilter.doFilter(LogoutFilter.java:103)\r\n	at org.springframework.security.web.authentication.logout.LogoutFilter.doFilter(LogoutFilter.java:89)\r\n	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:346)\r\n	at org.springframework.web.filter.CorsFilter.doFilterInternal(CorsFilter.java:91)\r\n	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:117)\r\n	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:346)\r\n	at org.springframework.security.web.header.HeaderWriterFilter.doHeadersAfter(HeaderWriterFilter.java:90)\r\n	at org.springframework.security.web.header.HeaderWriterFilter.doFilterInternal(HeaderWriterFilter.java:75)\r\n	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:117)\r\n	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:346)\r\n	at org.springframework.security.web.context.SecurityContextPersistenceFilter.doFilter(SecurityContextPersistenceFilter.java:112)\r\n	at org.springframework.security.web.context.SecurityContextPersistenceFilter.doFilter(SecurityContextPersistenceFilter.java:82)\r\n	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:346)\r\n	at org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter.doFilterInternal(WebAsyncManagerIntegrationFilter.java:55)\r\n	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:117)\r\n	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:346)\r\n	at org.springframework.security.web.session.DisableEncodeUrlFilter.doFilterInternal(DisableEncodeUrlFilter.java:42)\r\n	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:117)\r\n	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:346)\r\n	at org.springframework.security.web.FilterChainProxy.doFilterInternal(FilterChainProxy.java:221)\r\n	at org.springframework.security.web.FilterChainProxy.doFilter(FilterChainProxy.java:186)\r\n	at org.springframework.web.filter.DelegatingFilterProxy.invokeDelegate(DelegatingFilterProxy.java:354)\r\n	at org.springframework.web.filter.DelegatingFilterProxy.doFilter(DelegatingFilterProxy.java:267)\r\n	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:178)\r\n	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:153)\r\n	at org.springframework.web.filter.RequestContextFilter.doFilterInternal(RequestContextFilter.java:100)\r\n	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:117)\r\n	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:178)\r\n	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:153)\r\n	at org.springframework.web.filter.FormContentFilter.doFilterInternal(FormContentFilter.java:93)\r\n	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:117)\r\n	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:178)\r\n	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:153)\r\n	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:102)\r\n	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:178)\r\n	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:153)\r\n	at org.springframework.boot.actuate.metrics.web.servlet.WebMvcMetricsFilter.doFilterInternal(WebMvcMetricsFilter.java:96)\r\n	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:117)\r\n	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:178)\r\n	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:153)\r\n	at cn.iocoder.yudao.framework.tracer.core.filter.TraceFilter.doFilterInternal(TraceFilter.java:30)\r\n	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:117)\r\n	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:178)\r\n	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:153)\r\n	at org.springframework.web.filter.CharacterEncodingFilter.doFilterInternal(CharacterEncodingFilter.java:201)\r\n	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:117)\r\n	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:178)\r\n	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:153)\r\n	at org.springframework.web.filter.CorsFilter.doFilterInternal(CorsFilter.java:91)\r\n	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:117)\r\n	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:178)\r\n	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:153)\r\n	at org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:168)\r\n	at org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:90)\r\n	at org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:481)\r\n	at org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:130)\r\n	at org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:93)\r\n	at org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:74)\r\n	at org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:342)\r\n	at org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:390)\r\n	at org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:63)\r\n	at org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:928)\r\n	at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1794)\r\n	at org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:52)\r\n	at org.apache.tomcat.util.threads.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1191)\r\n	at org.apache.tomcat.util.threads.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:659)\r\n	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:61)\r\n	at java.lang.Thread.run(Thread.java:750)\r\nCaused by: java.sql.SQLSyntaxErrorException: Table \'yaofang.member_user\' doesn\'t exist\r\n	at com.mysql.cj.jdbc.exceptions.SQLError.createSQLException(SQLError.java:121)\r\n	at com.mysql.cj.jdbc.exceptions.SQLExceptionsMapping.translateException(SQLExceptionsMapping.java:122)\r\n	at com.mysql.cj.jdbc.ClientPreparedStatement.executeInternal(ClientPreparedStatement.java:916)\r\n	at com.mysql.cj.jdbc.ClientPreparedStatement.execute(ClientPreparedStatement.java:354)\r\n	at com.alibaba.druid.filter.FilterChainImpl.preparedStatement_execute(FilterChainImpl.java:3462)\r\n	at com.alibaba.druid.filter.FilterEventAdapter.preparedStatement_execute(FilterEventAdapter.java:434)\r\n	at com.alibaba.druid.filter.FilterChainImpl.preparedStatement_execute(FilterChainImpl.java:3460)\r\n	at com.alibaba.druid.proxy.jdbc.PreparedStatementProxyImpl.execute(PreparedStatementProxyImpl.java:158)\r\n	at com.alibaba.druid.pool.DruidPooledPreparedStatement.execute(DruidPooledPreparedStatement.java:483)\r\n	at sun.reflect.GeneratedMethodAccessor80.invoke(Unknown Source)\r\n	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)\r\n	at java.lang.reflect.Method.invoke(Method.java:498)\r\n	at org.apache.ibatis.logging.jdbc.PreparedStatementLogger.invoke(PreparedStatementLogger.java:58)\r\n	at com.sun.proxy.$Proxy326.execute(Unknown Source)\r\n	at org.apache.ibatis.executor.statement.PreparedStatementHandler.query(PreparedStatementHandler.java:65)\r\n	at org.apache.ibatis.executor.statement.RoutingStatementHandler.query(RoutingStatementHandler.java:80)\r\n	at sun.reflect.GeneratedMethodAccessor91.invoke(Unknown Source)\r\n	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)\r\n	at java.lang.reflect.Method.invoke(Method.java:498)\r\n	at org.apache.ibatis.plugin.Plugin.invoke(Plugin.java:61)\r\n	at com.sun.proxy.$Proxy324.query(Unknown Source)\r\n	at org.apache.ibatis.executor.SimpleExecutor.doQuery(SimpleExecutor.java:65)\r\n	at org.apache.ibatis.executor.BaseExecutor.queryFromDatabase(BaseExecutor.java:336)\r\n	at org.apache.ibatis.executor.BaseExecutor.query(BaseExecutor.java:158)\r\n	at org.apache.ibatis.executor.CachingExecutor.query(CachingExecutor.java:110)\r\n	at com.baomidou.mybatisplus.extension.plugins.inner.PaginationInnerInterceptor.willDoQuery(PaginationInnerInterceptor.java:135)\r\n	at com.baomidou.mybatisplus.extension.plugins.MybatisPlusInterceptor.intercept(MybatisPlusInterceptor.java:75)\r\n	at org.apache.ibatis.plugin.Plugin.invoke(Plugin.java:59)\r\n	at com.sun.proxy.$Proxy323.query(Unknown Source)\r\n	at sun.reflect.GeneratedMethodAccessor90.invoke(Unknown Source)\r\n	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)\r\n	at java.lang.reflect.Method.invoke(Method.java:498)\r\n	at org.apache.ibatis.plugin.Invocation.proceed(Invocation.java:49)\r\n	at com.github.yulichang.interceptor.MPJInterceptor.intercept(MPJInterceptor.java:90)\r\n	at org.apache.ibatis.plugin.Plugin.invoke(Plugin.java:59)\r\n	at com.sun.proxy.$Proxy323.query(Unknown Source)\r\n	at org.apache.ibatis.session.defaults.DefaultSqlSession.selectList(DefaultSqlSession.java:154)\r\n	at org.apache.ibatis.session.defaults.DefaultSqlSession.selectList(DefaultSqlSession.java:147)\r\n	at org.apache.ibatis.session.defaults.DefaultSqlSession.selectList(DefaultSqlSession.java:142)\r\n	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\r\n	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)\r\n	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)\r\n	at java.lang.reflect.Method.invoke(Method.java:498)\r\n	at org.mybatis.spring.SqlSessionTemplate$SqlSessionInterceptor.invoke(SqlSessionTemplate.java:425)\r\n	... 166 more\r\n', 'org.springframework.jdbc.support.SQLErrorCodeSQLExceptionTranslator', 'SQLErrorCodeSQLExceptionTranslator.java', 'doTranslate', 236, 0, NULL, 0, NULL, '2024-05-11 13:36:09', NULL, '2024-05-11 13:36:09', b'0', 0);
+
+-- ----------------------------
+-- Table structure for infra_codegen_column
+-- ----------------------------
+DROP TABLE IF EXISTS `infra_codegen_column`;
+CREATE TABLE `infra_codegen_column`  (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '编号',
+  `table_id` bigint NOT NULL COMMENT '表编号',
+  `column_name` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '字段名',
+  `data_type` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '字段类型',
+  `column_comment` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '字段描述',
+  `nullable` bit(1) NOT NULL COMMENT '是否允许为空',
+  `primary_key` bit(1) NOT NULL COMMENT '是否主键',
+  `ordinal_position` int NOT NULL COMMENT '排序',
+  `java_type` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Java 属性类型',
+  `java_field` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Java 属性名',
+  `dict_type` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '字典类型',
+  `example` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '数据示例',
+  `create_operation` bit(1) NOT NULL COMMENT '是否为 Create 创建操作的字段',
+  `update_operation` bit(1) NOT NULL COMMENT '是否为 Update 更新操作的字段',
+  `list_operation` bit(1) NOT NULL COMMENT '是否为 List 查询操作的字段',
+  `list_operation_condition` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '=' COMMENT 'List 查询操作的条件类型',
+  `list_operation_result` bit(1) NOT NULL COMMENT '是否为 List 查询操作的返回字段',
+  `html_type` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '显示类型',
+  `creator` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '创建者',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `updater` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '更新者',
+  `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `deleted` bit(1) NOT NULL DEFAULT b'0' COMMENT '是否删除',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 2305 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '代码生成表字段定义' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of infra_codegen_column
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for infra_codegen_table
+-- ----------------------------
+DROP TABLE IF EXISTS `infra_codegen_table`;
+CREATE TABLE `infra_codegen_table`  (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '编号',
+  `data_source_config_id` bigint NOT NULL COMMENT '数据源配置的编号',
+  `scene` tinyint NOT NULL DEFAULT 1 COMMENT '生成场景',
+  `table_name` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT '表名称',
+  `table_comment` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT '表描述',
+  `remark` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '备注',
+  `module_name` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '模块名',
+  `business_name` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '业务名',
+  `class_name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT '类名称',
+  `class_comment` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '类描述',
+  `author` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '作者',
+  `template_type` tinyint NOT NULL DEFAULT 1 COMMENT '模板类型',
+  `front_type` tinyint NOT NULL COMMENT '前端类型',
+  `parent_menu_id` bigint NULL DEFAULT NULL COMMENT '父菜单编号',
+  `master_table_id` bigint NULL DEFAULT NULL COMMENT '主表的编号',
+  `sub_join_column_id` bigint NULL DEFAULT NULL COMMENT '子表关联主表的字段编号',
+  `sub_join_many` bit(1) NULL DEFAULT NULL COMMENT '主表与子表是否一对多',
+  `tree_parent_column_id` bigint NULL DEFAULT NULL COMMENT '树表的父字段编号',
+  `tree_name_column_id` bigint NULL DEFAULT NULL COMMENT '树表的名字字段编号',
+  `creator` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '创建者',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `updater` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '更新者',
+  `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `deleted` bit(1) NOT NULL DEFAULT b'0' COMMENT '是否删除',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 176 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '代码生成表定义' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of infra_codegen_table
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for infra_config
+-- ----------------------------
+DROP TABLE IF EXISTS `infra_config`;
+CREATE TABLE `infra_config`  (
+  `id` int NOT NULL AUTO_INCREMENT COMMENT '参数主键',
+  `category` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '参数分组',
+  `type` tinyint NOT NULL COMMENT '参数类型',
+  `name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT '参数名称',
+  `config_key` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT '参数键名',
+  `value` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT '参数键值',
+  `visible` bit(1) NOT NULL COMMENT '是否可见',
+  `remark` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '备注',
+  `creator` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '创建者',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `updater` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '更新者',
+  `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `deleted` bit(1) NOT NULL DEFAULT b'0' COMMENT '是否删除',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 13 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '参数配置表' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of infra_config
+-- ----------------------------
+INSERT INTO `infra_config` VALUES (2, 'biz', 1, '用户管理-账号初始密码', 'sys.user.init-password', '123456', b'0', '初始化密码 123456', 'admin', '2021-01-05 17:03:48', '1', '2024-04-03 17:22:28', b'0');
+INSERT INTO `infra_config` VALUES (7, 'url', 2, 'MySQL 监控的地址', 'url.druid', '', b'1', '', '1', '2023-04-07 13:41:16', '1', '2023-04-07 14:33:38', b'0');
+INSERT INTO `infra_config` VALUES (8, 'url', 2, 'SkyWalking 监控的地址', 'url.skywalking', '', b'1', '', '1', '2023-04-07 13:41:16', '1', '2023-04-07 14:57:03', b'0');
+INSERT INTO `infra_config` VALUES (9, 'url', 2, 'Spring Boot Admin 监控的地址', 'url.spring-boot-admin', '', b'1', '', '1', '2023-04-07 13:41:16', '1', '2023-04-07 14:52:07', b'0');
+INSERT INTO `infra_config` VALUES (10, 'url', 2, 'Swagger 接口文档的地址', 'url.swagger', '', b'1', '', '1', '2023-04-07 13:41:16', '1', '2023-04-07 14:59:00', b'0');
+INSERT INTO `infra_config` VALUES (11, 'ui', 2, '腾讯地图 key', 'tencent.lbs.key', 'TVDBZ-TDILD-4ON4B-PFDZA-RNLKH-VVF6E', b'1', '腾讯地图 key', '1', '2023-06-03 19:16:27', '1', '2023-06-03 19:16:27', b'0');
+INSERT INTO `infra_config` VALUES (12, 'test2', 2, 'test3', 'test4', 'test5', b'1', 'test6', '1', '2023-12-03 09:55:16', '1', '2023-12-03 09:55:27', b'0');
+
+-- ----------------------------
+-- Table structure for infra_data_source_config
+-- ----------------------------
+DROP TABLE IF EXISTS `infra_data_source_config`;
+CREATE TABLE `infra_data_source_config`  (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键编号',
+  `name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT '参数名称',
+  `url` varchar(1024) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '数据源连接',
+  `username` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '用户名',
+  `password` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT '密码',
+  `creator` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '创建者',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `updater` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '更新者',
+  `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `deleted` bit(1) NOT NULL DEFAULT b'0' COMMENT '是否删除',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 14 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '数据源配置表' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of infra_data_source_config
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for infra_file
+-- ----------------------------
+DROP TABLE IF EXISTS `infra_file`;
+CREATE TABLE `infra_file`  (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '文件编号',
+  `config_id` bigint NULL DEFAULT NULL COMMENT '配置编号',
+  `name` varchar(256) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '文件名',
+  `path` varchar(512) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '文件路径',
+  `url` varchar(1024) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '文件 URL',
+  `type` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '文件类型',
+  `size` int NOT NULL COMMENT '文件大小',
+  `creator` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '创建者',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `updater` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '更新者',
+  `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `deleted` bit(1) NOT NULL DEFAULT b'0' COMMENT '是否删除',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 1308 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '文件表' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of infra_file
+-- ----------------------------
+INSERT INTO `infra_file` VALUES (1307, 22, '275b982bd232e71f7af262e216671dd8796555cdde725aebbc5c6223fe73fad7 (1).jpg', '275b982bd232e71f7af262e216671dd8796555cdde725aebbc5c6223fe73fad7.jpg', 'http://test.yudao.iocoder.cn/275b982bd232e71f7af262e216671dd8796555cdde725aebbc5c6223fe73fad7.jpg', 'image/jpeg', 19293, '1', '2024-05-11 14:06:53', '1', '2024-05-11 14:06:53', b'0');
+
+-- ----------------------------
+-- Table structure for infra_file_config
+-- ----------------------------
+DROP TABLE IF EXISTS `infra_file_config`;
+CREATE TABLE `infra_file_config`  (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '编号',
+  `name` varchar(63) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '配置名',
+  `storage` tinyint NOT NULL COMMENT '存储器',
+  `remark` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '备注',
+  `master` bit(1) NOT NULL COMMENT '是否为主配置',
+  `config` varchar(4096) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '存储配置',
+  `creator` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '创建者',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `updater` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '更新者',
+  `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `deleted` bit(1) NOT NULL DEFAULT b'0' COMMENT '是否删除',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 24 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '文件配置表' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of infra_file_config
+-- ----------------------------
+INSERT INTO `infra_file_config` VALUES (4, '数据库', 1, '我是数据库', b'0', '{\"@class\":\"cn.iocoder.yudao.module.infra.framework.file.core.client.db.DBFileClientConfig\",\"domain\":\"http://127.0.0.1:48080\"}', '1', '2022-03-15 23:56:24', '1', '2024-02-28 22:54:07', b'0');
+INSERT INTO `infra_file_config` VALUES (22, '七牛存储器', 20, '', b'1', '{\"@class\":\"cn.iocoder.yudao.module.infra.framework.file.core.client.s3.S3FileClientConfig\",\"endpoint\":\"s3.cn-south-1.qiniucs.com\",\"domain\":\"http://test.yudao.iocoder.cn\",\"bucket\":\"ruoyi-vue-pro\",\"accessKey\":\"3TvrJ70gl2Gt6IBe7_IZT1F6i_k0iMuRtyEv4EyS\",\"accessSecret\":\"wd0tbVBYlp0S-ihA8Qg2hPLncoP83wyrIq24OZuY\"}', '1', '2024-01-13 22:11:12', '1', '2024-04-03 19:38:34', b'0');
+
+-- ----------------------------
+-- Table structure for infra_file_content
+-- ----------------------------
+DROP TABLE IF EXISTS `infra_file_content`;
+CREATE TABLE `infra_file_content`  (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '编号',
+  `config_id` bigint NOT NULL COMMENT '配置编号',
+  `path` varchar(512) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '文件路径',
+  `content` mediumblob NOT NULL COMMENT '文件内容',
+  `creator` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '创建者',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `updater` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '更新者',
+  `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `deleted` bit(1) NOT NULL DEFAULT b'0' COMMENT '是否删除',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 283 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '文件表' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of infra_file_content
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for infra_job
+-- ----------------------------
+DROP TABLE IF EXISTS `infra_job`;
+CREATE TABLE `infra_job`  (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '任务编号',
+  `name` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '任务名称',
+  `status` tinyint NOT NULL COMMENT '任务状态',
+  `handler_name` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '处理器的名字',
+  `handler_param` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '处理器的参数',
+  `cron_expression` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'CRON 表达式',
+  `retry_count` int NOT NULL DEFAULT 0 COMMENT '重试次数',
+  `retry_interval` int NOT NULL DEFAULT 0 COMMENT '重试间隔',
+  `monitor_timeout` int NOT NULL DEFAULT 0 COMMENT '监控超时时间',
+  `creator` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '创建者',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `updater` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '更新者',
+  `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `deleted` bit(1) NOT NULL DEFAULT b'0' COMMENT '是否删除',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 32 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '定时任务表' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of infra_job
+-- ----------------------------
+INSERT INTO `infra_job` VALUES (5, '支付通知 Job', 2, 'payNotifyJob', NULL, '* * * * * ?', 0, 0, 0, '1', '2021-10-27 08:34:42', '1', '2023-07-09 20:51:41', b'0');
+INSERT INTO `infra_job` VALUES (17, '支付订单同步 Job', 2, 'payOrderSyncJob', NULL, '0 0/1 * * * ?', 0, 0, 0, '1', '2023-07-22 14:36:26', '1', '2023-07-22 15:39:08', b'0');
+INSERT INTO `infra_job` VALUES (18, '支付订单过期 Job', 2, 'payOrderExpireJob', NULL, '0 0/1 * * * ?', 0, 0, 0, '1', '2023-07-22 15:36:23', '1', '2023-07-22 15:39:54', b'0');
+INSERT INTO `infra_job` VALUES (19, '退款订单的同步 Job', 2, 'payRefundSyncJob', NULL, '0 0/1 * * * ?', 0, 0, 0, '1', '2023-07-23 21:03:44', '1', '2023-07-23 21:09:00', b'0');
+INSERT INTO `infra_job` VALUES (21, '交易订单的自动过期 Job', 2, 'tradeOrderAutoCancelJob', '', '0 * * * * ?', 3, 0, 0, '1', '2023-09-25 23:43:26', '1', '2023-09-26 19:23:30', b'0');
+INSERT INTO `infra_job` VALUES (22, '交易订单的自动收货 Job', 2, 'tradeOrderAutoReceiveJob', '', '0 * * * * ?', 3, 0, 0, '1', '2023-09-26 19:23:53', '1', '2023-09-26 23:38:08', b'0');
+INSERT INTO `infra_job` VALUES (23, '交易订单的自动评论 Job', 2, 'tradeOrderAutoCommentJob', '', '0 * * * * ?', 3, 0, 0, '1', '2023-09-26 23:38:29', '1', '2023-09-27 11:03:10', b'0');
+INSERT INTO `infra_job` VALUES (24, '佣金解冻 Job', 2, 'brokerageRecordUnfreezeJob', '', '0 * * * * ?', 3, 0, 0, '1', '2023-09-28 22:01:46', '1', '2023-09-28 22:01:56', b'0');
+INSERT INTO `infra_job` VALUES (25, '访问日志清理 Job', 2, 'accessLogCleanJob', '', '0 0 0 * * ?', 3, 0, 0, '1', '2023-10-03 10:59:41', '1', '2023-10-03 11:01:10', b'0');
+INSERT INTO `infra_job` VALUES (26, '错误日志清理 Job', 2, 'errorLogCleanJob', '', '0 0 0 * * ?', 3, 0, 0, '1', '2023-10-03 11:00:43', '1', '2023-10-03 11:01:12', b'0');
+INSERT INTO `infra_job` VALUES (27, '任务日志清理 Job', 2, 'jobLogCleanJob', '', '0 0 0 * * ?', 3, 0, 0, '1', '2023-10-03 11:01:33', '1', '2023-10-03 11:01:42', b'0');
+
+-- ----------------------------
+-- Table structure for infra_job_log
+-- ----------------------------
+DROP TABLE IF EXISTS `infra_job_log`;
+CREATE TABLE `infra_job_log`  (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '日志编号',
+  `job_id` bigint NOT NULL COMMENT '任务编号',
+  `handler_name` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '处理器的名字',
+  `handler_param` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '处理器的参数',
+  `execute_index` tinyint NOT NULL DEFAULT 1 COMMENT '第几次执行',
+  `begin_time` datetime NOT NULL COMMENT '开始执行时间',
+  `end_time` datetime NULL DEFAULT NULL COMMENT '结束执行时间',
+  `duration` int NULL DEFAULT NULL COMMENT '执行时长',
+  `status` tinyint NOT NULL COMMENT '任务状态',
+  `result` varchar(4000) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '结果数据',
+  `creator` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '创建者',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `updater` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '更新者',
+  `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `deleted` bit(1) NOT NULL DEFAULT b'0' COMMENT '是否删除',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 395 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '定时任务日志表' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of infra_job_log
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for member_address
+-- ----------------------------
+DROP TABLE IF EXISTS `member_address`;
+CREATE TABLE `member_address`  (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '收件地址编号',
+  `user_id` bigint NOT NULL COMMENT '用户编号',
+  `name` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL COMMENT '收件人名称',
+  `mobile` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL COMMENT '手机号',
+  `area_id` bigint NOT NULL COMMENT '地区编码',
+  `detail_address` varchar(250) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL COMMENT '收件详细地址',
+  `default_status` bit(1) NOT NULL COMMENT '是否默认',
+  `creator` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '创建者',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `updater` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '更新者',
+  `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `deleted` bit(1) NOT NULL DEFAULT b'0' COMMENT '是否删除',
+  `tenant_id` bigint NOT NULL DEFAULT 0 COMMENT '租户编号',
+  PRIMARY KEY (`id`) USING BTREE,
+  INDEX `idx_userId`(`user_id` ASC) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 32 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin COMMENT = '用户收件地址' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of member_address
+-- ----------------------------
+INSERT INTO `member_address` VALUES (21, 247, 'yunai', '15601691300', 140302, '芋道源码 233 号 666 室', b'0', '1', '2022-08-01 22:46:35', '247', '2023-12-16 19:39:30', b'0', 1);
+INSERT INTO `member_address` VALUES (23, 247, '芋艿', '15601691300', 120103, '13232312444', b'0', '247', '2023-06-26 19:47:40', '247', '2023-12-16 20:27:18', b'0', 1);
+INSERT INTO `member_address` VALUES (24, 248, '芋头', '15601691234', 110101, '灌灌灌灌灌', b'1', '248', '2023-10-06 10:08:24', '248', '2023-10-06 10:08:24', b'0', 1);
+INSERT INTO `member_address` VALUES (25, 247, '测试1', '15601691300', 120101, '3213213444', b'1', '247', '2023-12-16 19:39:30', '247', '2023-12-16 20:33:05', b'0', 1);
+INSERT INTO `member_address` VALUES (28, 247, 'hhh', '15601691203', 230102, '32132132312', b'0', '247', '2023-12-16 20:33:20', '247', '2023-12-16 20:33:20', b'0', 1);
+INSERT INTO `member_address` VALUES (29, 283, '阿斗', '15601691388', 110101, '9999', b'0', '283', '2024-01-17 14:41:55', '283', '2024-01-17 14:41:55', b'0', 1);
+INSERT INTO `member_address` VALUES (30, 284, '阿巴', '15601691300', 110101, 'abc', b'0', '284', '2024-01-17 15:22:42', '284', '2024-01-17 15:22:42', b'0', 1);
+INSERT INTO `member_address` VALUES (31, 285, '阿巴阿巴', '15601692332', 130102, '3333', b'1', '285', '2024-01-17 15:45:00', '285', '2024-01-17 15:45:00', b'0', 1);
+
+-- ----------------------------
+-- Table structure for member_config
+-- ----------------------------
+DROP TABLE IF EXISTS `member_config`;
+CREATE TABLE `member_config`  (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '自增主键',
+  `point_trade_deduct_enable` bit(1) NOT NULL COMMENT '是否开启积分抵扣',
+  `point_trade_deduct_unit_price` int NOT NULL COMMENT '积分抵扣(单位：分)',
+  `point_trade_deduct_max_price` int NULL DEFAULT NULL COMMENT '积分抵扣最大值',
+  `point_trade_give_point` bigint NULL DEFAULT NULL COMMENT '1 元赠送多少分',
+  `creator` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '创建者',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `updater` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '更新者',
+  `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `deleted` bit(1) NOT NULL DEFAULT b'0' COMMENT '是否删除',
+  `tenant_id` bigint NOT NULL DEFAULT 0 COMMENT '租户编号',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 6 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '会员配置表' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of member_config
+-- ----------------------------
+INSERT INTO `member_config` VALUES (5, b'1', 100, 2, 3, '1', '2023-08-20 09:54:42', '1', '2023-10-01 23:44:01', b'0', 1);
+
+-- ----------------------------
+-- Table structure for member_experience_record
+-- ----------------------------
+DROP TABLE IF EXISTS `member_experience_record`;
+CREATE TABLE `member_experience_record`  (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '编号',
+  `user_id` bigint NOT NULL DEFAULT 0 COMMENT '用户编号',
+  `biz_id` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT '业务编号',
+  `biz_type` tinyint NOT NULL DEFAULT 0 COMMENT '业务类型',
+  `title` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT '标题',
+  `description` varchar(512) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT '描述',
+  `experience` int NOT NULL DEFAULT 0 COMMENT '经验',
+  `total_experience` int NOT NULL DEFAULT 0 COMMENT '变更后的经验',
+  `creator` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '创建者',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `updater` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '更新者',
+  `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `deleted` bit(1) NOT NULL DEFAULT b'0' COMMENT '是否删除',
+  `tenant_id` bigint NOT NULL DEFAULT 0 COMMENT '租户编号',
+  PRIMARY KEY (`id`) USING BTREE,
+  INDEX `idx_user_id`(`user_id` ASC) USING BTREE COMMENT '会员经验记录-用户编号',
+  INDEX `idx_user_biz_type`(`user_id` ASC, `biz_type` ASC) USING BTREE COMMENT '会员经验记录-用户业务类型'
+) ENGINE = InnoDB AUTO_INCREMENT = 63 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '会员经验记录' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of member_experience_record
+-- ----------------------------
+INSERT INTO `member_experience_record` VALUES (1, 247, '0', 0, '管理员调整', '管理员调整获得100经验', 100, 100, '1', '2023-08-22 21:52:44', '1', '2023-08-22 21:52:44', b'0', 1);
+INSERT INTO `member_experience_record` VALUES (2, 247, '0', 0, '管理员调整', '管理员调整获得100经验', -50, 100, '1', '2023-08-22 21:52:44', '1', '2023-08-22 21:52:44', b'0', 1);
+INSERT INTO `member_experience_record` VALUES (3, 247, '78', 2, '下单奖励', '下单获得 27 经验', 27, 127, NULL, '2023-08-30 18:46:52', NULL, '2023-08-30 18:46:52', b'0', 1);
+INSERT INTO `member_experience_record` VALUES (4, 247, 'null', 3, '退单扣除', '退单获得 -6 经验', -6, 121, NULL, '2023-08-31 19:56:21', NULL, '2023-08-31 19:56:21', b'0', 1);
+INSERT INTO `member_experience_record` VALUES (5, 247, '80', 2, '下单奖励', '下单获得 699906 经验', 699906, 700027, NULL, '2023-08-31 23:43:29', NULL, '2023-08-31 23:43:29', b'0', 1);
+INSERT INTO `member_experience_record` VALUES (6, 247, '81', 2, '下单奖励', '下单获得 2799606 经验', 2799606, 3499633, NULL, '2023-08-31 23:46:17', NULL, '2023-08-31 23:46:17', b'0', 1);
+INSERT INTO `member_experience_record` VALUES (7, 247, '94', 2, '下单奖励', '下单获得 559920 经验', 559920, 4059553, NULL, '2023-09-30 22:07:42', NULL, '2023-09-30 22:07:42', b'0', 1);
+INSERT INTO `member_experience_record` VALUES (8, 247, '95', 2, '下单奖励', '下单获得 384945 经验', 384945, 4444498, NULL, '2023-10-01 21:36:13', NULL, '2023-10-01 21:36:13', b'0', 1);
+INSERT INTO `member_experience_record` VALUES (9, 247, '96', 2, '下单奖励', '下单获得 699900 经验', 699900, 5144398, NULL, '2023-10-02 09:40:21', NULL, '2023-10-02 09:40:21', b'0', 1);
+INSERT INTO `member_experience_record` VALUES (10, 247, '97', 2, '下单奖励', '下单获得 384945 经验', 384945, 5529343, NULL, '2023-10-02 10:21:12', NULL, '2023-10-02 10:21:12', b'0', 1);
+INSERT INTO `member_experience_record` VALUES (11, 247, '11', 3, '退单扣除', '退单获得 -699900 经验', -699900, 4829443, NULL, '2023-10-02 15:19:37', NULL, '2023-10-02 15:19:37', b'0', 1);
+INSERT INTO `member_experience_record` VALUES (12, 247, '98', 2, '下单奖励', '下单获得 384945 经验', 384945, 5214388, NULL, '2023-10-02 15:38:39', NULL, '2023-10-02 15:38:39', b'0', 1);
+INSERT INTO `member_experience_record` VALUES (13, 247, '102', 2, '下单奖励', '下单获得 201 经验', 201, 5214589, NULL, '2023-10-05 23:05:29', NULL, '2023-10-05 23:05:29', b'0', 1);
+INSERT INTO `member_experience_record` VALUES (14, 247, '107', 2, '下单奖励', '下单获得 201 经验', 201, 5214790, NULL, '2023-10-05 23:23:00', NULL, '2023-10-05 23:23:00', b'0', 1);
+INSERT INTO `member_experience_record` VALUES (15, 248, '108', 2, '下单奖励', '下单获得 275 经验', 275, 275, NULL, '2023-10-06 10:13:44', NULL, '2023-10-06 10:13:44', b'0', 1);
+INSERT INTO `member_experience_record` VALUES (16, 248, '118', 2, '下单奖励', '下单获得 203 经验', 203, 478, NULL, '2023-10-07 06:58:52', NULL, '2023-10-07 06:58:52', b'0', 1);
+INSERT INTO `member_experience_record` VALUES (17, 248, '119', 2, '下单奖励', '下单获得 700100 经验', 700100, 700578, NULL, '2023-10-10 23:02:36', NULL, '2023-10-10 23:02:36', b'0', 1);
+INSERT INTO `member_experience_record` VALUES (21, 248, '15', 3, '退单扣除', '退单获得 -700100 经验', -700100, 478, '1', '2023-10-10 23:11:19', '1', '2023-10-10 23:11:19', b'0', 1);
+INSERT INTO `member_experience_record` VALUES (22, 248, '119', 3, '退单扣除', '退单获得 -700100 经验', -700100, 0, '1', '2023-10-10 23:11:23', '1', '2023-10-10 23:11:23', b'0', 1);
+INSERT INTO `member_experience_record` VALUES (23, 248, '120', 2, '下单奖励', '下单获得 700100 经验', 700100, 700100, NULL, '2023-10-10 23:16:09', NULL, '2023-10-10 23:16:09', b'0', 1);
+INSERT INTO `member_experience_record` VALUES (24, 248, '16', 3, '退单扣除', '退单获得 -700100 经验', -700100, 0, '1', '2023-10-10 23:20:10', '1', '2023-10-10 23:20:10', b'0', 1);
+INSERT INTO `member_experience_record` VALUES (25, 248, '120', 3, '退单扣除', '退单获得 -700100 经验', -700100, 0, '1', '2023-10-10 23:20:16', '1', '2023-10-10 23:20:16', b'0', 1);
+INSERT INTO `member_experience_record` VALUES (26, 248, '121', 2, '下单奖励', '下单获得 700100 经验', 700100, 700100, NULL, '2023-10-10 23:23:30', NULL, '2023-10-10 23:23:30', b'0', 1);
+INSERT INTO `member_experience_record` VALUES (27, 248, '17', 3, '退单扣除', '退单获得 -700100 经验', -700100, 0, '1', '2023-10-10 23:23:50', '1', '2023-10-10 23:23:50', b'0', 1);
+INSERT INTO `member_experience_record` VALUES (28, 248, '121', 3, '退单扣除', '退单获得 -700100 经验', -700100, 0, '1', '2023-10-10 23:23:55', '1', '2023-10-10 23:23:55', b'0', 1);
+INSERT INTO `member_experience_record` VALUES (29, 248, '122', 2, '下单奖励', '下单获得 700100 经验', 700100, 700100, NULL, '2023-10-10 23:28:07', NULL, '2023-10-10 23:28:07', b'0', 1);
+INSERT INTO `member_experience_record` VALUES (30, 248, '18', 3, '退单扣除', '退单获得 -700100 经验', -700100, 0, '1', '2023-10-10 23:29:55', '1', '2023-10-10 23:29:55', b'0', 1);
+INSERT INTO `member_experience_record` VALUES (31, 248, '123', 2, '下单奖励', '下单获得 300 经验', 300, 300, NULL, '2023-10-10 23:44:45', NULL, '2023-10-10 23:44:45', b'0', 1);
+INSERT INTO `member_experience_record` VALUES (32, 248, '124', 2, '下单奖励', '下单获得 560120 经验', 560120, 560420, NULL, '2023-10-11 07:03:46', NULL, '2023-10-11 07:03:46', b'0', 1);
+INSERT INTO `member_experience_record` VALUES (33, 248, '19', 3, '退单扣除', '退单获得 -300 经验', -300, 560120, '1', '2023-10-11 07:04:28', '1', '2023-10-11 07:04:28', b'0', 1);
+INSERT INTO `member_experience_record` VALUES (34, 248, '125', 11, '下单奖励', '下单获得 700100 经验', 700100, 700100, NULL, '2023-10-11 07:33:29', NULL, '2023-10-11 07:33:29', b'0', 1);
+INSERT INTO `member_experience_record` VALUES (37, 248, '127', 11, '下单奖励', '下单获得 385145 经验', 385145, 385145, NULL, '2023-10-11 07:36:44', NULL, '2023-10-11 07:36:44', b'0', 1);
+INSERT INTO `member_experience_record` VALUES (40, 248, '120', 13, '下单奖励（单个取消）', '退款订单获得 -385145 经验', -385145, 0, '1', '2023-10-11 07:39:26', '1', '2023-10-11 07:39:26', b'0', 1);
+INSERT INTO `member_experience_record` VALUES (41, 248, '131', 11, '下单奖励', '下单获得 700100 经验', 700100, 700100, NULL, '2023-10-24 12:33:22', NULL, '2023-10-24 12:33:22', b'0', 1);
+INSERT INTO `member_experience_record` VALUES (42, 247, '136', 11, '下单奖励', '下单获得 255 经验', 255, 5215045, NULL, '2023-12-12 20:49:44', NULL, '2023-12-12 20:49:44', b'0', 1);
+INSERT INTO `member_experience_record` VALUES (43, 247, '137', 11, '下单奖励', '下单获得 385145 经验', 385145, 5600190, NULL, '2023-12-12 20:51:12', NULL, '2023-12-12 20:51:12', b'0', 1);
+INSERT INTO `member_experience_record` VALUES (44, 247, '139', 11, '下单奖励', '下单获得 206 经验', 206, 5600396, NULL, '2023-12-16 00:01:26', NULL, '2023-12-16 00:01:26', b'0', 1);
+INSERT INTO `member_experience_record` VALUES (45, 247, '142', 11, '下单奖励', '下单获得 100 经验', 100, 5600496, NULL, '2023-12-24 11:32:18', NULL, '2023-12-24 11:32:18', b'0', 1);
+INSERT INTO `member_experience_record` VALUES (46, 247, '143', 11, '下单奖励', '下单获得 101 经验', 101, 5600597, NULL, '2023-12-24 13:08:57', NULL, '2023-12-24 13:08:57', b'0', 1);
+INSERT INTO `member_experience_record` VALUES (47, 247, '151', 11, '下单奖励', '下单获得 385047 经验', 385047, 5985644, NULL, '2024-01-04 23:40:52', NULL, '2024-01-04 23:40:52', b'0', 1);
+INSERT INTO `member_experience_record` VALUES (48, 247, '152', 11, '下单奖励', '下单获得 700000 经验', 700000, 6685644, NULL, '2024-01-13 16:47:16', NULL, '2024-01-13 16:47:16', b'0', 1);
+INSERT INTO `member_experience_record` VALUES (49, 247, '153', 11, '下单奖励', '下单获得 103 经验', 103, 6685747, NULL, '2024-01-13 16:47:44', NULL, '2024-01-13 16:47:44', b'0', 1);
+INSERT INTO `member_experience_record` VALUES (50, 247, '154', 11, '下单奖励', '下单获得 103 经验', 103, 6685850, NULL, '2024-01-13 17:07:58', NULL, '2024-01-13 17:07:58', b'0', 1);
+INSERT INTO `member_experience_record` VALUES (51, 247, '155', 11, '下单奖励', '下单获得 300 经验', 300, 6686150, NULL, '2024-01-13 17:10:33', NULL, '2024-01-13 17:10:33', b'0', 1);
+INSERT INTO `member_experience_record` VALUES (52, 247, '156', 11, '下单奖励', '下单获得 300 经验', 300, 6686450, NULL, '2024-01-13 17:12:13', NULL, '2024-01-13 17:12:13', b'0', 1);
+INSERT INTO `member_experience_record` VALUES (53, 247, '157', 11, '下单奖励', '下单获得 300 经验', 300, 6686750, NULL, '2024-01-13 17:13:45', NULL, '2024-01-13 17:13:45', b'0', 1);
+INSERT INTO `member_experience_record` VALUES (54, 247, '158', 11, '下单奖励', '下单获得 300 经验', 300, 6687050, NULL, '2024-01-13 17:16:49', NULL, '2024-01-13 17:16:49', b'0', 1);
+INSERT INTO `member_experience_record` VALUES (55, 247, '159', 11, '下单奖励', '下单获得 300 经验', 300, 6687350, NULL, '2024-01-13 19:16:38', NULL, '2024-01-13 19:16:38', b'0', 1);
+INSERT INTO `member_experience_record` VALUES (56, 247, '160', 11, '下单奖励', '下单获得 200 经验', 200, 6687550, NULL, '2024-01-13 20:23:10', NULL, '2024-01-13 20:23:10', b'0', 1);
+INSERT INTO `member_experience_record` VALUES (57, 247, '161', 11, '下单奖励', '下单获得 386013 经验', 386013, 7073563, NULL, '2024-01-16 08:14:07', NULL, '2024-01-16 08:14:07', b'0', 1);
+INSERT INTO `member_experience_record` VALUES (58, 247, '155', 13, '下单奖励（单个退款）', '退款订单获得 -384945 经验', -384945, 6688618, '1', '2024-01-16 20:27:23', '1', '2024-01-16 20:27:23', b'0', 1);
+INSERT INTO `member_experience_record` VALUES (59, 283, '162', 11, '下单奖励', '下单获得 300 经验', 300, 300, NULL, '2024-01-17 14:42:00', NULL, '2024-01-17 14:42:00', b'0', 1);
+INSERT INTO `member_experience_record` VALUES (60, 284, '163', 11, '下单奖励', '下单获得 300 经验', 300, 300, NULL, '2024-01-17 15:24:09', NULL, '2024-01-17 15:24:09', b'0', 1);
+INSERT INTO `member_experience_record` VALUES (61, 285, '164', 11, '下单奖励', '下单获得 300 经验', 300, 300, NULL, '2024-01-17 15:45:36', NULL, '2024-01-17 15:45:36', b'0', 1);
+INSERT INTO `member_experience_record` VALUES (62, 247, '165', 11, '下单奖励', '下单获得 300 经验', 300, 6688918, NULL, '2024-01-17 19:35:34', NULL, '2024-01-17 19:35:34', b'0', 1);
+
+-- ----------------------------
+-- Table structure for member_group
+-- ----------------------------
+DROP TABLE IF EXISTS `member_group`;
+CREATE TABLE `member_group`  (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '编号',
+  `name` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT '名称',
+  `status` tinyint NOT NULL DEFAULT 0 COMMENT '状态',
+  `remark` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT '备注',
+  `creator` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '创建者',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `updater` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '更新者',
+  `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `deleted` bit(1) NOT NULL DEFAULT b'0' COMMENT '是否删除',
+  `tenant_id` bigint NOT NULL DEFAULT 0 COMMENT '租户编号',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '用户分组' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of member_group
+-- ----------------------------
+INSERT INTO `member_group` VALUES (1, '哈哈哈', 0, '你猜', '1', '2023-08-22 21:58:13', '1', '2023-08-22 21:58:13', b'0', 1);
+
+-- ----------------------------
+-- Table structure for member_level
+-- ----------------------------
+DROP TABLE IF EXISTS `member_level`;
+CREATE TABLE `member_level`  (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '编号',
+  `name` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT '等级名称',
+  `level` int NOT NULL DEFAULT 0 COMMENT '等级',
+  `experience` int NOT NULL DEFAULT 0 COMMENT '升级经验',
+  `discount_percent` tinyint NOT NULL DEFAULT 100 COMMENT '享受折扣',
+  `icon` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT '等级图标',
+  `background_url` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT '等级背景图',
+  `status` tinyint NOT NULL DEFAULT 0 COMMENT '状态',
+  `creator` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '创建者',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `updater` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '更新者',
+  `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `deleted` bit(1) NOT NULL DEFAULT b'0' COMMENT '是否删除',
+  `tenant_id` bigint NOT NULL DEFAULT 0 COMMENT '租户编号',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 4 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '会员等级' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of member_level
+-- ----------------------------
+INSERT INTO `member_level` VALUES (1, '青铜', 1, 100, 80, 'http://127.0.0.1:48080/admin-api/infra/file/4/get/59a1d52ebd38cc843fb5fafc30bce85f15d6ac22c8227dc3fe775d064f71ca6e.png', 'http://127.0.0.1:48080/admin-api/infra/file/4/get/179e45b487daad722fa8bccf382fa35a80caa0a6e6633ca4da961bfbefd9d68a.jpg', 0, '1', '2023-08-22 21:45:03', '1', '2023-08-22 21:45:12', b'0', 1);
+INSERT INTO `member_level` VALUES (2, '白银', 2, 500, 75, 'http://127.0.0.1:48080/admin-api/infra/file/4/get/439a9e188bc2342d79803b2ff1a4872a98a9545a108013f9c0550b7fc604f3d2.png', '', 0, '1', '2023-08-28 20:36:55', '1', '2023-08-28 20:36:55', b'0', 1);
+INSERT INTO `member_level` VALUES (3, '黄金', 3, 50000, 55, '', '', 0, '1', '2023-08-28 20:37:05', '1', '2023-08-28 20:37:05', b'0', 1);
+
+-- ----------------------------
+-- Table structure for member_level_record
+-- ----------------------------
+DROP TABLE IF EXISTS `member_level_record`;
+CREATE TABLE `member_level_record`  (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '编号',
+  `user_id` bigint NOT NULL DEFAULT 0 COMMENT '用户编号',
+  `level_id` bigint NOT NULL DEFAULT 0 COMMENT '等级编号',
+  `level` int NOT NULL DEFAULT 0 COMMENT '会员等级',
+  `discount_percent` tinyint NOT NULL DEFAULT 100 COMMENT '享受折扣',
+  `experience` int NOT NULL DEFAULT 0 COMMENT '升级经验',
+  `user_experience` int NOT NULL DEFAULT 0 COMMENT '会员此时的经验',
+  `remark` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT '备注',
+  `description` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT '描述',
+  `creator` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '创建者',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `updater` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '更新者',
+  `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `deleted` bit(1) NOT NULL DEFAULT b'0' COMMENT '是否删除',
+  `tenant_id` bigint NOT NULL DEFAULT 0 COMMENT '租户编号',
+  PRIMARY KEY (`id`) USING BTREE,
+  INDEX `idx_user_id`(`user_id` ASC) USING BTREE COMMENT '会员等级记录-用户编号'
+) ENGINE = InnoDB AUTO_INCREMENT = 33 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '会员等级记录' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of member_level_record
+-- ----------------------------
+INSERT INTO `member_level_record` VALUES (1, 247, 1, 1, 80, 100, 100, '321321312', '管理员调整为：青铜', '1', '2023-08-22 21:52:44', '1', '2023-08-22 21:52:44', b'0', 1);
+INSERT INTO `member_level_record` VALUES (2, 247, 1, 1, 80, 100, 121, '', '', NULL, '2023-08-31 19:56:21', NULL, '2023-08-31 19:56:21', b'0', 1);
+INSERT INTO `member_level_record` VALUES (3, 247, 3, 3, 55, 50000, 700027, '', '', NULL, '2023-08-31 23:43:29', NULL, '2023-08-31 23:43:29', b'0', 1);
+INSERT INTO `member_level_record` VALUES (4, 247, 3, 3, 55, 50000, 4059553, '', '', NULL, '2023-09-30 22:07:42', NULL, '2023-09-30 22:07:42', b'0', 1);
+INSERT INTO `member_level_record` VALUES (5, 247, 3, 3, 55, 50000, 5144398, '', '', NULL, '2023-10-02 09:40:21', NULL, '2023-10-02 09:40:21', b'0', 1);
+INSERT INTO `member_level_record` VALUES (6, 247, 3, 3, 55, 50000, 4829443, '', '', NULL, '2023-10-02 15:19:37', NULL, '2023-10-02 15:19:37', b'0', 1);
+INSERT INTO `member_level_record` VALUES (7, 247, 3, 3, 55, 50000, 5214589, '', '', NULL, '2023-10-05 23:05:29', NULL, '2023-10-05 23:05:29', b'0', 1);
+INSERT INTO `member_level_record` VALUES (8, 248, 1, 1, 80, 100, 275, '', '', NULL, '2023-10-06 10:13:44', NULL, '2023-10-06 10:13:44', b'0', 1);
+INSERT INTO `member_level_record` VALUES (9, 248, 3, 3, 55, 50000, 700578, '', '', NULL, '2023-10-10 23:02:36', NULL, '2023-10-10 23:02:36', b'0', 1);
+INSERT INTO `member_level_record` VALUES (13, 248, 1, 1, 80, 100, 478, '', '', '1', '2023-10-10 23:11:19', '1', '2023-10-10 23:11:19', b'0', 1);
+INSERT INTO `member_level_record` VALUES (14, 248, 3, 3, 55, 50000, 700100, '', '', NULL, '2023-10-10 23:16:09', NULL, '2023-10-10 23:16:09', b'0', 1);
+INSERT INTO `member_level_record` VALUES (15, 248, 3, 3, 55, 50000, 700100, '', '', NULL, '2023-10-10 23:23:30', NULL, '2023-10-10 23:23:30', b'0', 1);
+INSERT INTO `member_level_record` VALUES (16, 248, 3, 3, 55, 50000, 700100, '', '', NULL, '2023-10-10 23:28:07', NULL, '2023-10-10 23:28:07', b'0', 1);
+INSERT INTO `member_level_record` VALUES (17, 248, 1, 1, 80, 100, 300, '', '', NULL, '2023-10-10 23:44:45', NULL, '2023-10-10 23:44:45', b'0', 1);
+INSERT INTO `member_level_record` VALUES (18, 248, 3, 3, 55, 50000, 560420, '', '', NULL, '2023-10-11 07:03:46', NULL, '2023-10-11 07:03:46', b'0', 1);
+INSERT INTO `member_level_record` VALUES (19, 248, 3, 3, 55, 50000, 700100, '', '', NULL, '2023-10-11 07:33:29', NULL, '2023-10-11 07:33:29', b'0', 1);
+INSERT INTO `member_level_record` VALUES (20, 248, 3, 3, 55, 50000, 700100, '', '', NULL, '2023-10-24 12:33:22', NULL, '2023-10-24 12:33:22', b'0', 1);
+INSERT INTO `member_level_record` VALUES (21, 247, 3, 3, 55, 50000, 5215045, '', '', NULL, '2023-12-12 20:49:44', NULL, '2023-12-12 20:49:44', b'0', 1);
+INSERT INTO `member_level_record` VALUES (22, 247, 3, 3, 55, 50000, 5600396, '', '', NULL, '2023-12-16 00:01:26', NULL, '2023-12-16 00:01:26', b'0', 1);
+INSERT INTO `member_level_record` VALUES (23, 247, 3, 3, 55, 50000, 5600597, '', '', NULL, '2023-12-24 13:08:57', NULL, '2023-12-24 13:08:57', b'0', 1);
+INSERT INTO `member_level_record` VALUES (24, 247, 3, 3, 55, 50000, 6685644, '', '', NULL, '2024-01-13 16:47:16', NULL, '2024-01-13 16:47:16', b'0', 1);
+INSERT INTO `member_level_record` VALUES (25, 247, 3, 3, 55, 50000, 6685850, '', '', NULL, '2024-01-13 17:07:58', NULL, '2024-01-13 17:07:58', b'0', 1);
+INSERT INTO `member_level_record` VALUES (26, 247, 3, 3, 55, 50000, 6686450, '', '', NULL, '2024-01-13 17:12:13', NULL, '2024-01-13 17:12:13', b'0', 1);
+INSERT INTO `member_level_record` VALUES (27, 247, 3, 3, 55, 50000, 6687050, '', '', NULL, '2024-01-13 17:16:49', NULL, '2024-01-13 17:16:49', b'0', 1);
+INSERT INTO `member_level_record` VALUES (28, 247, 3, 3, 55, 50000, 6687550, '', '', NULL, '2024-01-13 20:23:10', NULL, '2024-01-13 20:23:10', b'0', 1);
+INSERT INTO `member_level_record` VALUES (29, 247, 3, 3, 55, 50000, 6688618, '', '', '1', '2024-01-16 20:27:23', '1', '2024-01-16 20:27:23', b'0', 1);
+INSERT INTO `member_level_record` VALUES (30, 283, 1, 1, 80, 100, 300, '', '', NULL, '2024-01-17 14:42:00', NULL, '2024-01-17 14:42:00', b'0', 1);
+INSERT INTO `member_level_record` VALUES (31, 284, 1, 1, 80, 100, 300, '', '', NULL, '2024-01-17 15:24:09', NULL, '2024-01-17 15:24:09', b'0', 1);
+INSERT INTO `member_level_record` VALUES (32, 285, 1, 1, 80, 100, 300, '', '', NULL, '2024-01-17 15:45:36', NULL, '2024-01-17 15:45:36', b'0', 1);
+
+-- ----------------------------
+-- Table structure for member_point_record
+-- ----------------------------
+DROP TABLE IF EXISTS `member_point_record`;
+CREATE TABLE `member_point_record`  (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '自增主键',
+  `user_id` bigint NOT NULL COMMENT '用户编号',
+  `biz_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '业务编码',
+  `biz_type` tinyint NOT NULL COMMENT '业务类型',
+  `title` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '积分标题',
+  `description` varchar(5000) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '积分描述',
+  `point` int NOT NULL COMMENT '积分',
+  `total_point` int NOT NULL COMMENT '变动后的积分',
+  `creator` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '创建者',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `updater` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '更新者',
+  `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `deleted` bit(1) NOT NULL DEFAULT b'0' COMMENT '是否删除',
+  `tenant_id` bigint NOT NULL DEFAULT 0 COMMENT '租户编号',
+  PRIMARY KEY (`id`) USING BTREE,
+  INDEX `index_userId`(`user_id` ASC) USING BTREE,
+  INDEX `index_title`(`title` ASC) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 89 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '用户积分记录' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of member_point_record
+-- ----------------------------
+INSERT INTO `member_point_record` VALUES (1, 247, '1', 1, '12', NULL, 33, 12, '', '2023-07-02 14:50:23', '', '2023-08-20 11:03:01', b'0', 1);
+INSERT INTO `member_point_record` VALUES (2, 247, '12', 1, '123', NULL, 22, 130, '', '2023-07-02 14:50:23', '', '2023-08-20 11:03:00', b'0', 1);
+INSERT INTO `member_point_record` VALUES (3, 247, '12', 1, '12', NULL, -12, 12, '', '2023-07-02 14:50:55', '', '2023-08-21 14:19:29', b'0', 1);
+INSERT INTO `member_point_record` VALUES (4, 247, '78', 10, '订单消费', '下单获得 81 积分', 81, 91, NULL, '2023-08-30 18:46:52', NULL, '2023-08-30 18:46:52', b'0', 1);
+INSERT INTO `member_point_record` VALUES (5, 247, 'null', 11, '订单取消', '退单获得 -18 积分', -18, 73, NULL, '2023-08-31 19:56:21', NULL, '2023-08-31 19:56:21', b'0', 1);
+INSERT INTO `member_point_record` VALUES (6, 247, '80', 10, '订单消费', '下单获得 2099718 积分', 2099718, 2099791, NULL, '2023-08-31 23:43:29', NULL, '2023-08-31 23:43:29', b'0', 1);
+INSERT INTO `member_point_record` VALUES (7, 247, '81', 10, '订单消费', '下单获得 8398818 积分', 8398818, 10498609, NULL, '2023-08-31 23:46:17', NULL, '2023-08-31 23:46:17', b'0', 1);
+INSERT INTO `member_point_record` VALUES (8, 247, '85', 12, '订单使用', '下单使用 -30 积分', -30, 10498579, '247', '2023-09-20 17:11:36', '247', '2023-09-20 17:11:36', b'0', 1);
+INSERT INTO `member_point_record` VALUES (9, 247, '86', 12, '订单使用', '下单使用 -30 积分', -30, 10498549, '247', '2023-09-20 19:32:59', '247', '2023-09-20 19:32:59', b'0', 1);
+INSERT INTO `member_point_record` VALUES (10, 247, '87', 12, '订单使用', '下单使用 -30 积分', -30, 10498519, '247', '2023-09-20 23:11:21', '247', '2023-09-20 23:11:21', b'0', 1);
+INSERT INTO `member_point_record` VALUES (11, 247, '88', 12, '订单使用', '下单使用 -30 积分', -30, 10498489, '247', '2023-09-20 23:20:21', '247', '2023-09-20 23:20:21', b'0', 1);
+INSERT INTO `member_point_record` VALUES (12, 247, '89', 12, '订单使用', '下单使用 -30 积分', -30, 10498459, '247', '2023-09-23 23:51:40', '247', '2023-09-23 23:51:40', b'0', 1);
+INSERT INTO `member_point_record` VALUES (13, 247, '90', 12, '订单使用', '下单使用 -30 积分', -30, 10498429, '247', '2023-09-23 23:52:34', '247', '2023-09-23 23:52:34', b'0', 1);
+INSERT INTO `member_point_record` VALUES (14, 247, '91', 12, '订单使用', '下单使用 -30 积分', -30, 10498399, '247', '2023-09-23 23:54:18', '247', '2023-09-23 23:54:18', b'0', 1);
+INSERT INTO `member_point_record` VALUES (15, 247, '92', 12, '订单使用', '下单使用 -30 积分', -30, 10498369, '247', '2023-09-23 23:55:33', '247', '2023-09-23 23:55:33', b'0', 1);
+INSERT INTO `member_point_record` VALUES (16, 247, '93', 12, '订单使用', '下单使用 -30 积分', -30, 10498339, '247', '2023-09-23 23:56:53', '247', '2023-09-23 23:56:53', b'0', 1);
+INSERT INTO `member_point_record` VALUES (17, 247, '85', 11, '订单取消', '订单取消，退还 10 积分', 10, 10498349, NULL, '2023-09-25 23:54:47', NULL, '2023-09-25 23:54:47', b'0', 1);
+INSERT INTO `member_point_record` VALUES (18, 247, '86', 11, '订单取消', '订单取消，退还 10 积分', 10, 10498359, NULL, '2023-09-25 23:54:48', NULL, '2023-09-25 23:54:48', b'0', 1);
+INSERT INTO `member_point_record` VALUES (19, 247, '87', 11, '订单取消', '订单取消，退还 10 积分', 10, 10498369, NULL, '2023-09-25 23:54:48', NULL, '2023-09-25 23:54:48', b'0', 1);
+INSERT INTO `member_point_record` VALUES (20, 247, '88', 11, '订单取消', '订单取消，退还 10 积分', 10, 10498379, NULL, '2023-09-25 23:54:48', NULL, '2023-09-25 23:54:48', b'0', 1);
+INSERT INTO `member_point_record` VALUES (21, 247, '89', 11, '订单取消', '订单取消，退还 10 积分', 10, 10498389, NULL, '2023-09-25 23:54:48', NULL, '2023-09-25 23:54:48', b'0', 1);
+INSERT INTO `member_point_record` VALUES (22, 247, '90', 11, '订单取消', '订单取消，退还 10 积分', 10, 10498399, NULL, '2023-09-25 23:54:48', NULL, '2023-09-25 23:54:48', b'0', 1);
+INSERT INTO `member_point_record` VALUES (23, 247, '91', 11, '订单取消', '订单取消，退还 10 积分', 10, 10498409, NULL, '2023-09-25 23:54:48', NULL, '2023-09-25 23:54:48', b'0', 1);
+INSERT INTO `member_point_record` VALUES (24, 247, '92', 11, '订单取消', '订单取消，退还 10 积分', 10, 10498419, NULL, '2023-09-25 23:54:48', NULL, '2023-09-25 23:54:48', b'0', 1);
+INSERT INTO `member_point_record` VALUES (25, 247, '93', 11, '订单取消', '订单取消，退还 10 积分', 10, 10498429, NULL, '2023-09-25 23:54:48', NULL, '2023-09-25 23:54:48', b'0', 1);
+INSERT INTO `member_point_record` VALUES (26, 247, '94', 10, '订单奖励', '下单获得 16797 积分', 16797, 10515226, NULL, '2023-09-30 22:07:42', NULL, '2023-09-30 22:07:42', b'0', 1);
+INSERT INTO `member_point_record` VALUES (27, 247, '95', 10, '订单奖励', '下单获得 11548 积分', 11548, 10526774, NULL, '2023-10-01 21:36:13', NULL, '2023-10-01 21:36:13', b'0', 1);
+INSERT INTO `member_point_record` VALUES (28, 247, '1', 2, '管理员修改', '管理员修改 112 积分', 112, 10526886, '1', '2023-10-01 22:44:05', '1', '2023-10-01 22:44:05', b'0', 1);
+INSERT INTO `member_point_record` VALUES (29, 247, '96', 10, '订单奖励', '下单获得 20997 积分', 20997, 10547883, NULL, '2023-10-02 09:40:20', NULL, '2023-10-02 09:40:20', b'0', 1);
+INSERT INTO `member_point_record` VALUES (30, 247, '97', 10, '订单奖励', '下单获得 11548 积分', 11548, 10559431, NULL, '2023-10-02 10:21:12', NULL, '2023-10-02 10:21:12', b'0', 1);
+INSERT INTO `member_point_record` VALUES (31, 247, '98', 10, '订单奖励', '下单获得 11548 积分', 11548, 10570979, NULL, '2023-10-02 15:38:39', NULL, '2023-10-02 15:38:39', b'0', 1);
+INSERT INTO `member_point_record` VALUES (32, 247, '102', 10, '订单奖励', '下单获得 6 积分', 6, 10570985, NULL, '2023-10-05 23:05:29', NULL, '2023-10-05 23:05:29', b'0', 1);
+INSERT INTO `member_point_record` VALUES (33, 247, '107', 10, '订单奖励', '下单获得 6 积分', 6, 10570991, NULL, '2023-10-05 23:23:00', NULL, '2023-10-05 23:23:00', b'0', 1);
+INSERT INTO `member_point_record` VALUES (34, 248, '108', 10, '订单奖励', '下单获得 8 积分', 8, 8, NULL, '2023-10-06 10:13:44', NULL, '2023-10-06 10:13:44', b'0', 1);
+INSERT INTO `member_point_record` VALUES (35, 248, '118', 10, '订单奖励', '下单获得 6 积分', 6, 14, NULL, '2023-10-07 06:58:51', NULL, '2023-10-07 06:58:51', b'0', 1);
+INSERT INTO `member_point_record` VALUES (36, 248, '119', 10, '订单奖励', '下单获得 21003 积分', 21003, 21017, NULL, '2023-10-10 23:02:35', NULL, '2023-10-10 23:02:35', b'0', 1);
+INSERT INTO `member_point_record` VALUES (40, 248, '15', 14, '订单退款', '订单退款，扣除赠送的 -21003 积分', -21003, 2080697, '1', '2023-10-10 23:11:19', '1', '2023-10-10 23:11:19', b'0', 1);
+INSERT INTO `member_point_record` VALUES (41, 248, '119', 11, '订单取消', '订单取消，退还 -21003 积分', -21003, 2059694, '1', '2023-10-10 23:11:23', '1', '2023-10-10 23:11:23', b'0', 1);
+INSERT INTO `member_point_record` VALUES (42, 248, '120', 10, '订单奖励', '下单获得 21003 积分', 21003, 2080697, NULL, '2023-10-10 23:16:09', NULL, '2023-10-10 23:16:09', b'0', 1);
+INSERT INTO `member_point_record` VALUES (43, 248, '16', 14, '订单退款', '订单退款，扣除赠送的 -21003 积分', -21003, 2059694, '1', '2023-10-10 23:20:10', '1', '2023-10-10 23:20:10', b'0', 1);
+INSERT INTO `member_point_record` VALUES (44, 248, '120', 11, '订单取消', '订单取消，退还 -21003 积分', -21003, 2038691, '1', '2023-10-10 23:20:16', '1', '2023-10-10 23:20:16', b'0', 1);
+INSERT INTO `member_point_record` VALUES (45, 248, '121', 10, '订单奖励', '下单获得 21003 积分', 21003, 2059694, NULL, '2023-10-10 23:23:30', NULL, '2023-10-10 23:23:30', b'0', 1);
+INSERT INTO `member_point_record` VALUES (46, 248, '17', 14, '订单退款', '订单退款，扣除赠送的 -21003 积分', -21003, 2038691, '1', '2023-10-10 23:23:50', '1', '2023-10-10 23:23:50', b'0', 1);
+INSERT INTO `member_point_record` VALUES (47, 248, '121', 11, '订单取消', '订单取消，退还 -21003 积分', -21003, 2017688, '1', '2023-10-10 23:23:55', '1', '2023-10-10 23:23:55', b'0', 1);
+INSERT INTO `member_point_record` VALUES (48, 248, '122', 10, '订单奖励', '下单获得 21003 积分', 21003, 2038691, NULL, '2023-10-10 23:28:07', NULL, '2023-10-10 23:28:07', b'0', 1);
+INSERT INTO `member_point_record` VALUES (49, 248, '18', 14, '订单退款', '订单退款，扣除赠送的 -21003 积分', -21003, 2017688, '1', '2023-10-10 23:29:55', '1', '2023-10-10 23:29:55', b'0', 1);
+INSERT INTO `member_point_record` VALUES (50, 248, '123', 10, '订单奖励', '下单获得 9 积分', 9, 2017697, NULL, '2023-10-10 23:44:45', NULL, '2023-10-10 23:44:45', b'0', 1);
+INSERT INTO `member_point_record` VALUES (51, 248, '124', 10, '订单奖励', '下单获得 16803 积分', 16803, 2034500, NULL, '2023-10-11 07:03:46', NULL, '2023-10-11 07:03:46', b'0', 1);
+INSERT INTO `member_point_record` VALUES (52, 248, '19', 14, '订单退款', '订单退款，扣除赠送的 -9 积分', -9, 2034491, '1', '2023-10-11 07:04:28', '1', '2023-10-11 07:04:28', b'0', 1);
+INSERT INTO `member_point_record` VALUES (53, 248, '125', 21, '订单积分奖励', '下单获得 21003 积分', 21003, 21003, NULL, '2023-10-11 07:33:29', NULL, '2023-10-11 07:33:29', b'0', 1);
+INSERT INTO `member_point_record` VALUES (56, 248, '127', 21, '订单积分奖励', '下单获得 11554 积分', 11554, 11554, NULL, '2023-10-11 07:36:44', NULL, '2023-10-11 07:36:44', b'0', 1);
+INSERT INTO `member_point_record` VALUES (59, 248, '120', 23, '订单积分奖励（单个退款）', '订单退款，扣除赠送的 -11554 积分', -11554, 0, '1', '2023-10-11 07:39:26', '1', '2023-10-11 07:39:26', b'0', 1);
+INSERT INTO `member_point_record` VALUES (60, 248, '131', 21, '订单积分奖励', '下单获得 21003 积分', 21003, 21003, NULL, '2023-10-24 12:33:22', NULL, '2023-10-24 12:33:22', b'0', 1);
+INSERT INTO `member_point_record` VALUES (61, 247, '136', 21, '订单积分奖励', '下单获得 7 积分', 7, 10570998, NULL, '2023-12-12 20:49:44', NULL, '2023-12-12 20:49:44', b'0', 1);
+INSERT INTO `member_point_record` VALUES (62, 247, '137', 21, '订单积分奖励', '下单获得 11554 积分', 11554, 10582552, NULL, '2023-12-12 20:51:12', NULL, '2023-12-12 20:51:12', b'0', 1);
+INSERT INTO `member_point_record` VALUES (63, 247, '139', 21, '订单积分奖励', '下单获得 6 积分', 6, 10582558, NULL, '2023-12-16 00:01:26', NULL, '2023-12-16 00:01:26', b'0', 1);
+INSERT INTO `member_point_record` VALUES (64, 247, '142', 21, '订单积分奖励', '下单获得 3 积分', 3, 10582561, NULL, '2023-12-24 11:32:18', NULL, '2023-12-24 11:32:18', b'0', 1);
+INSERT INTO `member_point_record` VALUES (65, 247, '143', 21, '订单积分奖励', '下单获得 3 积分', 3, 10582564, NULL, '2023-12-24 13:08:57', NULL, '2023-12-24 13:08:57', b'0', 1);
+INSERT INTO `member_point_record` VALUES (66, 247, '5', 1, '签到', '签到获得 10 积分', 10, 10582574, '247', '2023-12-27 23:56:31', '247', '2023-12-27 23:56:31', b'0', 1);
+INSERT INTO `member_point_record` VALUES (67, 247, '6', 1, '签到', '签到获得 3 积分', 3, 10582577, '247', '2023-12-28 00:07:31', '247', '2023-12-28 00:07:31', b'0', 1);
+INSERT INTO `member_point_record` VALUES (68, 247, '7', 1, '签到', '签到获得 10 积分', 10, 121, '247', '2024-01-04 13:02:21', '247', '2024-01-04 13:02:21', b'0', 1);
+INSERT INTO `member_point_record` VALUES (69, 247, '8', 1, '签到', '签到获得 3 积分', 3, 124, '247', '2024-01-04 13:03:21', '247', '2024-01-04 13:03:21', b'0', 1);
+INSERT INTO `member_point_record` VALUES (70, 247, '9', 1, '签到', '签到获得 3 积分', 3, 127, '247', '2024-01-04 13:03:32', '247', '2024-01-04 13:03:32', b'0', 1);
+INSERT INTO `member_point_record` VALUES (71, 247, '10', 1, '签到', '签到获得 3 积分', 3, 130, '247', '2024-01-04 13:03:45', '247', '2024-01-04 13:03:45', b'0', 1);
+INSERT INTO `member_point_record` VALUES (72, 247, '11', 1, '签到', '签到获得 5 积分', 5, 135, '247', '2024-01-04 13:04:11', '247', '2024-01-04 13:04:11', b'0', 1);
+INSERT INTO `member_point_record` VALUES (73, 247, '151', 21, '订单积分奖励', '下单获得 11551 积分', 11551, 11686, NULL, '2024-01-04 23:40:52', NULL, '2024-01-04 23:40:52', b'0', 1);
+INSERT INTO `member_point_record` VALUES (74, 247, '152', 21, '订单积分奖励', '下单获得 21000 积分', 21000, 32686, NULL, '2024-01-13 16:47:16', NULL, '2024-01-13 16:47:16', b'0', 1);
+INSERT INTO `member_point_record` VALUES (75, 247, '153', 21, '订单积分奖励', '下单获得 3 积分', 3, 32689, NULL, '2024-01-13 16:47:44', NULL, '2024-01-13 16:47:44', b'0', 1);
+INSERT INTO `member_point_record` VALUES (76, 247, '154', 21, '订单积分奖励', '下单获得 3 积分', 3, 32692, NULL, '2024-01-13 17:07:58', NULL, '2024-01-13 17:07:58', b'0', 1);
+INSERT INTO `member_point_record` VALUES (77, 247, '155', 21, '订单积分奖励', '下单获得 9 积分', 9, 32701, NULL, '2024-01-13 17:10:33', NULL, '2024-01-13 17:10:33', b'0', 1);
+INSERT INTO `member_point_record` VALUES (78, 247, '156', 21, '订单积分奖励', '下单获得 9 积分', 9, 32710, NULL, '2024-01-13 17:12:13', NULL, '2024-01-13 17:12:13', b'0', 1);
+INSERT INTO `member_point_record` VALUES (79, 247, '157', 21, '订单积分奖励', '下单获得 9 积分', 9, 32719, NULL, '2024-01-13 17:13:45', NULL, '2024-01-13 17:13:45', b'0', 1);
+INSERT INTO `member_point_record` VALUES (80, 247, '158', 21, '订单积分奖励', '下单获得 9 积分', 9, 32728, NULL, '2024-01-13 17:16:49', NULL, '2024-01-13 17:16:49', b'0', 1);
+INSERT INTO `member_point_record` VALUES (81, 247, '159', 21, '订单积分奖励', '下单获得 9 积分', 9, 32737, NULL, '2024-01-13 19:16:38', NULL, '2024-01-13 19:16:38', b'0', 1);
+INSERT INTO `member_point_record` VALUES (82, 247, '160', 21, '订单积分奖励', '下单获得 6 积分', 6, 32743, NULL, '2024-01-13 20:23:10', NULL, '2024-01-13 20:23:10', b'0', 1);
+INSERT INTO `member_point_record` VALUES (83, 247, '161', 21, '订单积分奖励', '下单获得 11580 积分', 11580, 44323, NULL, '2024-01-16 08:14:07', NULL, '2024-01-16 08:14:07', b'0', 1);
+INSERT INTO `member_point_record` VALUES (84, 247, '155', 23, '订单积分奖励（单个退款）', '订单退款，扣除赠送的 -11547 积分', -11547, 32776, '1', '2024-01-16 20:27:23', '1', '2024-01-16 20:27:23', b'0', 1);
+INSERT INTO `member_point_record` VALUES (85, 283, '162', 21, '订单积分奖励', '下单获得 9 积分', 9, 9, NULL, '2024-01-17 14:42:00', NULL, '2024-01-17 14:42:00', b'0', 1);
+INSERT INTO `member_point_record` VALUES (86, 284, '163', 21, '订单积分奖励', '下单获得 9 积分', 9, 9, NULL, '2024-01-17 15:24:09', NULL, '2024-01-17 15:24:09', b'0', 1);
+INSERT INTO `member_point_record` VALUES (87, 285, '164', 21, '订单积分奖励', '下单获得 9 积分', 9, 9, NULL, '2024-01-17 15:45:36', NULL, '2024-01-17 15:45:36', b'0', 1);
+INSERT INTO `member_point_record` VALUES (88, 247, '165', 21, '订单积分奖励', '下单获得 9 积分', 9, 32785, NULL, '2024-01-17 19:35:34', NULL, '2024-01-17 19:35:34', b'0', 1);
+
+-- ----------------------------
+-- Table structure for member_sign_in_config
+-- ----------------------------
+DROP TABLE IF EXISTS `member_sign_in_config`;
+CREATE TABLE `member_sign_in_config`  (
+  `id` int NOT NULL AUTO_INCREMENT COMMENT '编号',
+  `day` int NOT NULL COMMENT '第几天',
+  `point` int NOT NULL COMMENT '奖励积分',
+  `experience` int NOT NULL DEFAULT 0 COMMENT '奖励经验',
+  `status` tinyint NOT NULL COMMENT '状态',
+  `creator` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '' COMMENT '创建者',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `updater` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '' COMMENT '更新者',
+  `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `deleted` bit(1) NOT NULL DEFAULT b'0' COMMENT '是否删除',
+  `tenant_id` bigint NOT NULL DEFAULT 0 COMMENT '租户编号',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 13 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '签到规则' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of member_sign_in_config
+-- ----------------------------
+INSERT INTO `member_sign_in_config` VALUES (1, 1, 10, 0, 0, '', '2023-08-20 01:38:56', '', '2023-08-20 01:38:56', b'0', 0);
+INSERT INTO `member_sign_in_config` VALUES (2, 2, 20, 0, 0, '', '2023-08-20 01:38:56', '', '2023-08-20 01:38:56', b'0', 0);
+INSERT INTO `member_sign_in_config` VALUES (3, 7, 1001, 0, 0, '', '2023-08-20 01:38:56', '', '2023-08-20 01:38:56', b'0', 0);
+INSERT INTO `member_sign_in_config` VALUES (4, 6, 12121, 0, 0, '', '2023-08-20 01:38:56', '', '2023-08-20 01:38:56', b'0', 0);
+INSERT INTO `member_sign_in_config` VALUES (5, 2, 12, 0, 0, '', '2023-08-20 01:38:56', '', '2023-08-20 01:38:56', b'0', 0);
+INSERT INTO `member_sign_in_config` VALUES (6, 1, 10, 0, 0, '1', '2023-08-20 19:20:42', '1', '2023-08-20 19:20:56', b'0', 1);
+INSERT INTO `member_sign_in_config` VALUES (7, 7, 22, 0, 0, '1', '2023-08-20 19:20:48', '1', '2023-08-20 19:20:48', b'0', 1);
+INSERT INTO `member_sign_in_config` VALUES (8, 2, 3, 0, 0, '1', '2023-08-21 20:22:44', '1', '2023-08-21 20:22:44', b'0', 1);
+INSERT INTO `member_sign_in_config` VALUES (9, 3, 4, 0, 0, '1', '2023-08-21 20:22:48', '1', '2023-08-21 20:22:48', b'0', 1);
+INSERT INTO `member_sign_in_config` VALUES (10, 4, 5, 0, 0, '1', '2023-08-21 20:22:51', '1', '2023-08-21 20:22:51', b'0', 1);
+INSERT INTO `member_sign_in_config` VALUES (11, 5, 6, 0, 0, '1', '2023-08-21 20:22:56', '1', '2023-08-21 20:22:56', b'0', 1);
+INSERT INTO `member_sign_in_config` VALUES (12, 6, 7, 0, 0, '1', '2023-08-21 20:22:59', '1', '2023-08-21 20:22:59', b'0', 1);
+
+-- ----------------------------
+-- Table structure for member_sign_in_record
+-- ----------------------------
+DROP TABLE IF EXISTS `member_sign_in_record`;
+CREATE TABLE `member_sign_in_record`  (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '签到自增id',
+  `user_id` int NULL DEFAULT NULL COMMENT '签到用户',
+  `day` int NULL DEFAULT NULL COMMENT '第几天签到',
+  `point` int NOT NULL DEFAULT 0 COMMENT '签到的分数',
+  `experience` int NOT NULL DEFAULT 0 COMMENT '奖励经验',
+  `creator` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '创建者',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `updater` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '更新者',
+  `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `deleted` bit(1) NOT NULL DEFAULT b'0' COMMENT '是否删除',
+  `tenant_id` bigint NOT NULL DEFAULT 0 COMMENT '租户编号',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 12 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '签到记录' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of member_sign_in_record
+-- ----------------------------
+INSERT INTO `member_sign_in_record` VALUES (1, 247, 1, 123, 0, '', '2023-09-24 01:23:47', '', '2023-09-24 01:23:47', b'0', 0);
+INSERT INTO `member_sign_in_record` VALUES (2, 247, 12, 12, 0, '', '2023-09-24 01:23:47', '', '2023-09-24 01:23:47', b'0', 0);
+INSERT INTO `member_sign_in_record` VALUES (3, 247, 12, 1212, 0, '', '2023-09-24 01:23:47', '', '2023-09-24 01:23:47', b'0', 0);
+INSERT INTO `member_sign_in_record` VALUES (4, 247, 12, 1212, 0, '', '2023-09-24 01:23:47', '', '2023-09-24 01:23:47', b'0', 0);
+INSERT INTO `member_sign_in_record` VALUES (5, 247, 1, 10, 0, '247', '2023-12-27 23:56:31', '247', '2023-12-27 23:56:31', b'0', 1);
+INSERT INTO `member_sign_in_record` VALUES (6, 247, 2, 3, 0, '247', '2023-12-28 00:07:31', '247', '2023-12-28 00:07:31', b'0', 1);
+INSERT INTO `member_sign_in_record` VALUES (7, 247, 3, 10, 0, '247', '2024-01-03 13:02:21', '247', '2023-12-24 18:18:36', b'0', 1);
+INSERT INTO `member_sign_in_record` VALUES (8, 247, 2, 3, 0, '247', '2024-01-02 13:03:21', '247', '2023-12-24 18:18:02', b'0', 1);
+INSERT INTO `member_sign_in_record` VALUES (9, 247, 1, 3, 0, '247', '2024-01-01 13:03:32', '247', '2023-12-24 18:18:31', b'0', 1);
+INSERT INTO `member_sign_in_record` VALUES (11, 247, 4, 5, 0, '247', '2024-01-04 13:04:11', '247', '2024-01-04 13:04:11', b'0', 1);
+
+-- ----------------------------
+-- Table structure for member_tag
+-- ----------------------------
+DROP TABLE IF EXISTS `member_tag`;
+CREATE TABLE `member_tag`  (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '编号',
+  `name` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT '标签名称',
+  `creator` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '创建者',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `updater` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '更新者',
+  `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `deleted` bit(1) NOT NULL DEFAULT b'0' COMMENT '是否删除',
+  `tenant_id` bigint NOT NULL DEFAULT 0 COMMENT '租户编号',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 3 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '会员标签' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of member_tag
+-- ----------------------------
+INSERT INTO `member_tag` VALUES (1, '绿色', '1', '2023-08-20 09:21:12', '1', '2023-08-20 09:21:12', b'0', 1);
+INSERT INTO `member_tag` VALUES (2, '黄色', '1', '2023-08-20 09:21:27', '1', '2023-08-20 09:21:27', b'0', 1);
+
+-- ----------------------------
+-- Table structure for member_user
+-- ----------------------------
+DROP TABLE IF EXISTS `member_user`;
+CREATE TABLE `member_user`  (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '编号',
+  `mobile` varchar(11) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '手机号',
+  `password` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '密码',
+  `status` tinyint NOT NULL COMMENT '状态',
+  `register_ip` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '注册 IP',
+  `register_terminal` tinyint NULL DEFAULT NULL COMMENT '注册终端',
+  `login_ip` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '最后登录IP',
+  `login_date` datetime NULL DEFAULT NULL COMMENT '最后登录时间',
+  `nickname` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '用户昵称',
+  `avatar` varchar(512) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '头像',
+  `name` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '' COMMENT '真实名字',
+  `sex` tinyint NULL DEFAULT 0 COMMENT '用户性别',
+  `area_id` bigint NULL DEFAULT NULL COMMENT '所在地',
+  `birthday` datetime NULL DEFAULT NULL COMMENT '出生日期',
+  `mark` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '会员备注',
+  `point` int NOT NULL DEFAULT 0 COMMENT '积分',
+  `tag_ids` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '用户标签编号列表，以逗号分隔',
+  `level_id` bigint NULL DEFAULT NULL COMMENT '等级编号',
+  `experience` int NOT NULL DEFAULT 0 COMMENT '经验',
+  `group_id` bigint NULL DEFAULT NULL COMMENT '用户分组编号',
+  `creator` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '' COMMENT '创建者',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `updater` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '' COMMENT '更新者',
+  `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `deleted` bit(1) NOT NULL DEFAULT b'0' COMMENT '是否删除',
+  `tenant_id` bigint NOT NULL DEFAULT 0 COMMENT '租户编号',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 286 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '会员用户' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of member_user
+-- ----------------------------
+INSERT INTO `member_user` VALUES (247, '15601691399', '$2a$04$7BixfD4z0Xs/pOlILmlmSeEJ0Cy3aKVcpGIi3.xkYWwR5I8EIV/qy', 0, '127.0.0.1', NULL, '127.0.0.1', '2024-01-17 19:27:05', '啦啦啦', 'http://127.0.0.1:48080/admin-api/infra/file/4/get/f341ff4f7838c29a4978421d0de39ac5d9e18016af124e7ef94a29cb4e8e5a15.jpeg', '啦啦啦', 2, 130102, '2023-08-28 00:00:00', '备注3213123', 32785, '1,2', 0, 6688918, 1, NULL, '2023-10-15 11:23:08', NULL, '2024-01-17 19:35:34', b'0', 1);
+INSERT INTO `member_user` VALUES (248, '15601691499', '$2a$04$uhOkX4y5VkktR0B2KXAQmuAOYbVB3UiJ4smmD6HoIqiu/71kG0pXy', 0, '127.0.0.1', NULL, '127.0.0.1', '2023-12-24 22:38:41', '土豆233', '', '', 0, NULL, NULL, NULL, 21003, NULL, 3, 700100, NULL, '247', '2023-10-14 18:21:04', '247', '2023-12-22 13:54:33', b'0', 1);
+INSERT INTO `member_user` VALUES (249, '15601691388', '$2a$04$bGr1w7v1mz7PSpLYtrgFie/1KU8ytH/7k74naQJx574KXA2UzoB.6', 0, '127.0.0.1', 30, '127.0.0.1', '2024-01-13 17:15:46', '土豆233', '', '', 0, NULL, NULL, NULL, 0, NULL, NULL, 0, NULL, NULL, '2023-10-30 12:49:03', '247', '2024-01-13 17:15:46', b'0', 1);
+INSERT INTO `member_user` VALUES (250, '15601691301', '$2a$04$FAGPqc9ZByK3xf1Z4bWpW./kuUicI82FroqtKjuRP04uWgGXfioyC', 0, '127.0.0.1', 20, '127.0.0.1', '2023-12-28 22:58:49', '土豆233', '', '', 0, NULL, NULL, NULL, 0, NULL, NULL, 0, NULL, '247', '2023-12-17 19:22:26', NULL, '2023-12-28 22:58:49', b'0', 1);
+INSERT INTO `member_user` VALUES (251, '15601691302', '$2a$04$iFjWz8/d7CibBCdxJX/dD.Zz1fys9hc9SNH/Hpcajp5OUUNE0Vfoq', 0, '127.0.0.1', 20, '127.0.0.1', '2024-01-13 16:54:30', '土豆233', '', '', 0, NULL, NULL, NULL, 0, NULL, NULL, 0, NULL, '247', '2023-12-17 19:22:57', '247', '2024-01-13 16:54:30', b'0', 1);
+INSERT INTO `member_user` VALUES (252, NULL, '$2a$04$EcI3tqOw53N5yFRkVB2gkO6eblGjF7wBAZggM/AMZIxiKfT9A6.4C', 0, '127.0.0.1', 20, '', NULL, '土豆233', 'http://127.0.0.1:48080/admin-api/infra/file/4/get/49009b73d392657c85bed2e82e22b09720e7c68466b8565c8b2f6c00e03b705e.jpg', '', 0, NULL, NULL, NULL, 0, NULL, NULL, 0, NULL, '247', '2023-12-22 00:10:06', '247', '2023-12-22 00:10:06', b'0', 1);
+INSERT INTO `member_user` VALUES (253, NULL, '$2a$04$S0/ctJznIyzvYWuUDd1zZusYFM8KZqvRK.q9KKXn9Z8DLY23UVMDG', 0, '127.0.0.1', 20, '', NULL, '土豆233', 'http://127.0.0.1:48080/admin-api/infra/file/4/get/49009b73d392657c85bed2e82e22b09720e7c68466b8565c8b2f6c00e03b705e.jpg', '', 0, NULL, NULL, NULL, 0, NULL, NULL, 0, NULL, '247', '2023-12-22 00:10:34', '247', '2023-12-22 00:10:34', b'0', 1);
+INSERT INTO `member_user` VALUES (254, NULL, '$2a$04$ZWMBB2sVjG5V39xVisdZbeCSNIuLdgCJNLTRSH698QfZwF0s403nC', 0, '127.0.0.1', 20, '', NULL, '土豆233', 'http://127.0.0.1:48080/admin-api/infra/file/4/get/49009b73d392657c85bed2e82e22b09720e7c68466b8565c8b2f6c00e03b705e.jpg', '', 0, NULL, NULL, NULL, 0, NULL, NULL, 0, NULL, '247', '2023-12-22 00:11:10', '247', '2023-12-22 00:11:10', b'0', 1);
+INSERT INTO `member_user` VALUES (255, NULL, '$2a$04$Rm/ssffAJ3od9b.IDiSgYeyyY6FHWMrDPFywrL5eWZcmWrtUgUkQG', 0, '127.0.0.1', 20, '', NULL, '土豆233', 'http://127.0.0.1:48080/admin-api/infra/file/4/get/49009b73d392657c85bed2e82e22b09720e7c68466b8565c8b2f6c00e03b705e.jpg', '', 0, NULL, NULL, NULL, 0, NULL, NULL, 0, NULL, '247', '2023-12-22 00:11:22', '247', '2023-12-22 00:11:22', b'0', 1);
+INSERT INTO `member_user` VALUES (256, NULL, '$2a$04$UA8Y87jYk3m1roGHGZkXLOPqCHLpmYjd7xFVSVSZ5m5fuRMz5GIgW', 0, '127.0.0.1', 20, '127.0.0.1', '2023-12-22 00:14:02', '土豆233', 'http://127.0.0.1:48080/admin-api/infra/file/4/get/49009b73d392657c85bed2e82e22b09720e7c68466b8565c8b2f6c00e03b705e.jpg', '', 0, NULL, NULL, NULL, 0, NULL, NULL, 0, NULL, '247', '2023-12-22 00:14:02', '247', '2023-12-22 00:14:02', b'0', 1);
+INSERT INTO `member_user` VALUES (257, NULL, '$2a$04$ZEJ4s8x68UzAlKdRfnByCOYozK5IchWJNBK56MvmHfR6T0rdk30sa', 0, '127.0.0.1', 20, '127.0.0.1', '2023-12-22 00:16:38', '土豆233', 'http://127.0.0.1:48080/admin-api/infra/file/4/get/49009b73d392657c85bed2e82e22b09720e7c68466b8565c8b2f6c00e03b705e.jpg', '', 0, NULL, NULL, NULL, 0, NULL, NULL, 0, NULL, '247', '2023-12-22 00:16:38', '247', '2023-12-22 00:16:38', b'0', 1);
+INSERT INTO `member_user` VALUES (258, NULL, '$2a$04$6AKifvXpNxBBDnspkzRc.OKgZIlg4TxPvHcRvvnqmVpjSsQQ8mgtW', 0, '127.0.0.1', 20, '127.0.0.1', '2023-12-22 00:17:10', '土豆233', 'http://127.0.0.1:48080/admin-api/infra/file/4/get/49009b73d392657c85bed2e82e22b09720e7c68466b8565c8b2f6c00e03b705e.jpg', '', 0, NULL, NULL, NULL, 0, NULL, NULL, 0, NULL, '247', '2023-12-22 00:17:10', '247', '2023-12-22 00:17:10', b'0', 1);
+INSERT INTO `member_user` VALUES (259, NULL, '$2a$04$TV0itDCiIU2HVHadk7sxyOumKYTG2tkkePlL.AYogA49ronHWDbGy', 0, '127.0.0.1', 20, '127.0.0.1', '2023-12-22 00:17:38', '土豆233', 'http://127.0.0.1:48080/admin-api/infra/file/4/get/49009b73d392657c85bed2e82e22b09720e7c68466b8565c8b2f6c00e03b705e.jpg', '', 0, NULL, NULL, NULL, 0, NULL, NULL, 0, NULL, '247', '2023-12-22 00:17:38', '247', '2023-12-22 00:17:38', b'0', 1);
+INSERT INTO `member_user` VALUES (260, NULL, '$2a$04$anryZQ1C2EB73TqatKmfn.6Z3sdJkcdJ.QJECcnLc9c3L8qH3cJdi', 0, '127.0.0.1', 20, '127.0.0.1', '2023-12-22 00:18:39', '土豆233', 'http://127.0.0.1:48080/admin-api/infra/file/4/get/49009b73d392657c85bed2e82e22b09720e7c68466b8565c8b2f6c00e03b705e.jpg', '', 0, NULL, NULL, NULL, 0, NULL, NULL, 0, NULL, '247', '2023-12-22 00:18:39', '247', '2023-12-22 00:18:39', b'0', 1);
+INSERT INTO `member_user` VALUES (261, NULL, '$2a$04$SNcGXnXveFnMLRw.CararucpycSGYYxAji.fNrnlesDouvEvvooCe', 0, '127.0.0.1', 20, '127.0.0.1', '2023-12-22 00:19:03', '土豆233', 'http://127.0.0.1:48080/admin-api/infra/file/4/get/49009b73d392657c85bed2e82e22b09720e7c68466b8565c8b2f6c00e03b705e.jpg', '', 0, NULL, NULL, NULL, 0, NULL, NULL, 0, NULL, '247', '2023-12-22 00:19:03', '247', '2023-12-22 00:19:03', b'0', 1);
+INSERT INTO `member_user` VALUES (262, NULL, '$2a$04$24JHBKIQlB4NzW0pp5chGOPIIr2HVkp.1Fk9vWZ00y5qvMOZ2aeky', 0, '127.0.0.1', 20, '127.0.0.1', '2023-12-23 09:51:46', '土豆233', 'http://127.0.0.1:48080/admin-api/infra/file/4/get/49009b73d392657c85bed2e82e22b09720e7c68466b8565c8b2f6c00e03b705e.jpg', '', 0, NULL, NULL, NULL, 0, NULL, NULL, 0, NULL, '247', '2023-12-23 09:51:46', '247', '2023-12-23 09:51:46', b'0', 1);
+INSERT INTO `member_user` VALUES (273, NULL, '$2a$04$eEAnFbJw5/t90hBI25MqGerMxEJp0sKT7lduLDk3o0AzOP0eK9jpi', 0, '127.0.0.1', 20, '127.0.0.1', '2023-12-23 19:29:40', '用户315213', '', '', 0, NULL, NULL, NULL, 0, NULL, NULL, 0, NULL, '247', '2023-12-23 17:39:53', '247', '2023-12-23 19:29:40', b'0', 1);
+INSERT INTO `member_user` VALUES (274, NULL, '$2a$04$oJqlMrtCGLxNlauBw98rG.YygC8CH2E1A6PNIA9F5.AbzAtBdMZym', 0, '127.0.0.1', 20, '127.0.0.1', '2023-12-23 21:23:19', '芋艿（一种食材）', 'https://thirdwx.qlogo.cn/mmopen/vi_32/Q0j4TwGTfTJsb6yF8nF3I1MtFk8KFcYyFHunpicwZLOxCLFy0WfibgH9Lt4LjKOfKGd5NV7BRwcByCHkj7n3xf7w/132', '', 0, NULL, NULL, NULL, 0, NULL, NULL, 0, NULL, '247', '2023-12-23 21:23:19', '247', '2023-12-23 21:23:19', b'0', 1);
+INSERT INTO `member_user` VALUES (275, NULL, '$2a$04$iJ0Pnshm0/FlyT3w6Ggmeu/1FVpHzuPpC/rsi6pluNHyB2BYdQi3y', 0, '127.0.0.1', 20, '127.0.0.1', '2023-12-23 21:39:58', '芋艿（一种食材）', 'https://thirdwx.qlogo.cn/mmopen/vi_32/Q0j4TwGTfTJsb6yF8nF3I1MtFk8KFcYyFHunpicwZLOxCLFy0WfibgH9Lt4LjKOfKGd5NV7BRwcByCHkj7n3xf7w/132', '', 0, NULL, NULL, NULL, 0, NULL, NULL, 0, NULL, '247', '2023-12-23 21:39:58', '247', '2023-12-23 21:39:58', b'0', 1);
+INSERT INTO `member_user` VALUES (276, NULL, '$2a$04$yZIxDQxy6Ivzg64D8rpW4.p.TtCAFjZpzlkH25EW7yoBqOj4/lk8e', 0, '127.0.0.1', 20, '127.0.0.1', '2023-12-23 22:27:10', '芋艿（一种食材）', 'https://thirdwx.qlogo.cn/mmopen/vi_32/Q0j4TwGTfTJsb6yF8nF3I1MtFk8KFcYyFHunpicwZLOxCLFy0WfibgH9Lt4LjKOfKGd5NV7BRwcByCHkj7n3xf7w/132', '', 0, NULL, NULL, NULL, 0, NULL, NULL, 0, NULL, '247', '2023-12-23 22:27:10', '247', '2023-12-23 22:27:10', b'0', 1);
+INSERT INTO `member_user` VALUES (277, NULL, '$2a$04$N3SkOzxjWAmDXoDOrYqnXe/4Cs/7JwL3B3qR/yS2OMbJhIkeqIq46', 0, '127.0.0.1', 20, '114.84.176.64', '2023-12-24 10:50:12', '芋艿（一种食材）', 'https://thirdwx.qlogo.cn/mmopen/vi_32/Q0j4TwGTfTKMezSxtOImrC9lbhwHiazYwck3xwrEcO7VJfG6WQo260whaeVNoByE5RreiaGsGfOMlIiaDhSaA991w/132', '', 0, NULL, NULL, NULL, 0, NULL, NULL, 0, NULL, '247', '2023-12-24 10:15:38', '247', '2023-12-24 10:50:12', b'0', 1);
+INSERT INTO `member_user` VALUES (278, NULL, '$2a$04$jQD8S2yqATWhhLfnytZJ6eRUU2OnnpTuk6mD2obv0GsKuttgApWTG', 0, '114.84.176.64', 20, '114.84.176.64', '2023-12-24 11:48:52', '用户531758', '', '', 0, NULL, NULL, NULL, 0, NULL, NULL, 0, NULL, '247', '2023-12-24 11:48:52', '247', '2023-12-24 11:48:52', b'0', 1);
+INSERT INTO `member_user` VALUES (279, NULL, '$2a$04$oPpxJc6hscS06.PN2HdnFuboaYikUh1iJ8.O5CeBHYmexINBMSKG6', 0, '114.84.176.64', 20, '114.84.176.64', '2023-12-24 13:08:03', '用户351537', '', '', 0, NULL, NULL, NULL, 0, NULL, NULL, 0, NULL, '247', '2023-12-24 13:08:03', '247', '2023-12-24 13:08:03', b'0', 1);
+INSERT INTO `member_user` VALUES (280, NULL, '$2a$04$i1/ib1XW08U78Z6Jt5H27e4i3lWJJVS2Z7eJFkBa/nrYNlTZRnky2', 0, '114.84.176.64', 20, '114.84.176.64', '2023-12-24 20:10:34', '芋艿（一种食材）', 'https://thirdwx.qlogo.cn/mmopen/vi_32/Q0j4TwGTfTKMezSxtOImrC9lbhwHiazYwck3xwrEcO7VJfG6WQo260whaeVNoByE5RreiaGsGfOMlIiaDhSaA991w/132', '', 0, NULL, NULL, NULL, 0, NULL, NULL, 0, NULL, '247', '2023-12-24 20:10:34', '247', '2023-12-24 20:10:34', b'0', 1);
+INSERT INTO `member_user` VALUES (281, '15601691305', '$2a$04$3pwBg7WrEUPL17i1yVZH4uKFxyt/5ptzZLnqvSrP/RC2/L7kE5MIe', 0, '127.0.0.1', 20, '127.0.0.1', '2023-12-28 22:51:07', '用户6822470', '', '', 1, NULL, NULL, NULL, 0, NULL, NULL, 0, NULL, NULL, '2023-12-28 22:51:07', '281', '2023-12-28 22:51:33', b'0', 1);
+INSERT INTO `member_user` VALUES (282, '15601691382', '$2a$04$fiRnifjyMsVVnXHatJiDwOdIUbjw5OoLcerWRg9p7J/VPty5c4TsC', 0, '127.0.0.1', 20, '127.0.0.1', '2023-12-28 23:19:09', '芋艿（一种食材）', 'https://thirdwx.qlogo.cn/mmopen/vi_32/Q0j4TwGTfTJsb6yF8nF3I1MtFk8KFcYyFHunpicwZLOxCLFy0WfibgH9Lt4LjKOfKGd5NV7BRwcByCHkj7n3xf7w/132', '', 0, NULL, NULL, NULL, 0, NULL, NULL, 0, NULL, NULL, '2023-12-28 23:19:09', '282', '2023-12-28 23:19:28', b'0', 1);
+INSERT INTO `member_user` VALUES (283, '18818260278', '$2a$04$B8NUowhn9Cj6vAW8rVOR4e3YDMaLirhdH7s/rB0XabxB9E6i/yXb6', 0, '127.0.0.1', 20, '127.0.0.1', '2024-01-17 14:40:23', '用户991818', 'http://test.yudao.iocoder.cn/51b284275ebabaec210a1dc6f92cfc7a63ff8509db8298bc49d77cd0f299fe7b.jpg', '', 0, NULL, NULL, NULL, 9, NULL, 1, 300, NULL, NULL, '2024-01-17 14:40:23', NULL, '2024-01-17 14:42:00', b'0', 1);
+INSERT INTO `member_user` VALUES (284, '15601691310', '$2a$04$wxq7x2Ae0Vqu5kXyHWlIVeNq6oqRiWGZ3RJrnzS3HCKHTFvhPmOg6', 0, '127.0.0.1', 20, '127.0.0.1', '2024-01-17 15:16:12', '我是一个团长', 'http://test.yudao.iocoder.cn/a00353eb8aec04053fde8887802f856625b8210b66e948dffd9da21bdda28ef2.png', '', 0, NULL, NULL, NULL, 9, NULL, 1, 300, NULL, NULL, '2024-01-17 15:16:12', NULL, '2024-01-17 15:24:09', b'0', 1);
+INSERT INTO `member_user` VALUES (285, '15601691323', '$2a$04$xTYFGI/RQ2P0uvR0N9xFXuLwubffpAt6RMvyg0S2zsaoJtIuKVkBK', 0, '127.0.0.1', 20, '127.0.0.1', '2024-01-17 15:41:01', '我是噶团员', 'http://test.yudao.iocoder.cn/524fb8e6aa7060ff1b3a4cf32805b906fc68f748cfab389c0efd5b5336c6a401.jpg', '', 0, NULL, NULL, NULL, 9, NULL, 1, 300, NULL, NULL, '2024-01-17 15:41:01', NULL, '2024-01-17 15:45:36', b'0', 1);
+
+-- ----------------------------
+-- Table structure for qrtz_blob_triggers
+-- ----------------------------
+DROP TABLE IF EXISTS `qrtz_blob_triggers`;
+CREATE TABLE `qrtz_blob_triggers`  (
+  `SCHED_NAME` varchar(120) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `TRIGGER_NAME` varchar(190) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `TRIGGER_GROUP` varchar(190) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `BLOB_DATA` blob NULL,
+  PRIMARY KEY (`SCHED_NAME`, `TRIGGER_NAME`, `TRIGGER_GROUP`) USING BTREE,
+  INDEX `SCHED_NAME`(`SCHED_NAME` ASC, `TRIGGER_NAME` ASC, `TRIGGER_GROUP` ASC) USING BTREE,
+  CONSTRAINT `qrtz_blob_triggers_ibfk_1` FOREIGN KEY (`SCHED_NAME`, `TRIGGER_NAME`, `TRIGGER_GROUP`) REFERENCES `qrtz_triggers` (`SCHED_NAME`, `TRIGGER_NAME`, `TRIGGER_GROUP`) ON DELETE RESTRICT ON UPDATE RESTRICT
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of qrtz_blob_triggers
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for qrtz_calendars
+-- ----------------------------
+DROP TABLE IF EXISTS `qrtz_calendars`;
+CREATE TABLE `qrtz_calendars`  (
+  `SCHED_NAME` varchar(120) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `CALENDAR_NAME` varchar(190) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `CALENDAR` blob NOT NULL,
+  PRIMARY KEY (`SCHED_NAME`, `CALENDAR_NAME`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of qrtz_calendars
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for qrtz_cron_triggers
+-- ----------------------------
+DROP TABLE IF EXISTS `qrtz_cron_triggers`;
+CREATE TABLE `qrtz_cron_triggers`  (
+  `SCHED_NAME` varchar(120) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `TRIGGER_NAME` varchar(190) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `TRIGGER_GROUP` varchar(190) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `CRON_EXPRESSION` varchar(120) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `TIME_ZONE_ID` varchar(80) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL,
+  PRIMARY KEY (`SCHED_NAME`, `TRIGGER_NAME`, `TRIGGER_GROUP`) USING BTREE,
+  CONSTRAINT `qrtz_cron_triggers_ibfk_1` FOREIGN KEY (`SCHED_NAME`, `TRIGGER_NAME`, `TRIGGER_GROUP`) REFERENCES `qrtz_triggers` (`SCHED_NAME`, `TRIGGER_NAME`, `TRIGGER_GROUP`) ON DELETE RESTRICT ON UPDATE RESTRICT
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of qrtz_cron_triggers
+-- ----------------------------
+INSERT INTO `qrtz_cron_triggers` VALUES ('schedulerName', 'accessLogCleanJob', 'DEFAULT', '0 0 0 * * ?', 'Asia/Shanghai');
+INSERT INTO `qrtz_cron_triggers` VALUES ('schedulerName', 'brokerageRecordUnfreezeJob', 'DEFAULT', '0 * * * * ?', 'Asia/Shanghai');
+INSERT INTO `qrtz_cron_triggers` VALUES ('schedulerName', 'errorLogCleanJob', 'DEFAULT', '0 0 0 * * ?', 'Asia/Shanghai');
+INSERT INTO `qrtz_cron_triggers` VALUES ('schedulerName', 'jobLogCleanJob', 'DEFAULT', '0 0 0 * * ?', 'Asia/Shanghai');
+INSERT INTO `qrtz_cron_triggers` VALUES ('schedulerName', 'payNotifyJob', 'DEFAULT', '* * * * * ?', 'Asia/Shanghai');
+INSERT INTO `qrtz_cron_triggers` VALUES ('schedulerName', 'payOrderExpireJob', 'DEFAULT', '0 0/1 * * * ?', 'Asia/Shanghai');
+INSERT INTO `qrtz_cron_triggers` VALUES ('schedulerName', 'payOrderSyncJob', 'DEFAULT', '0 0/1 * * * ?', 'Asia/Shanghai');
+INSERT INTO `qrtz_cron_triggers` VALUES ('schedulerName', 'payRefundSyncJob', 'DEFAULT', '0 0/1 * * * ?', 'Asia/Shanghai');
+INSERT INTO `qrtz_cron_triggers` VALUES ('schedulerName', 'tradeOrderAutoCancelJob', 'DEFAULT', '0 * * * * ?', 'Asia/Shanghai');
+INSERT INTO `qrtz_cron_triggers` VALUES ('schedulerName', 'tradeOrderAutoCommentJob', 'DEFAULT', '0 * * * * ?', 'Asia/Shanghai');
+INSERT INTO `qrtz_cron_triggers` VALUES ('schedulerName', 'tradeOrderAutoReceiveJob', 'DEFAULT', '0 * * * * ?', 'Asia/Shanghai');
+
+-- ----------------------------
+-- Table structure for qrtz_fired_triggers
+-- ----------------------------
+DROP TABLE IF EXISTS `qrtz_fired_triggers`;
+CREATE TABLE `qrtz_fired_triggers`  (
+  `SCHED_NAME` varchar(120) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `ENTRY_ID` varchar(95) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `TRIGGER_NAME` varchar(190) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `TRIGGER_GROUP` varchar(190) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `INSTANCE_NAME` varchar(190) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `FIRED_TIME` bigint NOT NULL,
+  `SCHED_TIME` bigint NOT NULL,
+  `PRIORITY` int NOT NULL,
+  `STATE` varchar(16) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `JOB_NAME` varchar(190) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL,
+  `JOB_GROUP` varchar(190) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL,
+  `IS_NONCONCURRENT` varchar(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL,
+  `REQUESTS_RECOVERY` varchar(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL,
+  PRIMARY KEY (`SCHED_NAME`, `ENTRY_ID`) USING BTREE,
+  INDEX `IDX_QRTZ_FT_TRIG_INST_NAME`(`SCHED_NAME` ASC, `INSTANCE_NAME` ASC) USING BTREE,
+  INDEX `IDX_QRTZ_FT_INST_JOB_REQ_RCVRY`(`SCHED_NAME` ASC, `INSTANCE_NAME` ASC, `REQUESTS_RECOVERY` ASC) USING BTREE,
+  INDEX `IDX_QRTZ_FT_J_G`(`SCHED_NAME` ASC, `JOB_NAME` ASC, `JOB_GROUP` ASC) USING BTREE,
+  INDEX `IDX_QRTZ_FT_JG`(`SCHED_NAME` ASC, `JOB_GROUP` ASC) USING BTREE,
+  INDEX `IDX_QRTZ_FT_T_G`(`SCHED_NAME` ASC, `TRIGGER_NAME` ASC, `TRIGGER_GROUP` ASC) USING BTREE,
+  INDEX `IDX_QRTZ_FT_TG`(`SCHED_NAME` ASC, `TRIGGER_GROUP` ASC) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of qrtz_fired_triggers
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for qrtz_job_details
+-- ----------------------------
+DROP TABLE IF EXISTS `qrtz_job_details`;
+CREATE TABLE `qrtz_job_details`  (
+  `SCHED_NAME` varchar(120) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `JOB_NAME` varchar(190) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `JOB_GROUP` varchar(190) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `DESCRIPTION` varchar(250) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL,
+  `JOB_CLASS_NAME` varchar(250) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `IS_DURABLE` varchar(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `IS_NONCONCURRENT` varchar(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `IS_UPDATE_DATA` varchar(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `REQUESTS_RECOVERY` varchar(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `JOB_DATA` blob NULL,
+  PRIMARY KEY (`SCHED_NAME`, `JOB_NAME`, `JOB_GROUP`) USING BTREE,
+  INDEX `IDX_QRTZ_J_REQ_RECOVERY`(`SCHED_NAME` ASC, `REQUESTS_RECOVERY` ASC) USING BTREE,
+  INDEX `IDX_QRTZ_J_GRP`(`SCHED_NAME` ASC, `JOB_GROUP` ASC) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of qrtz_job_details
+-- ----------------------------
+INSERT INTO `qrtz_job_details` VALUES ('schedulerName', 'accessLogCleanJob', 'DEFAULT', NULL, 'cn.iocoder.yudao.framework.quartz.core.handler.JobHandlerInvoker', '0', '1', '1', '0', 0xACED0005737200156F72672E71756172747A2E4A6F62446174614D61709FB083E8BFA9B0CB020000787200266F72672E71756172747A2E7574696C732E537472696E674B65794469727479466C61674D61708208E8C3FBC55D280200015A0013616C6C6F77735472616E7369656E74446174617872001D6F72672E71756172747A2E7574696C732E4469727479466C61674D617013E62EAD28760ACE0200025A000564697274794C00036D617074000F4C6A6176612F7574696C2F4D61703B787001737200116A6176612E7574696C2E486173684D61700507DAC1C31660D103000246000A6C6F6164466163746F724900097468726573686F6C6478703F4000000000000C770800000010000000027400064A4F425F49447372000E6A6176612E6C616E672E4C6F6E673B8BE490CC8F23DF0200014A000576616C7565787200106A6176612E6C616E672E4E756D62657286AC951D0B94E08B020000787000000000000000197400104A4F425F48414E444C45525F4E414D457400116163636573734C6F67436C65616E4A6F627800);
+INSERT INTO `qrtz_job_details` VALUES ('schedulerName', 'brokerageRecordUnfreezeJob', 'DEFAULT', NULL, 'cn.iocoder.yudao.framework.quartz.core.handler.JobHandlerInvoker', '0', '1', '1', '0', 0xACED0005737200156F72672E71756172747A2E4A6F62446174614D61709FB083E8BFA9B0CB020000787200266F72672E71756172747A2E7574696C732E537472696E674B65794469727479466C61674D61708208E8C3FBC55D280200015A0013616C6C6F77735472616E7369656E74446174617872001D6F72672E71756172747A2E7574696C732E4469727479466C61674D617013E62EAD28760ACE0200025A000564697274794C00036D617074000F4C6A6176612F7574696C2F4D61703B787001737200116A6176612E7574696C2E486173684D61700507DAC1C31660D103000246000A6C6F6164466163746F724900097468726573686F6C6478703F4000000000000C770800000010000000027400064A4F425F49447372000E6A6176612E6C616E672E4C6F6E673B8BE490CC8F23DF0200014A000576616C7565787200106A6176612E6C616E672E4E756D62657286AC951D0B94E08B020000787000000000000000187400104A4F425F48414E444C45525F4E414D4574001A62726F6B65726167655265636F7264556E667265657A654A6F627800);
+INSERT INTO `qrtz_job_details` VALUES ('schedulerName', 'errorLogCleanJob', 'DEFAULT', NULL, 'cn.iocoder.yudao.framework.quartz.core.handler.JobHandlerInvoker', '0', '1', '1', '0', 0xACED0005737200156F72672E71756172747A2E4A6F62446174614D61709FB083E8BFA9B0CB020000787200266F72672E71756172747A2E7574696C732E537472696E674B65794469727479466C61674D61708208E8C3FBC55D280200015A0013616C6C6F77735472616E7369656E74446174617872001D6F72672E71756172747A2E7574696C732E4469727479466C61674D617013E62EAD28760ACE0200025A000564697274794C00036D617074000F4C6A6176612F7574696C2F4D61703B787001737200116A6176612E7574696C2E486173684D61700507DAC1C31660D103000246000A6C6F6164466163746F724900097468726573686F6C6478703F4000000000000C770800000010000000027400064A4F425F49447372000E6A6176612E6C616E672E4C6F6E673B8BE490CC8F23DF0200014A000576616C7565787200106A6176612E6C616E672E4E756D62657286AC951D0B94E08B0200007870000000000000001A7400104A4F425F48414E444C45525F4E414D457400106572726F724C6F67436C65616E4A6F627800);
+INSERT INTO `qrtz_job_details` VALUES ('schedulerName', 'jobLogCleanJob', 'DEFAULT', NULL, 'cn.iocoder.yudao.framework.quartz.core.handler.JobHandlerInvoker', '0', '1', '1', '0', 0xACED0005737200156F72672E71756172747A2E4A6F62446174614D61709FB083E8BFA9B0CB020000787200266F72672E71756172747A2E7574696C732E537472696E674B65794469727479466C61674D61708208E8C3FBC55D280200015A0013616C6C6F77735472616E7369656E74446174617872001D6F72672E71756172747A2E7574696C732E4469727479466C61674D617013E62EAD28760ACE0200025A000564697274794C00036D617074000F4C6A6176612F7574696C2F4D61703B787001737200116A6176612E7574696C2E486173684D61700507DAC1C31660D103000246000A6C6F6164466163746F724900097468726573686F6C6478703F4000000000000C770800000010000000027400064A4F425F49447372000E6A6176612E6C616E672E4C6F6E673B8BE490CC8F23DF0200014A000576616C7565787200106A6176612E6C616E672E4E756D62657286AC951D0B94E08B0200007870000000000000001B7400104A4F425F48414E444C45525F4E414D4574000E6A6F624C6F67436C65616E4A6F627800);
+INSERT INTO `qrtz_job_details` VALUES ('schedulerName', 'payNotifyJob', 'DEFAULT', NULL, 'cn.iocoder.yudao.framework.quartz.core.handler.JobHandlerInvoker', '0', '1', '1', '0', 0xACED0005737200156F72672E71756172747A2E4A6F62446174614D61709FB083E8BFA9B0CB020000787200266F72672E71756172747A2E7574696C732E537472696E674B65794469727479466C61674D61708208E8C3FBC55D280200015A0013616C6C6F77735472616E7369656E74446174617872001D6F72672E71756172747A2E7574696C732E4469727479466C61674D617013E62EAD28760ACE0200025A000564697274794C00036D617074000F4C6A6176612F7574696C2F4D61703B787001737200116A6176612E7574696C2E486173684D61700507DAC1C31660D103000246000A6C6F6164466163746F724900097468726573686F6C6478703F4000000000000C770800000010000000027400064A4F425F49447372000E6A6176612E6C616E672E4C6F6E673B8BE490CC8F23DF0200014A000576616C7565787200106A6176612E6C616E672E4E756D62657286AC951D0B94E08B020000787000000000000000057400104A4F425F48414E444C45525F4E414D4574000C7061794E6F746966794A6F627800);
+INSERT INTO `qrtz_job_details` VALUES ('schedulerName', 'payOrderExpireJob', 'DEFAULT', NULL, 'cn.iocoder.yudao.framework.quartz.core.handler.JobHandlerInvoker', '0', '1', '1', '0', 0xACED0005737200156F72672E71756172747A2E4A6F62446174614D61709FB083E8BFA9B0CB020000787200266F72672E71756172747A2E7574696C732E537472696E674B65794469727479466C61674D61708208E8C3FBC55D280200015A0013616C6C6F77735472616E7369656E74446174617872001D6F72672E71756172747A2E7574696C732E4469727479466C61674D617013E62EAD28760ACE0200025A000564697274794C00036D617074000F4C6A6176612F7574696C2F4D61703B787001737200116A6176612E7574696C2E486173684D61700507DAC1C31660D103000246000A6C6F6164466163746F724900097468726573686F6C6478703F4000000000000C770800000010000000027400064A4F425F49447372000E6A6176612E6C616E672E4C6F6E673B8BE490CC8F23DF0200014A000576616C7565787200106A6176612E6C616E672E4E756D62657286AC951D0B94E08B020000787000000000000000127400104A4F425F48414E444C45525F4E414D457400117061794F726465724578706972654A6F627800);
+INSERT INTO `qrtz_job_details` VALUES ('schedulerName', 'payOrderSyncJob', 'DEFAULT', NULL, 'cn.iocoder.yudao.framework.quartz.core.handler.JobHandlerInvoker', '0', '1', '1', '0', 0xACED0005737200156F72672E71756172747A2E4A6F62446174614D61709FB083E8BFA9B0CB020000787200266F72672E71756172747A2E7574696C732E537472696E674B65794469727479466C61674D61708208E8C3FBC55D280200015A0013616C6C6F77735472616E7369656E74446174617872001D6F72672E71756172747A2E7574696C732E4469727479466C61674D617013E62EAD28760ACE0200025A000564697274794C00036D617074000F4C6A6176612F7574696C2F4D61703B787001737200116A6176612E7574696C2E486173684D61700507DAC1C31660D103000246000A6C6F6164466163746F724900097468726573686F6C6478703F4000000000000C770800000010000000027400064A4F425F49447372000E6A6176612E6C616E672E4C6F6E673B8BE490CC8F23DF0200014A000576616C7565787200106A6176612E6C616E672E4E756D62657286AC951D0B94E08B020000787000000000000000117400104A4F425F48414E444C45525F4E414D4574000F7061794F7264657253796E634A6F627800);
+INSERT INTO `qrtz_job_details` VALUES ('schedulerName', 'payRefundSyncJob', 'DEFAULT', NULL, 'cn.iocoder.yudao.framework.quartz.core.handler.JobHandlerInvoker', '0', '1', '1', '0', 0xACED0005737200156F72672E71756172747A2E4A6F62446174614D61709FB083E8BFA9B0CB020000787200266F72672E71756172747A2E7574696C732E537472696E674B65794469727479466C61674D61708208E8C3FBC55D280200015A0013616C6C6F77735472616E7369656E74446174617872001D6F72672E71756172747A2E7574696C732E4469727479466C61674D617013E62EAD28760ACE0200025A000564697274794C00036D617074000F4C6A6176612F7574696C2F4D61703B787001737200116A6176612E7574696C2E486173684D61700507DAC1C31660D103000246000A6C6F6164466163746F724900097468726573686F6C6478703F4000000000000C770800000010000000027400064A4F425F49447372000E6A6176612E6C616E672E4C6F6E673B8BE490CC8F23DF0200014A000576616C7565787200106A6176612E6C616E672E4E756D62657286AC951D0B94E08B020000787000000000000000137400104A4F425F48414E444C45525F4E414D45740010706179526566756E6453796E634A6F627800);
+INSERT INTO `qrtz_job_details` VALUES ('schedulerName', 'tradeOrderAutoCancelJob', 'DEFAULT', NULL, 'cn.iocoder.yudao.framework.quartz.core.handler.JobHandlerInvoker', '0', '1', '1', '0', 0xACED0005737200156F72672E71756172747A2E4A6F62446174614D61709FB083E8BFA9B0CB020000787200266F72672E71756172747A2E7574696C732E537472696E674B65794469727479466C61674D61708208E8C3FBC55D280200015A0013616C6C6F77735472616E7369656E74446174617872001D6F72672E71756172747A2E7574696C732E4469727479466C61674D617013E62EAD28760ACE0200025A000564697274794C00036D617074000F4C6A6176612F7574696C2F4D61703B787001737200116A6176612E7574696C2E486173684D61700507DAC1C31660D103000246000A6C6F6164466163746F724900097468726573686F6C6478703F4000000000000C770800000010000000027400064A4F425F49447372000E6A6176612E6C616E672E4C6F6E673B8BE490CC8F23DF0200014A000576616C7565787200106A6176612E6C616E672E4E756D62657286AC951D0B94E08B020000787000000000000000157400104A4F425F48414E444C45525F4E414D4574001774726164654F726465724175746F43616E63656C4A6F627800);
+INSERT INTO `qrtz_job_details` VALUES ('schedulerName', 'tradeOrderAutoCommentJob', 'DEFAULT', NULL, 'cn.iocoder.yudao.framework.quartz.core.handler.JobHandlerInvoker', '0', '1', '1', '0', 0xACED0005737200156F72672E71756172747A2E4A6F62446174614D61709FB083E8BFA9B0CB020000787200266F72672E71756172747A2E7574696C732E537472696E674B65794469727479466C61674D61708208E8C3FBC55D280200015A0013616C6C6F77735472616E7369656E74446174617872001D6F72672E71756172747A2E7574696C732E4469727479466C61674D617013E62EAD28760ACE0200025A000564697274794C00036D617074000F4C6A6176612F7574696C2F4D61703B787001737200116A6176612E7574696C2E486173684D61700507DAC1C31660D103000246000A6C6F6164466163746F724900097468726573686F6C6478703F4000000000000C770800000010000000027400064A4F425F49447372000E6A6176612E6C616E672E4C6F6E673B8BE490CC8F23DF0200014A000576616C7565787200106A6176612E6C616E672E4E756D62657286AC951D0B94E08B020000787000000000000000177400104A4F425F48414E444C45525F4E414D4574001874726164654F726465724175746F436F6D6D656E744A6F627800);
+INSERT INTO `qrtz_job_details` VALUES ('schedulerName', 'tradeOrderAutoReceiveJob', 'DEFAULT', NULL, 'cn.iocoder.yudao.framework.quartz.core.handler.JobHandlerInvoker', '0', '1', '1', '0', 0xACED0005737200156F72672E71756172747A2E4A6F62446174614D61709FB083E8BFA9B0CB020000787200266F72672E71756172747A2E7574696C732E537472696E674B65794469727479466C61674D61708208E8C3FBC55D280200015A0013616C6C6F77735472616E7369656E74446174617872001D6F72672E71756172747A2E7574696C732E4469727479466C61674D617013E62EAD28760ACE0200025A000564697274794C00036D617074000F4C6A6176612F7574696C2F4D61703B787001737200116A6176612E7574696C2E486173684D61700507DAC1C31660D103000246000A6C6F6164466163746F724900097468726573686F6C6478703F4000000000000C770800000010000000027400064A4F425F49447372000E6A6176612E6C616E672E4C6F6E673B8BE490CC8F23DF0200014A000576616C7565787200106A6176612E6C616E672E4E756D62657286AC951D0B94E08B020000787000000000000000167400104A4F425F48414E444C45525F4E414D4574001874726164654F726465724175746F526563656976654A6F627800);
+
+-- ----------------------------
+-- Table structure for qrtz_locks
+-- ----------------------------
+DROP TABLE IF EXISTS `qrtz_locks`;
+CREATE TABLE `qrtz_locks`  (
+  `SCHED_NAME` varchar(120) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `LOCK_NAME` varchar(40) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  PRIMARY KEY (`SCHED_NAME`, `LOCK_NAME`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of qrtz_locks
+-- ----------------------------
+INSERT INTO `qrtz_locks` VALUES ('schedulerName', 'STATE_ACCESS');
+INSERT INTO `qrtz_locks` VALUES ('schedulerName', 'TRIGGER_ACCESS');
+
+-- ----------------------------
+-- Table structure for qrtz_paused_trigger_grps
+-- ----------------------------
+DROP TABLE IF EXISTS `qrtz_paused_trigger_grps`;
+CREATE TABLE `qrtz_paused_trigger_grps`  (
+  `SCHED_NAME` varchar(120) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `TRIGGER_GROUP` varchar(190) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  PRIMARY KEY (`SCHED_NAME`, `TRIGGER_GROUP`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of qrtz_paused_trigger_grps
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for qrtz_scheduler_state
+-- ----------------------------
+DROP TABLE IF EXISTS `qrtz_scheduler_state`;
+CREATE TABLE `qrtz_scheduler_state`  (
+  `SCHED_NAME` varchar(120) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `INSTANCE_NAME` varchar(190) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `LAST_CHECKIN_TIME` bigint NOT NULL,
+  `CHECKIN_INTERVAL` bigint NOT NULL,
+  PRIMARY KEY (`SCHED_NAME`, `INSTANCE_NAME`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of qrtz_scheduler_state
+-- ----------------------------
+INSERT INTO `qrtz_scheduler_state` VALUES ('schedulerName', 'MacBook-Pro.local1713489703551', 1713742509534, 15000);
+
+-- ----------------------------
+-- Table structure for qrtz_simple_triggers
+-- ----------------------------
+DROP TABLE IF EXISTS `qrtz_simple_triggers`;
+CREATE TABLE `qrtz_simple_triggers`  (
+  `SCHED_NAME` varchar(120) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `TRIGGER_NAME` varchar(190) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `TRIGGER_GROUP` varchar(190) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `REPEAT_COUNT` bigint NOT NULL,
+  `REPEAT_INTERVAL` bigint NOT NULL,
+  `TIMES_TRIGGERED` bigint NOT NULL,
+  PRIMARY KEY (`SCHED_NAME`, `TRIGGER_NAME`, `TRIGGER_GROUP`) USING BTREE,
+  CONSTRAINT `qrtz_simple_triggers_ibfk_1` FOREIGN KEY (`SCHED_NAME`, `TRIGGER_NAME`, `TRIGGER_GROUP`) REFERENCES `qrtz_triggers` (`SCHED_NAME`, `TRIGGER_NAME`, `TRIGGER_GROUP`) ON DELETE RESTRICT ON UPDATE RESTRICT
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of qrtz_simple_triggers
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for qrtz_simprop_triggers
+-- ----------------------------
+DROP TABLE IF EXISTS `qrtz_simprop_triggers`;
+CREATE TABLE `qrtz_simprop_triggers`  (
+  `SCHED_NAME` varchar(120) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `TRIGGER_NAME` varchar(190) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `TRIGGER_GROUP` varchar(190) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `STR_PROP_1` varchar(512) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL,
+  `STR_PROP_2` varchar(512) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL,
+  `STR_PROP_3` varchar(512) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL,
+  `INT_PROP_1` int NULL DEFAULT NULL,
+  `INT_PROP_2` int NULL DEFAULT NULL,
+  `LONG_PROP_1` bigint NULL DEFAULT NULL,
+  `LONG_PROP_2` bigint NULL DEFAULT NULL,
+  `DEC_PROP_1` decimal(13, 4) NULL DEFAULT NULL,
+  `DEC_PROP_2` decimal(13, 4) NULL DEFAULT NULL,
+  `BOOL_PROP_1` varchar(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL,
+  `BOOL_PROP_2` varchar(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL,
+  PRIMARY KEY (`SCHED_NAME`, `TRIGGER_NAME`, `TRIGGER_GROUP`) USING BTREE,
+  CONSTRAINT `qrtz_simprop_triggers_ibfk_1` FOREIGN KEY (`SCHED_NAME`, `TRIGGER_NAME`, `TRIGGER_GROUP`) REFERENCES `qrtz_triggers` (`SCHED_NAME`, `TRIGGER_NAME`, `TRIGGER_GROUP`) ON DELETE RESTRICT ON UPDATE RESTRICT
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of qrtz_simprop_triggers
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for qrtz_triggers
+-- ----------------------------
+DROP TABLE IF EXISTS `qrtz_triggers`;
+CREATE TABLE `qrtz_triggers`  (
+  `SCHED_NAME` varchar(120) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `TRIGGER_NAME` varchar(190) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `TRIGGER_GROUP` varchar(190) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `JOB_NAME` varchar(190) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `JOB_GROUP` varchar(190) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `DESCRIPTION` varchar(250) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL,
+  `NEXT_FIRE_TIME` bigint NULL DEFAULT NULL,
+  `PREV_FIRE_TIME` bigint NULL DEFAULT NULL,
+  `PRIORITY` int NULL DEFAULT NULL,
+  `TRIGGER_STATE` varchar(16) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `TRIGGER_TYPE` varchar(8) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `START_TIME` bigint NOT NULL,
+  `END_TIME` bigint NULL DEFAULT NULL,
+  `CALENDAR_NAME` varchar(190) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL,
+  `MISFIRE_INSTR` smallint NULL DEFAULT NULL,
+  `JOB_DATA` blob NULL,
+  PRIMARY KEY (`SCHED_NAME`, `TRIGGER_NAME`, `TRIGGER_GROUP`) USING BTREE,
+  INDEX `IDX_QRTZ_T_J`(`SCHED_NAME` ASC, `JOB_NAME` ASC, `JOB_GROUP` ASC) USING BTREE,
+  INDEX `IDX_QRTZ_T_JG`(`SCHED_NAME` ASC, `JOB_GROUP` ASC) USING BTREE,
+  INDEX `IDX_QRTZ_T_C`(`SCHED_NAME` ASC, `CALENDAR_NAME` ASC) USING BTREE,
+  INDEX `IDX_QRTZ_T_G`(`SCHED_NAME` ASC, `TRIGGER_GROUP` ASC) USING BTREE,
+  INDEX `IDX_QRTZ_T_STATE`(`SCHED_NAME` ASC, `TRIGGER_STATE` ASC) USING BTREE,
+  INDEX `IDX_QRTZ_T_N_STATE`(`SCHED_NAME` ASC, `TRIGGER_NAME` ASC, `TRIGGER_GROUP` ASC, `TRIGGER_STATE` ASC) USING BTREE,
+  INDEX `IDX_QRTZ_T_N_G_STATE`(`SCHED_NAME` ASC, `TRIGGER_GROUP` ASC, `TRIGGER_STATE` ASC) USING BTREE,
+  INDEX `IDX_QRTZ_T_NEXT_FIRE_TIME`(`SCHED_NAME` ASC, `NEXT_FIRE_TIME` ASC) USING BTREE,
+  INDEX `IDX_QRTZ_T_NFT_ST`(`SCHED_NAME` ASC, `TRIGGER_STATE` ASC, `NEXT_FIRE_TIME` ASC) USING BTREE,
+  INDEX `IDX_QRTZ_T_NFT_MISFIRE`(`SCHED_NAME` ASC, `MISFIRE_INSTR` ASC, `NEXT_FIRE_TIME` ASC) USING BTREE,
+  INDEX `IDX_QRTZ_T_NFT_ST_MISFIRE`(`SCHED_NAME` ASC, `MISFIRE_INSTR` ASC, `NEXT_FIRE_TIME` ASC, `TRIGGER_STATE` ASC) USING BTREE,
+  INDEX `IDX_QRTZ_T_NFT_ST_MISFIRE_GRP`(`SCHED_NAME` ASC, `MISFIRE_INSTR` ASC, `NEXT_FIRE_TIME` ASC, `TRIGGER_GROUP` ASC, `TRIGGER_STATE` ASC) USING BTREE,
+  CONSTRAINT `qrtz_triggers_ibfk_1` FOREIGN KEY (`SCHED_NAME`, `JOB_NAME`, `JOB_GROUP`) REFERENCES `qrtz_job_details` (`SCHED_NAME`, `JOB_NAME`, `JOB_GROUP`) ON DELETE RESTRICT ON UPDATE RESTRICT
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of qrtz_triggers
+-- ----------------------------
+INSERT INTO `qrtz_triggers` VALUES ('schedulerName', 'accessLogCleanJob', 'DEFAULT', 'accessLogCleanJob', 'DEFAULT', NULL, 1696348800000, -1, 5, 'PAUSED', 'CRON', 1696301981000, 0, NULL, 0, 0xACED0005737200156F72672E71756172747A2E4A6F62446174614D61709FB083E8BFA9B0CB020000787200266F72672E71756172747A2E7574696C732E537472696E674B65794469727479466C61674D61708208E8C3FBC55D280200015A0013616C6C6F77735472616E7369656E74446174617872001D6F72672E71756172747A2E7574696C732E4469727479466C61674D617013E62EAD28760ACE0200025A000564697274794C00036D617074000F4C6A6176612F7574696C2F4D61703B787001737200116A6176612E7574696C2E486173684D61700507DAC1C31660D103000246000A6C6F6164466163746F724900097468726573686F6C6478703F4000000000000C770800000010000000037400114A4F425F48414E444C45525F504152414D7400007400124A4F425F52455452595F494E54455256414C737200116A6176612E6C616E672E496E746567657212E2A0A4F781873802000149000576616C7565787200106A6176612E6C616E672E4E756D62657286AC951D0B94E08B02000078700000000074000F4A4F425F52455452595F434F554E547371007E000A000000037800);
+INSERT INTO `qrtz_triggers` VALUES ('schedulerName', 'brokerageRecordUnfreezeJob', 'DEFAULT', 'brokerageRecordUnfreezeJob', 'DEFAULT', NULL, 1695909720000, -1, 5, 'PAUSED', 'CRON', 1695909706000, 0, NULL, 0, 0xACED0005737200156F72672E71756172747A2E4A6F62446174614D61709FB083E8BFA9B0CB020000787200266F72672E71756172747A2E7574696C732E537472696E674B65794469727479466C61674D61708208E8C3FBC55D280200015A0013616C6C6F77735472616E7369656E74446174617872001D6F72672E71756172747A2E7574696C732E4469727479466C61674D617013E62EAD28760ACE0200025A000564697274794C00036D617074000F4C6A6176612F7574696C2F4D61703B787001737200116A6176612E7574696C2E486173684D61700507DAC1C31660D103000246000A6C6F6164466163746F724900097468726573686F6C6478703F4000000000000C770800000010000000037400114A4F425F48414E444C45525F504152414D7400007400124A4F425F52455452595F494E54455256414C737200116A6176612E6C616E672E496E746567657212E2A0A4F781873802000149000576616C7565787200106A6176612E6C616E672E4E756D62657286AC951D0B94E08B02000078700000000074000F4A4F425F52455452595F434F554E547371007E000A000000037800);
+INSERT INTO `qrtz_triggers` VALUES ('schedulerName', 'errorLogCleanJob', 'DEFAULT', 'errorLogCleanJob', 'DEFAULT', NULL, 1696348800000, -1, 5, 'PAUSED', 'CRON', 1696302043000, 0, NULL, 0, 0xACED0005737200156F72672E71756172747A2E4A6F62446174614D61709FB083E8BFA9B0CB020000787200266F72672E71756172747A2E7574696C732E537472696E674B65794469727479466C61674D61708208E8C3FBC55D280200015A0013616C6C6F77735472616E7369656E74446174617872001D6F72672E71756172747A2E7574696C732E4469727479466C61674D617013E62EAD28760ACE0200025A000564697274794C00036D617074000F4C6A6176612F7574696C2F4D61703B787001737200116A6176612E7574696C2E486173684D61700507DAC1C31660D103000246000A6C6F6164466163746F724900097468726573686F6C6478703F4000000000000C770800000010000000037400114A4F425F48414E444C45525F504152414D7400007400124A4F425F52455452595F494E54455256414C737200116A6176612E6C616E672E496E746567657212E2A0A4F781873802000149000576616C7565787200106A6176612E6C616E672E4E756D62657286AC951D0B94E08B02000078700000000074000F4A4F425F52455452595F434F554E547371007E000A000000037800);
+INSERT INTO `qrtz_triggers` VALUES ('schedulerName', 'jobLogCleanJob', 'DEFAULT', 'jobLogCleanJob', 'DEFAULT', NULL, 1696348800000, -1, 5, 'PAUSED', 'CRON', 1696302092000, 0, NULL, 0, 0xACED0005737200156F72672E71756172747A2E4A6F62446174614D61709FB083E8BFA9B0CB020000787200266F72672E71756172747A2E7574696C732E537472696E674B65794469727479466C61674D61708208E8C3FBC55D280200015A0013616C6C6F77735472616E7369656E74446174617872001D6F72672E71756172747A2E7574696C732E4469727479466C61674D617013E62EAD28760ACE0200025A000564697274794C00036D617074000F4C6A6176612F7574696C2F4D61703B787001737200116A6176612E7574696C2E486173684D61700507DAC1C31660D103000246000A6C6F6164466163746F724900097468726573686F6C6478703F4000000000000C770800000010000000037400114A4F425F48414E444C45525F504152414D7400007400124A4F425F52455452595F494E54455256414C737200116A6176612E6C616E672E496E746567657212E2A0A4F781873802000149000576616C7565787200106A6176612E6C616E672E4E756D62657286AC951D0B94E08B02000078700000000074000F4A4F425F52455452595F434F554E547371007E000A000000037800);
+INSERT INTO `qrtz_triggers` VALUES ('schedulerName', 'payNotifyJob', 'DEFAULT', 'payNotifyJob', 'DEFAULT', NULL, 1688907102000, 1688907101000, 5, 'PAUSED', 'CRON', 1635294882000, 0, NULL, 0, 0xACED0005737200156F72672E71756172747A2E4A6F62446174614D61709FB083E8BFA9B0CB020000787200266F72672E71756172747A2E7574696C732E537472696E674B65794469727479466C61674D61708208E8C3FBC55D280200015A0013616C6C6F77735472616E7369656E74446174617872001D6F72672E71756172747A2E7574696C732E4469727479466C61674D617013E62EAD28760ACE0200025A000564697274794C00036D617074000F4C6A6176612F7574696C2F4D61703B787001737200116A6176612E7574696C2E486173684D61700507DAC1C31660D103000246000A6C6F6164466163746F724900097468726573686F6C6478703F4000000000000C770800000010000000037400114A4F425F48414E444C45525F504152414D707400124A4F425F52455452595F494E54455256414C737200116A6176612E6C616E672E496E746567657212E2A0A4F781873802000149000576616C7565787200106A6176612E6C616E672E4E756D62657286AC951D0B94E08B02000078700000000074000F4A4F425F52455452595F434F554E5471007E000B7800);
+INSERT INTO `qrtz_triggers` VALUES ('schedulerName', 'payOrderExpireJob', 'DEFAULT', 'payOrderExpireJob', 'DEFAULT', NULL, 1690011600000, -1, 5, 'PAUSED', 'CRON', 1690011553000, 0, NULL, 0, 0xACED0005737200156F72672E71756172747A2E4A6F62446174614D61709FB083E8BFA9B0CB020000787200266F72672E71756172747A2E7574696C732E537472696E674B65794469727479466C61674D61708208E8C3FBC55D280200015A0013616C6C6F77735472616E7369656E74446174617872001D6F72672E71756172747A2E7574696C732E4469727479466C61674D617013E62EAD28760ACE0200025A000564697274794C00036D617074000F4C6A6176612F7574696C2F4D61703B787001737200116A6176612E7574696C2E486173684D61700507DAC1C31660D103000246000A6C6F6164466163746F724900097468726573686F6C6478703F4000000000000C770800000010000000037400114A4F425F48414E444C45525F504152414D707400124A4F425F52455452595F494E54455256414C737200116A6176612E6C616E672E496E746567657212E2A0A4F781873802000149000576616C7565787200106A6176612E6C616E672E4E756D62657286AC951D0B94E08B02000078700000000074000F4A4F425F52455452595F434F554E5471007E000B7800);
+INSERT INTO `qrtz_triggers` VALUES ('schedulerName', 'payOrderSyncJob', 'DEFAULT', 'payOrderSyncJob', 'DEFAULT', NULL, 1690011600000, 1690011540000, 5, 'PAUSED', 'CRON', 1690007785000, 0, NULL, 0, 0xACED0005737200156F72672E71756172747A2E4A6F62446174614D61709FB083E8BFA9B0CB020000787200266F72672E71756172747A2E7574696C732E537472696E674B65794469727479466C61674D61708208E8C3FBC55D280200015A0013616C6C6F77735472616E7369656E74446174617872001D6F72672E71756172747A2E7574696C732E4469727479466C61674D617013E62EAD28760ACE0200025A000564697274794C00036D617074000F4C6A6176612F7574696C2F4D61703B787001737200116A6176612E7574696C2E486173684D61700507DAC1C31660D103000246000A6C6F6164466163746F724900097468726573686F6C6478703F4000000000000C770800000010000000037400114A4F425F48414E444C45525F504152414D707400124A4F425F52455452595F494E54455256414C737200116A6176612E6C616E672E496E746567657212E2A0A4F781873802000149000576616C7565787200106A6176612E6C616E672E4E756D62657286AC951D0B94E08B02000078700000000074000F4A4F425F52455452595F434F554E5471007E000B7800);
+INSERT INTO `qrtz_triggers` VALUES ('schedulerName', 'payRefundSyncJob', 'DEFAULT', 'payRefundSyncJob', 'DEFAULT', NULL, 1690117560000, 1690117500000, 5, 'PAUSED', 'CRON', 1690117424000, 0, NULL, 0, 0xACED0005737200156F72672E71756172747A2E4A6F62446174614D61709FB083E8BFA9B0CB020000787200266F72672E71756172747A2E7574696C732E537472696E674B65794469727479466C61674D61708208E8C3FBC55D280200015A0013616C6C6F77735472616E7369656E74446174617872001D6F72672E71756172747A2E7574696C732E4469727479466C61674D617013E62EAD28760ACE0200025A000564697274794C00036D617074000F4C6A6176612F7574696C2F4D61703B787001737200116A6176612E7574696C2E486173684D61700507DAC1C31660D103000246000A6C6F6164466163746F724900097468726573686F6C6478703F4000000000000C770800000010000000037400114A4F425F48414E444C45525F504152414D707400124A4F425F52455452595F494E54455256414C737200116A6176612E6C616E672E496E746567657212E2A0A4F781873802000149000576616C7565787200106A6176612E6C616E672E4E756D62657286AC951D0B94E08B02000078700000000074000F4A4F425F52455452595F434F554E5471007E000B7800);
+INSERT INTO `qrtz_triggers` VALUES ('schedulerName', 'tradeOrderAutoCancelJob', 'DEFAULT', 'tradeOrderAutoCancelJob', 'DEFAULT', NULL, 1695727440000, 1695727380000, 5, 'PAUSED', 'CRON', 1695656605000, 0, NULL, 0, 0xACED0005737200156F72672E71756172747A2E4A6F62446174614D61709FB083E8BFA9B0CB020000787200266F72672E71756172747A2E7574696C732E537472696E674B65794469727479466C61674D61708208E8C3FBC55D280200015A0013616C6C6F77735472616E7369656E74446174617872001D6F72672E71756172747A2E7574696C732E4469727479466C61674D617013E62EAD28760ACE0200025A000564697274794C00036D617074000F4C6A6176612F7574696C2F4D61703B787001737200116A6176612E7574696C2E486173684D61700507DAC1C31660D103000246000A6C6F6164466163746F724900097468726573686F6C6478703F4000000000000C770800000010000000037400114A4F425F48414E444C45525F504152414D7400007400124A4F425F52455452595F494E54455256414C737200116A6176612E6C616E672E496E746567657212E2A0A4F781873802000149000576616C7565787200106A6176612E6C616E672E4E756D62657286AC951D0B94E08B02000078700000000074000F4A4F425F52455452595F434F554E547371007E000A000000037800);
+INSERT INTO `qrtz_triggers` VALUES ('schedulerName', 'tradeOrderAutoCommentJob', 'DEFAULT', 'tradeOrderAutoCommentJob', 'DEFAULT', NULL, 1695783840000, 1695783780000, 5, 'PAUSED', 'CRON', 1695742709000, 0, NULL, 0, 0xACED0005737200156F72672E71756172747A2E4A6F62446174614D61709FB083E8BFA9B0CB020000787200266F72672E71756172747A2E7574696C732E537472696E674B65794469727479466C61674D61708208E8C3FBC55D280200015A0013616C6C6F77735472616E7369656E74446174617872001D6F72672E71756172747A2E7574696C732E4469727479466C61674D617013E62EAD28760ACE0200025A000564697274794C00036D617074000F4C6A6176612F7574696C2F4D61703B787001737200116A6176612E7574696C2E486173684D61700507DAC1C31660D103000246000A6C6F6164466163746F724900097468726573686F6C6478703F4000000000000C770800000010000000037400114A4F425F48414E444C45525F504152414D7400007400124A4F425F52455452595F494E54455256414C737200116A6176612E6C616E672E496E746567657212E2A0A4F781873802000149000576616C7565787200106A6176612E6C616E672E4E756D62657286AC951D0B94E08B02000078700000000074000F4A4F425F52455452595F434F554E547371007E000A000000037800);
+INSERT INTO `qrtz_triggers` VALUES ('schedulerName', 'tradeOrderAutoReceiveJob', 'DEFAULT', 'tradeOrderAutoReceiveJob', 'DEFAULT', NULL, 1695742740000, 1695742680000, 5, 'PAUSED', 'CRON', 1695727433000, 0, NULL, 0, 0xACED0005737200156F72672E71756172747A2E4A6F62446174614D61709FB083E8BFA9B0CB020000787200266F72672E71756172747A2E7574696C732E537472696E674B65794469727479466C61674D61708208E8C3FBC55D280200015A0013616C6C6F77735472616E7369656E74446174617872001D6F72672E71756172747A2E7574696C732E4469727479466C61674D617013E62EAD28760ACE0200025A000564697274794C00036D617074000F4C6A6176612F7574696C2F4D61703B787001737200116A6176612E7574696C2E486173684D61700507DAC1C31660D103000246000A6C6F6164466163746F724900097468726573686F6C6478703F4000000000000C770800000010000000037400114A4F425F48414E444C45525F504152414D7400007400124A4F425F52455452595F494E54455256414C737200116A6176612E6C616E672E496E746567657212E2A0A4F781873802000149000576616C7565787200106A6176612E6C616E672E4E756D62657286AC951D0B94E08B02000078700000000074000F4A4F425F52455452595F434F554E547371007E000A000000037800);
+
+-- ----------------------------
+-- Table structure for system_dept
+-- ----------------------------
+DROP TABLE IF EXISTS `system_dept`;
+CREATE TABLE `system_dept`  (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '部门id',
+  `name` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT '部门名称',
+  `parent_id` bigint NOT NULL DEFAULT 0 COMMENT '父部门id',
+  `sort` int NOT NULL DEFAULT 0 COMMENT '显示顺序',
+  `leader_user_id` bigint NULL DEFAULT NULL COMMENT '负责人',
+  `phone` varchar(11) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '联系电话',
+  `email` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '邮箱',
+  `status` tinyint NOT NULL COMMENT '部门状态（0正常 1停用）',
+  `creator` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '创建者',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `updater` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '更新者',
+  `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `deleted` bit(1) NOT NULL DEFAULT b'0' COMMENT '是否删除',
+  `tenant_id` bigint NOT NULL DEFAULT 0 COMMENT '租户编号',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 114 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '部门表' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of system_dept
+-- ----------------------------
+INSERT INTO `system_dept` VALUES (100, '芋道源码', 0, 0, 1, '15888888888', 'ry@qq.com', 0, 'admin', '2021-01-05 17:03:47', '1', '2023-11-14 23:30:36', b'0', 1);
+
+-- ----------------------------
+-- Table structure for system_dict_data
+-- ----------------------------
+DROP TABLE IF EXISTS `system_dict_data`;
+CREATE TABLE `system_dict_data`  (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '字典编码',
+  `sort` int NOT NULL DEFAULT 0 COMMENT '字典排序',
+  `label` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT '字典标签',
+  `value` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT '字典键值',
+  `dict_type` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT '字典类型',
+  `status` tinyint NOT NULL DEFAULT 0 COMMENT '状态（0正常 1停用）',
+  `color_type` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '颜色类型',
+  `css_class` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT 'css 样式',
+  `remark` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '备注',
+  `creator` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '创建者',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `updater` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '更新者',
+  `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `deleted` bit(1) NOT NULL DEFAULT b'0' COMMENT '是否删除',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 1538 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '字典数据表' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of system_dict_data
+-- ----------------------------
+INSERT INTO `system_dict_data` VALUES (1, 1, '男', '1', 'system_user_sex', 0, 'default', 'A', '性别男', 'admin', '2021-01-05 17:03:48', '1', '2022-03-29 00:14:39', b'0');
+INSERT INTO `system_dict_data` VALUES (2, 2, '女', '2', 'system_user_sex', 0, 'success', '', '性别女', 'admin', '2021-01-05 17:03:48', '1', '2023-11-15 23:30:37', b'0');
+INSERT INTO `system_dict_data` VALUES (8, 1, '正常', '1', 'infra_job_status', 0, 'success', '', '正常状态', 'admin', '2021-01-05 17:03:48', '1', '2022-02-16 19:33:38', b'0');
+INSERT INTO `system_dict_data` VALUES (9, 2, '暂停', '2', 'infra_job_status', 0, 'danger', '', '停用状态', 'admin', '2021-01-05 17:03:48', '1', '2022-02-16 19:33:45', b'0');
+INSERT INTO `system_dict_data` VALUES (12, 1, '系统内置', '1', 'infra_config_type', 0, 'danger', '', '参数类型 - 系统内置', 'admin', '2021-01-05 17:03:48', '1', '2022-02-16 19:06:02', b'0');
+INSERT INTO `system_dict_data` VALUES (13, 2, '自定义', '2', 'infra_config_type', 0, 'primary', '', '参数类型 - 自定义', 'admin', '2021-01-05 17:03:48', '1', '2022-02-16 19:06:07', b'0');
+INSERT INTO `system_dict_data` VALUES (14, 1, '通知', '1', 'system_notice_type', 0, 'success', '', '通知', 'admin', '2021-01-05 17:03:48', '1', '2022-02-16 13:05:57', b'0');
+INSERT INTO `system_dict_data` VALUES (15, 2, '公告', '2', 'system_notice_type', 0, 'info', '', '公告', 'admin', '2021-01-05 17:03:48', '1', '2022-02-16 13:06:01', b'0');
+INSERT INTO `system_dict_data` VALUES (16, 0, '其它', '0', 'infra_operate_type', 0, 'default', '', '其它操作', 'admin', '2021-01-05 17:03:48', '1', '2024-03-14 12:44:19', b'0');
+INSERT INTO `system_dict_data` VALUES (17, 1, '查询', '1', 'infra_operate_type', 0, 'info', '', '查询操作', 'admin', '2021-01-05 17:03:48', '1', '2024-03-14 12:44:20', b'0');
+INSERT INTO `system_dict_data` VALUES (18, 2, '新增', '2', 'infra_operate_type', 0, 'primary', '', '新增操作', 'admin', '2021-01-05 17:03:48', '1', '2024-03-14 12:44:21', b'0');
+INSERT INTO `system_dict_data` VALUES (19, 3, '修改', '3', 'infra_operate_type', 0, 'warning', '', '修改操作', 'admin', '2021-01-05 17:03:48', '1', '2024-03-14 12:44:22', b'0');
+INSERT INTO `system_dict_data` VALUES (20, 4, '删除', '4', 'infra_operate_type', 0, 'danger', '', '删除操作', 'admin', '2021-01-05 17:03:48', '1', '2024-03-14 12:44:23', b'0');
+INSERT INTO `system_dict_data` VALUES (22, 5, '导出', '5', 'infra_operate_type', 0, 'default', '', '导出操作', 'admin', '2021-01-05 17:03:48', '1', '2024-03-14 12:44:24', b'0');
+INSERT INTO `system_dict_data` VALUES (23, 6, '导入', '6', 'infra_operate_type', 0, 'default', '', '导入操作', 'admin', '2021-01-05 17:03:48', '1', '2024-03-14 12:44:25', b'0');
+INSERT INTO `system_dict_data` VALUES (27, 1, '开启', '0', 'common_status', 0, 'primary', '', '开启状态', 'admin', '2021-01-05 17:03:48', '1', '2022-02-16 08:00:39', b'0');
+INSERT INTO `system_dict_data` VALUES (28, 2, '关闭', '1', 'common_status', 0, 'info', '', '关闭状态', 'admin', '2021-01-05 17:03:48', '1', '2022-02-16 08:00:44', b'0');
+INSERT INTO `system_dict_data` VALUES (29, 1, '目录', '1', 'system_menu_type', 0, '', '', '目录', 'admin', '2021-01-05 17:03:48', '', '2022-02-01 16:43:45', b'0');
+INSERT INTO `system_dict_data` VALUES (30, 2, '菜单', '2', 'system_menu_type', 0, '', '', '菜单', 'admin', '2021-01-05 17:03:48', '', '2022-02-01 16:43:41', b'0');
+INSERT INTO `system_dict_data` VALUES (31, 3, '按钮', '3', 'system_menu_type', 0, '', '', '按钮', 'admin', '2021-01-05 17:03:48', '', '2022-02-01 16:43:39', b'0');
+INSERT INTO `system_dict_data` VALUES (32, 1, '内置', '1', 'system_role_type', 0, 'danger', '', '内置角色', 'admin', '2021-01-05 17:03:48', '1', '2022-02-16 13:02:08', b'0');
+INSERT INTO `system_dict_data` VALUES (33, 2, '自定义', '2', 'system_role_type', 0, 'primary', '', '自定义角色', 'admin', '2021-01-05 17:03:48', '1', '2022-02-16 13:02:12', b'0');
+INSERT INTO `system_dict_data` VALUES (34, 1, '全部数据权限', '1', 'system_data_scope', 0, '', '', '全部数据权限', 'admin', '2021-01-05 17:03:48', '', '2022-02-01 16:47:17', b'0');
+INSERT INTO `system_dict_data` VALUES (35, 2, '指定部门数据权限', '2', 'system_data_scope', 0, '', '', '指定部门数据权限', 'admin', '2021-01-05 17:03:48', '', '2022-02-01 16:47:18', b'0');
+INSERT INTO `system_dict_data` VALUES (36, 3, '本部门数据权限', '3', 'system_data_scope', 0, '', '', '本部门数据权限', 'admin', '2021-01-05 17:03:48', '', '2022-02-01 16:47:16', b'0');
+INSERT INTO `system_dict_data` VALUES (37, 4, '本部门及以下数据权限', '4', 'system_data_scope', 0, '', '', '本部门及以下数据权限', 'admin', '2021-01-05 17:03:48', '', '2022-02-01 16:47:21', b'0');
+INSERT INTO `system_dict_data` VALUES (38, 5, '仅本人数据权限', '5', 'system_data_scope', 0, '', '', '仅本人数据权限', 'admin', '2021-01-05 17:03:48', '', '2022-02-01 16:47:23', b'0');
+INSERT INTO `system_dict_data` VALUES (39, 0, '成功', '0', 'system_login_result', 0, 'success', '', '登陆结果 - 成功', '', '2021-01-18 06:17:36', '1', '2022-02-16 13:23:49', b'0');
+INSERT INTO `system_dict_data` VALUES (40, 10, '账号或密码不正确', '10', 'system_login_result', 0, 'primary', '', '登陆结果 - 账号或密码不正确', '', '2021-01-18 06:17:54', '1', '2022-02-16 13:24:27', b'0');
+INSERT INTO `system_dict_data` VALUES (41, 20, '用户被禁用', '20', 'system_login_result', 0, 'warning', '', '登陆结果 - 用户被禁用', '', '2021-01-18 06:17:54', '1', '2022-02-16 13:23:57', b'0');
+INSERT INTO `system_dict_data` VALUES (42, 30, '验证码不存在', '30', 'system_login_result', 0, 'info', '', '登陆结果 - 验证码不存在', '', '2021-01-18 06:17:54', '1', '2022-02-16 13:24:07', b'0');
+INSERT INTO `system_dict_data` VALUES (43, 31, '验证码不正确', '31', 'system_login_result', 0, 'info', '', '登陆结果 - 验证码不正确', '', '2021-01-18 06:17:54', '1', '2022-02-16 13:24:11', b'0');
+INSERT INTO `system_dict_data` VALUES (44, 100, '未知异常', '100', 'system_login_result', 0, 'danger', '', '登陆结果 - 未知异常', '', '2021-01-18 06:17:54', '1', '2022-02-16 13:24:23', b'0');
+INSERT INTO `system_dict_data` VALUES (45, 1, '是', 'true', 'infra_boolean_string', 0, 'danger', '', 'Boolean 是否类型 - 是', '', '2021-01-19 03:20:55', '1', '2022-03-15 23:01:45', b'0');
+INSERT INTO `system_dict_data` VALUES (46, 1, '否', 'false', 'infra_boolean_string', 0, 'info', '', 'Boolean 是否类型 - 否', '', '2021-01-19 03:20:55', '1', '2022-03-15 23:09:45', b'0');
+INSERT INTO `system_dict_data` VALUES (50, 1, '单表（增删改查）', '1', 'infra_codegen_template_type', 0, '', '', NULL, '', '2021-02-05 07:09:06', '', '2022-03-10 16:33:15', b'0');
+INSERT INTO `system_dict_data` VALUES (51, 2, '树表（增删改查）', '2', 'infra_codegen_template_type', 0, '', '', NULL, '', '2021-02-05 07:14:46', '', '2022-03-10 16:33:19', b'0');
+INSERT INTO `system_dict_data` VALUES (53, 0, '初始化中', '0', 'infra_job_status', 0, 'primary', '', NULL, '', '2021-02-07 07:46:49', '1', '2022-02-16 19:33:29', b'0');
+INSERT INTO `system_dict_data` VALUES (57, 0, '运行中', '0', 'infra_job_log_status', 0, 'primary', '', 'RUNNING', '', '2021-02-08 10:04:24', '1', '2022-02-16 19:07:48', b'0');
+INSERT INTO `system_dict_data` VALUES (58, 1, '成功', '1', 'infra_job_log_status', 0, 'success', '', NULL, '', '2021-02-08 10:06:57', '1', '2022-02-16 19:07:52', b'0');
+INSERT INTO `system_dict_data` VALUES (59, 2, '失败', '2', 'infra_job_log_status', 0, 'warning', '', '失败', '', '2021-02-08 10:07:38', '1', '2022-02-16 19:07:56', b'0');
+INSERT INTO `system_dict_data` VALUES (60, 1, '会员', '1', 'user_type', 0, 'primary', '', NULL, '', '2021-02-26 00:16:27', '1', '2022-02-16 10:22:19', b'0');
+INSERT INTO `system_dict_data` VALUES (61, 2, '管理员', '2', 'user_type', 0, 'success', '', NULL, '', '2021-02-26 00:16:34', '1', '2022-02-16 10:22:22', b'0');
+INSERT INTO `system_dict_data` VALUES (62, 0, '未处理', '0', 'infra_api_error_log_process_status', 0, 'primary', '', NULL, '', '2021-02-26 07:07:19', '1', '2022-02-16 20:14:17', b'0');
+INSERT INTO `system_dict_data` VALUES (63, 1, '已处理', '1', 'infra_api_error_log_process_status', 0, 'success', '', NULL, '', '2021-02-26 07:07:26', '1', '2022-02-16 20:14:08', b'0');
+INSERT INTO `system_dict_data` VALUES (64, 2, '已忽略', '2', 'infra_api_error_log_process_status', 0, 'danger', '', NULL, '', '2021-02-26 07:07:34', '1', '2022-02-16 20:14:14', b'0');
+INSERT INTO `system_dict_data` VALUES (66, 2, '阿里云', 'ALIYUN', 'system_sms_channel_code', 0, 'primary', '', NULL, '1', '2021-04-05 01:05:26', '1', '2022-02-16 10:09:52', b'0');
+INSERT INTO `system_dict_data` VALUES (67, 1, '验证码', '1', 'system_sms_template_type', 0, 'warning', '', NULL, '1', '2021-04-05 21:50:57', '1', '2022-02-16 12:48:30', b'0');
+INSERT INTO `system_dict_data` VALUES (68, 2, '通知', '2', 'system_sms_template_type', 0, 'primary', '', NULL, '1', '2021-04-05 21:51:08', '1', '2022-02-16 12:48:27', b'0');
+INSERT INTO `system_dict_data` VALUES (69, 0, '营销', '3', 'system_sms_template_type', 0, 'danger', '', NULL, '1', '2021-04-05 21:51:15', '1', '2022-02-16 12:48:22', b'0');
+INSERT INTO `system_dict_data` VALUES (70, 0, '初始化', '0', 'system_sms_send_status', 0, 'primary', '', NULL, '1', '2021-04-11 20:18:33', '1', '2022-02-16 10:26:07', b'0');
+INSERT INTO `system_dict_data` VALUES (71, 1, '发送成功', '10', 'system_sms_send_status', 0, 'success', '', NULL, '1', '2021-04-11 20:18:43', '1', '2022-02-16 10:25:56', b'0');
+INSERT INTO `system_dict_data` VALUES (72, 2, '发送失败', '20', 'system_sms_send_status', 0, 'danger', '', NULL, '1', '2021-04-11 20:18:49', '1', '2022-02-16 10:26:03', b'0');
+INSERT INTO `system_dict_data` VALUES (73, 3, '不发送', '30', 'system_sms_send_status', 0, 'info', '', NULL, '1', '2021-04-11 20:19:44', '1', '2022-02-16 10:26:10', b'0');
+INSERT INTO `system_dict_data` VALUES (74, 0, '等待结果', '0', 'system_sms_receive_status', 0, 'primary', '', NULL, '1', '2021-04-11 20:27:43', '1', '2022-02-16 10:28:24', b'0');
+INSERT INTO `system_dict_data` VALUES (75, 1, '接收成功', '10', 'system_sms_receive_status', 0, 'success', '', NULL, '1', '2021-04-11 20:29:25', '1', '2022-02-16 10:28:28', b'0');
+INSERT INTO `system_dict_data` VALUES (76, 2, '接收失败', '20', 'system_sms_receive_status', 0, 'danger', '', NULL, '1', '2021-04-11 20:29:31', '1', '2022-02-16 10:28:32', b'0');
+INSERT INTO `system_dict_data` VALUES (77, 0, '调试(钉钉)', 'DEBUG_DING_TALK', 'system_sms_channel_code', 0, 'info', '', NULL, '1', '2021-04-13 00:20:37', '1', '2022-02-16 10:10:00', b'0');
+INSERT INTO `system_dict_data` VALUES (80, 100, '账号登录', '100', 'system_login_type', 0, 'primary', '', '账号登录', '1', '2021-10-06 00:52:02', '1', '2022-02-16 13:11:34', b'0');
+INSERT INTO `system_dict_data` VALUES (81, 101, '社交登录', '101', 'system_login_type', 0, 'info', '', '社交登录', '1', '2021-10-06 00:52:17', '1', '2022-02-16 13:11:40', b'0');
+INSERT INTO `system_dict_data` VALUES (83, 200, '主动登出', '200', 'system_login_type', 0, 'primary', '', '主动登出', '1', '2021-10-06 00:52:58', '1', '2022-02-16 13:11:49', b'0');
+INSERT INTO `system_dict_data` VALUES (85, 202, '强制登出', '202', 'system_login_type', 0, 'danger', '', '强制退出', '1', '2021-10-06 00:53:41', '1', '2022-02-16 13:11:57', b'0');
+INSERT INTO `system_dict_data` VALUES (86, 0, '病假', '1', 'bpm_oa_leave_type', 0, 'primary', '', NULL, '1', '2021-09-21 22:35:28', '1', '2024-05-11 06:49:26', b'1');
+INSERT INTO `system_dict_data` VALUES (87, 1, '事假', '2', 'bpm_oa_leave_type', 0, 'info', '', NULL, '1', '2021-09-21 22:36:11', '1', '2024-05-11 06:49:26', b'1');
+INSERT INTO `system_dict_data` VALUES (88, 2, '婚假', '3', 'bpm_oa_leave_type', 0, 'warning', '', NULL, '1', '2021-09-21 22:36:38', '1', '2024-05-11 06:49:26', b'1');
+INSERT INTO `system_dict_data` VALUES (113, 1, '微信公众号支付', 'wx_pub', 'pay_channel_code', 0, 'success', '', '微信公众号支付', '1', '2021-12-03 10:40:24', '1', '2024-05-11 06:49:23', b'1');
+INSERT INTO `system_dict_data` VALUES (114, 2, '微信小程序支付', 'wx_lite', 'pay_channel_code', 0, 'success', '', '微信小程序支付', '1', '2021-12-03 10:41:06', '1', '2024-05-11 06:49:23', b'1');
+INSERT INTO `system_dict_data` VALUES (115, 3, '微信 App 支付', 'wx_app', 'pay_channel_code', 0, 'success', '', '微信 App 支付', '1', '2021-12-03 10:41:20', '1', '2024-05-11 06:49:23', b'1');
+INSERT INTO `system_dict_data` VALUES (116, 10, '支付宝 PC 网站支付', 'alipay_pc', 'pay_channel_code', 0, 'primary', '', '支付宝 PC 网站支付', '1', '2021-12-03 10:42:09', '1', '2024-05-11 06:49:23', b'1');
+INSERT INTO `system_dict_data` VALUES (117, 11, '支付宝 Wap 网站支付', 'alipay_wap', 'pay_channel_code', 0, 'primary', '', '支付宝 Wap 网站支付', '1', '2021-12-03 10:42:26', '1', '2024-05-11 06:49:23', b'1');
+INSERT INTO `system_dict_data` VALUES (118, 12, '支付宝 App 支付', 'alipay_app', 'pay_channel_code', 0, 'primary', '', '支付宝 App 支付', '1', '2021-12-03 10:42:55', '1', '2024-05-11 06:49:23', b'1');
+INSERT INTO `system_dict_data` VALUES (119, 14, '支付宝扫码支付', 'alipay_qr', 'pay_channel_code', 0, 'primary', '', '支付宝扫码支付', '1', '2021-12-03 10:43:10', '1', '2024-05-11 06:49:23', b'1');
+INSERT INTO `system_dict_data` VALUES (120, 10, '通知成功', '10', 'pay_notify_status', 0, 'success', '', '通知成功', '1', '2021-12-03 11:02:41', '1', '2024-05-11 06:49:16', b'1');
+INSERT INTO `system_dict_data` VALUES (121, 20, '通知失败', '20', 'pay_notify_status', 0, 'danger', '', '通知失败', '1', '2021-12-03 11:02:59', '1', '2024-05-11 06:49:16', b'1');
+INSERT INTO `system_dict_data` VALUES (122, 0, '等待通知', '0', 'pay_notify_status', 0, 'info', '', '未通知', '1', '2021-12-03 11:03:10', '1', '2024-05-11 06:49:16', b'1');
+INSERT INTO `system_dict_data` VALUES (123, 10, '支付成功', '10', 'pay_order_status', 0, 'success', '', '支付成功', '1', '2021-12-03 11:18:29', '1', '2024-05-11 06:49:13', b'1');
+INSERT INTO `system_dict_data` VALUES (124, 30, '支付关闭', '30', 'pay_order_status', 0, 'info', '', '支付关闭', '1', '2021-12-03 11:18:42', '1', '2024-05-11 06:49:13', b'1');
+INSERT INTO `system_dict_data` VALUES (125, 0, '等待支付', '0', 'pay_order_status', 0, 'info', '', '未支付', '1', '2021-12-03 11:18:18', '1', '2024-05-11 06:49:13', b'1');
+INSERT INTO `system_dict_data` VALUES (600, 5, '首页', '1', 'promotion_banner_position', 0, 'warning', '', '', '1', '2023-10-11 07:45:24', '1', '2024-05-11 06:37:31', b'1');
+INSERT INTO `system_dict_data` VALUES (601, 4, '秒杀活动页', '2', 'promotion_banner_position', 0, 'warning', '', '', '1', '2023-10-11 07:45:24', '1', '2024-05-11 06:37:31', b'1');
+INSERT INTO `system_dict_data` VALUES (602, 3, '砍价活动页', '3', 'promotion_banner_position', 0, 'warning', '', '', '1', '2023-10-11 07:45:24', '1', '2024-05-11 06:37:31', b'1');
+INSERT INTO `system_dict_data` VALUES (603, 2, '限时折扣页', '4', 'promotion_banner_position', 0, 'warning', '', '', '1', '2023-10-11 07:45:24', '1', '2024-05-11 06:37:31', b'1');
+INSERT INTO `system_dict_data` VALUES (604, 1, '满减送页', '5', 'promotion_banner_position', 0, 'warning', '', '', '1', '2023-10-11 07:45:24', '1', '2024-05-11 06:37:31', b'1');
+INSERT INTO `system_dict_data` VALUES (1118, 0, '等待退款', '0', 'pay_refund_status', 0, 'info', '', '等待退款', '1', '2021-12-10 16:44:59', '1', '2024-05-11 06:49:10', b'1');
+INSERT INTO `system_dict_data` VALUES (1119, 20, '退款失败', '20', 'pay_refund_status', 0, 'danger', '', '退款失败', '1', '2021-12-10 16:45:10', '1', '2024-05-11 06:49:10', b'1');
+INSERT INTO `system_dict_data` VALUES (1124, 10, '退款成功', '10', 'pay_refund_status', 0, 'success', '', '退款成功', '1', '2021-12-10 16:46:26', '1', '2024-05-11 06:49:10', b'1');
+INSERT INTO `system_dict_data` VALUES (1127, 1, '审批中', '1', 'bpm_process_instance_status', 0, 'default', '', '流程实例的状态 - 进行中', '1', '2022-01-07 23:47:22', '1', '2024-05-11 06:49:07', b'1');
+INSERT INTO `system_dict_data` VALUES (1128, 2, '审批通过', '2', 'bpm_process_instance_status', 0, 'success', '', '流程实例的状态 - 已完成', '1', '2022-01-07 23:47:49', '1', '2024-05-11 06:49:07', b'1');
+INSERT INTO `system_dict_data` VALUES (1129, 1, '审批中', '1', 'bpm_task_status', 0, 'primary', '', '流程实例的结果 - 处理中', '1', '2022-01-07 23:48:32', '1', '2024-05-11 06:49:04', b'1');
+INSERT INTO `system_dict_data` VALUES (1130, 2, '审批通过', '2', 'bpm_task_status', 0, 'success', '', '流程实例的结果 - 通过', '1', '2022-01-07 23:48:45', '1', '2024-05-11 06:49:04', b'1');
+INSERT INTO `system_dict_data` VALUES (1131, 3, '审批不通过', '3', 'bpm_task_status', 0, 'danger', '', '流程实例的结果 - 不通过', '1', '2022-01-07 23:48:55', '1', '2024-05-11 06:49:04', b'1');
+INSERT INTO `system_dict_data` VALUES (1132, 4, '已取消', '4', 'bpm_task_status', 0, 'info', '', '流程实例的结果 - 撤销', '1', '2022-01-07 23:49:06', '1', '2024-05-11 06:49:04', b'1');
+INSERT INTO `system_dict_data` VALUES (1133, 10, '流程表单', '10', 'bpm_model_form_type', 0, '', '', '流程的表单类型 - 流程表单', '103', '2022-01-11 23:51:30', '103', '2024-05-11 06:49:01', b'1');
+INSERT INTO `system_dict_data` VALUES (1134, 20, '业务表单', '20', 'bpm_model_form_type', 0, '', '', '流程的表单类型 - 业务表单', '103', '2022-01-11 23:51:47', '103', '2024-05-11 06:49:01', b'1');
+INSERT INTO `system_dict_data` VALUES (1135, 10, '角色', '10', 'bpm_task_candidate_strategy', 0, 'info', '', '任务分配规则的类型 - 角色', '103', '2022-01-12 23:21:22', '1', '2024-05-11 06:48:58', b'1');
+INSERT INTO `system_dict_data` VALUES (1136, 20, '部门的成员', '20', 'bpm_task_candidate_strategy', 0, 'primary', '', '任务分配规则的类型 - 部门的成员', '103', '2022-01-12 23:21:47', '1', '2024-05-11 06:48:58', b'1');
+INSERT INTO `system_dict_data` VALUES (1137, 21, '部门的负责人', '21', 'bpm_task_candidate_strategy', 0, 'primary', '', '任务分配规则的类型 - 部门的负责人', '103', '2022-01-12 23:33:36', '1', '2024-05-11 06:48:58', b'1');
+INSERT INTO `system_dict_data` VALUES (1138, 30, '用户', '30', 'bpm_task_candidate_strategy', 0, 'info', '', '任务分配规则的类型 - 用户', '103', '2022-01-12 23:34:02', '1', '2024-05-11 06:48:58', b'1');
+INSERT INTO `system_dict_data` VALUES (1139, 40, '用户组', '40', 'bpm_task_candidate_strategy', 0, 'warning', '', '任务分配规则的类型 - 用户组', '103', '2022-01-12 23:34:21', '1', '2024-05-11 06:48:58', b'1');
+INSERT INTO `system_dict_data` VALUES (1140, 60, '流程表达式', '60', 'bpm_task_candidate_strategy', 0, 'danger', '', '任务分配规则的类型 - 流程表达式', '103', '2022-01-12 23:34:43', '1', '2024-05-11 06:48:58', b'1');
+INSERT INTO `system_dict_data` VALUES (1141, 22, '岗位', '22', 'bpm_task_candidate_strategy', 0, 'success', '', '任务分配规则的类型 - 岗位', '103', '2022-01-14 18:41:55', '1', '2024-05-11 06:48:58', b'1');
+INSERT INTO `system_dict_data` VALUES (1145, 1, '管理后台', '1', 'infra_codegen_scene', 0, '', '', '代码生成的场景枚举 - 管理后台', '1', '2022-02-02 13:15:06', '1', '2022-03-10 16:32:59', b'0');
+INSERT INTO `system_dict_data` VALUES (1146, 2, '用户 APP', '2', 'infra_codegen_scene', 0, '', '', '代码生成的场景枚举 - 用户 APP', '1', '2022-02-02 13:15:19', '1', '2022-03-10 16:33:03', b'0');
+INSERT INTO `system_dict_data` VALUES (1150, 1, '数据库', '1', 'infra_file_storage', 0, 'default', '', NULL, '1', '2022-03-15 00:25:28', '1', '2022-03-15 00:25:28', b'0');
+INSERT INTO `system_dict_data` VALUES (1151, 10, '本地磁盘', '10', 'infra_file_storage', 0, 'default', '', NULL, '1', '2022-03-15 00:25:41', '1', '2022-03-15 00:25:56', b'0');
+INSERT INTO `system_dict_data` VALUES (1152, 11, 'FTP 服务器', '11', 'infra_file_storage', 0, 'default', '', NULL, '1', '2022-03-15 00:26:06', '1', '2022-03-15 00:26:10', b'0');
+INSERT INTO `system_dict_data` VALUES (1153, 12, 'SFTP 服务器', '12', 'infra_file_storage', 0, 'default', '', NULL, '1', '2022-03-15 00:26:22', '1', '2022-03-15 00:26:22', b'0');
+INSERT INTO `system_dict_data` VALUES (1154, 20, 'S3 对象存储', '20', 'infra_file_storage', 0, 'default', '', NULL, '1', '2022-03-15 00:26:31', '1', '2022-03-15 00:26:45', b'0');
+INSERT INTO `system_dict_data` VALUES (1155, 103, '短信登录', '103', 'system_login_type', 0, 'default', '', NULL, '1', '2022-05-09 23:57:58', '1', '2022-05-09 23:58:09', b'0');
+INSERT INTO `system_dict_data` VALUES (1156, 1, 'password', 'password', 'system_oauth2_grant_type', 0, 'default', '', '密码模式', '1', '2022-05-12 00:22:05', '1', '2022-05-11 16:26:01', b'0');
+INSERT INTO `system_dict_data` VALUES (1157, 2, 'authorization_code', 'authorization_code', 'system_oauth2_grant_type', 0, 'primary', '', '授权码模式', '1', '2022-05-12 00:22:59', '1', '2022-05-11 16:26:02', b'0');
+INSERT INTO `system_dict_data` VALUES (1158, 3, 'implicit', 'implicit', 'system_oauth2_grant_type', 0, 'success', '', '简化模式', '1', '2022-05-12 00:23:40', '1', '2022-05-11 16:26:05', b'0');
+INSERT INTO `system_dict_data` VALUES (1159, 4, 'client_credentials', 'client_credentials', 'system_oauth2_grant_type', 0, 'default', '', '客户端模式', '1', '2022-05-12 00:23:51', '1', '2022-05-11 16:26:08', b'0');
+INSERT INTO `system_dict_data` VALUES (1160, 5, 'refresh_token', 'refresh_token', 'system_oauth2_grant_type', 0, 'info', '', '刷新模式', '1', '2022-05-12 00:24:02', '1', '2022-05-11 16:26:11', b'0');
+INSERT INTO `system_dict_data` VALUES (1162, 1, '销售中', '1', 'product_spu_status', 0, 'success', '', '商品 SPU 状态 - 销售中', '1', '2022-10-24 21:19:47', '1', '2024-05-11 06:48:51', b'1');
+INSERT INTO `system_dict_data` VALUES (1163, 0, '仓库中', '0', 'product_spu_status', 0, 'info', '', '商品 SPU 状态 - 仓库中', '1', '2022-10-24 21:20:54', '1', '2024-05-11 06:48:51', b'1');
+INSERT INTO `system_dict_data` VALUES (1164, 0, '回收站', '-1', 'product_spu_status', 0, 'default', '', '商品 SPU 状态 - 回收站', '1', '2022-10-24 21:21:11', '1', '2024-05-11 06:48:51', b'1');
+INSERT INTO `system_dict_data` VALUES (1165, 1, '满减', '1', 'promotion_discount_type', 0, 'success', '', '优惠类型 - 满减', '1', '2022-11-01 12:46:41', '1', '2024-05-11 06:48:49', b'1');
+INSERT INTO `system_dict_data` VALUES (1166, 2, '折扣', '2', 'promotion_discount_type', 0, 'primary', '', '优惠类型 - 折扣', '1', '2022-11-01 12:46:51', '1', '2024-05-11 06:48:49', b'1');
+INSERT INTO `system_dict_data` VALUES (1167, 1, '固定日期', '1', 'promotion_coupon_template_validity_type', 0, 'default', '', '优惠劵模板的有限期类型 - 固定日期', '1', '2022-11-02 00:07:34', '1', '2024-05-11 06:48:47', b'1');
+INSERT INTO `system_dict_data` VALUES (1168, 2, '领取之后', '2', 'promotion_coupon_template_validity_type', 0, 'default', '', '优惠劵模板的有限期类型 - 领取之后', '1', '2022-11-02 00:07:54', '1', '2024-05-11 06:48:47', b'1');
+INSERT INTO `system_dict_data` VALUES (1169, 1, '通用劵', '1', 'promotion_product_scope', 0, 'default', '', '营销的商品范围 - 全部商品参与', '1', '2022-11-02 00:28:22', '1', '2024-05-11 06:39:01', b'1');
+INSERT INTO `system_dict_data` VALUES (1170, 2, '商品劵', '2', 'promotion_product_scope', 0, 'default', '', '营销的商品范围 - 指定商品参与', '1', '2022-11-02 00:28:34', '1', '2024-05-11 06:39:01', b'1');
+INSERT INTO `system_dict_data` VALUES (1171, 1, '未使用', '1', 'promotion_coupon_status', 0, 'primary', '', '优惠劵的状态 - 已领取', '1', '2022-11-04 00:15:08', '1', '2024-05-11 06:38:58', b'1');
+INSERT INTO `system_dict_data` VALUES (1172, 2, '已使用', '2', 'promotion_coupon_status', 0, 'success', '', '优惠劵的状态 - 已使用', '1', '2022-11-04 00:15:21', '1', '2024-05-11 06:38:58', b'1');
+INSERT INTO `system_dict_data` VALUES (1173, 3, '已过期', '3', 'promotion_coupon_status', 0, 'info', '', '优惠劵的状态 - 已过期', '1', '2022-11-04 00:15:43', '1', '2024-05-11 06:38:58', b'1');
+INSERT INTO `system_dict_data` VALUES (1174, 1, '直接领取', '1', 'promotion_coupon_take_type', 0, 'primary', '', '优惠劵的领取方式 - 直接领取', '1', '2022-11-04 19:13:00', '1', '2024-05-11 06:38:56', b'1');
+INSERT INTO `system_dict_data` VALUES (1175, 2, '指定发放', '2', 'promotion_coupon_take_type', 0, 'success', '', '优惠劵的领取方式 - 指定发放', '1', '2022-11-04 19:13:13', '1', '2024-05-11 06:38:56', b'1');
+INSERT INTO `system_dict_data` VALUES (1176, 10, '未开始', '10', 'promotion_activity_status', 0, 'primary', '', '促销活动的状态枚举 - 未开始', '1', '2022-11-04 22:54:49', '1', '2024-05-11 06:38:54', b'1');
+INSERT INTO `system_dict_data` VALUES (1177, 20, '进行中', '20', 'promotion_activity_status', 0, 'success', '', '促销活动的状态枚举 - 进行中', '1', '2022-11-04 22:55:06', '1', '2024-05-11 06:38:54', b'1');
+INSERT INTO `system_dict_data` VALUES (1178, 30, '已结束', '30', 'promotion_activity_status', 0, 'info', '', '促销活动的状态枚举 - 已结束', '1', '2022-11-04 22:55:41', '1', '2024-05-11 06:38:54', b'1');
+INSERT INTO `system_dict_data` VALUES (1179, 40, '已关闭', '40', 'promotion_activity_status', 0, 'warning', '', '促销活动的状态枚举 - 已关闭', '1', '2022-11-04 22:56:10', '1', '2024-05-11 06:38:54', b'1');
+INSERT INTO `system_dict_data` VALUES (1180, 10, '满 N 元', '10', 'promotion_condition_type', 0, 'primary', '', '营销的条件类型 - 满 N 元', '1', '2022-11-04 22:59:45', '1', '2024-05-11 06:38:52', b'1');
+INSERT INTO `system_dict_data` VALUES (1181, 20, '满 N 件', '20', 'promotion_condition_type', 0, 'success', '', '营销的条件类型 - 满 N 件', '1', '2022-11-04 23:00:02', '1', '2024-05-11 06:38:52', b'1');
+INSERT INTO `system_dict_data` VALUES (1182, 10, '申请售后', '10', 'trade_after_sale_status', 0, 'primary', '', '交易售后状态 - 申请售后', '1', '2022-11-19 20:53:33', '1', '2024-05-11 06:38:49', b'1');
+INSERT INTO `system_dict_data` VALUES (1183, 20, '商品待退货', '20', 'trade_after_sale_status', 0, 'primary', '', '交易售后状态 - 商品待退货', '1', '2022-11-19 20:54:36', '1', '2024-05-11 06:38:49', b'1');
+INSERT INTO `system_dict_data` VALUES (1184, 30, '商家待收货', '30', 'trade_after_sale_status', 0, 'primary', '', '交易售后状态 - 商家待收货', '1', '2022-11-19 20:56:56', '1', '2024-05-11 06:38:49', b'1');
+INSERT INTO `system_dict_data` VALUES (1185, 40, '等待退款', '40', 'trade_after_sale_status', 0, 'primary', '', '交易售后状态 - 等待退款', '1', '2022-11-19 20:59:54', '1', '2024-05-11 06:38:49', b'1');
+INSERT INTO `system_dict_data` VALUES (1186, 50, '退款成功', '50', 'trade_after_sale_status', 0, 'default', '', '交易售后状态 - 退款成功', '1', '2022-11-19 21:00:33', '1', '2024-05-11 06:38:49', b'1');
+INSERT INTO `system_dict_data` VALUES (1187, 61, '买家取消', '61', 'trade_after_sale_status', 0, 'info', '', '交易售后状态 - 买家取消', '1', '2022-11-19 21:01:29', '1', '2024-05-11 06:38:49', b'1');
+INSERT INTO `system_dict_data` VALUES (1188, 62, '商家拒绝', '62', 'trade_after_sale_status', 0, 'info', '', '交易售后状态 - 商家拒绝', '1', '2022-11-19 21:02:17', '1', '2024-05-11 06:38:49', b'1');
+INSERT INTO `system_dict_data` VALUES (1189, 63, '商家拒收货', '63', 'trade_after_sale_status', 0, 'info', '', '交易售后状态 - 商家拒收货', '1', '2022-11-19 21:02:37', '1', '2024-05-11 06:38:49', b'1');
+INSERT INTO `system_dict_data` VALUES (1190, 10, '售中退款', '10', 'trade_after_sale_type', 0, 'success', '', '交易售后的类型 - 售中退款', '1', '2022-11-19 21:05:05', '1', '2024-05-11 06:38:45', b'1');
+INSERT INTO `system_dict_data` VALUES (1191, 20, '售后退款', '20', 'trade_after_sale_type', 0, 'primary', '', '交易售后的类型 - 售后退款', '1', '2022-11-19 21:05:32', '1', '2024-05-11 06:38:45', b'1');
+INSERT INTO `system_dict_data` VALUES (1192, 10, '仅退款', '10', 'trade_after_sale_way', 0, 'primary', '', '交易售后的方式 - 仅退款', '1', '2022-11-19 21:39:19', '1', '2024-05-11 06:38:47', b'1');
+INSERT INTO `system_dict_data` VALUES (1193, 20, '退货退款', '20', 'trade_after_sale_way', 0, 'success', '', '交易售后的方式 - 退货退款', '1', '2022-11-19 21:39:38', '1', '2024-05-11 06:38:47', b'1');
+INSERT INTO `system_dict_data` VALUES (1194, 10, '微信小程序', '10', 'terminal', 0, 'default', '', '终端 - 微信小程序', '1', '2022-12-10 10:51:11', '1', '2022-12-10 10:51:57', b'0');
+INSERT INTO `system_dict_data` VALUES (1195, 20, 'H5 网页', '20', 'terminal', 0, 'default', '', '终端 - H5 网页', '1', '2022-12-10 10:51:30', '1', '2022-12-10 10:51:59', b'0');
+INSERT INTO `system_dict_data` VALUES (1196, 11, '微信公众号', '11', 'terminal', 0, 'default', '', '终端 - 微信公众号', '1', '2022-12-10 10:54:16', '1', '2022-12-10 10:52:01', b'0');
+INSERT INTO `system_dict_data` VALUES (1197, 31, '苹果 App', '31', 'terminal', 0, 'default', '', '终端 - 苹果 App', '1', '2022-12-10 10:54:42', '1', '2022-12-10 10:52:18', b'0');
+INSERT INTO `system_dict_data` VALUES (1198, 32, '安卓 App', '32', 'terminal', 0, 'default', '', '终端 - 安卓 App', '1', '2022-12-10 10:55:02', '1', '2022-12-10 10:59:17', b'0');
+INSERT INTO `system_dict_data` VALUES (1199, 0, '普通订单', '0', 'trade_order_type', 0, 'default', '', '交易订单的类型 - 普通订单', '1', '2022-12-10 16:34:14', '1', '2024-05-11 06:38:38', b'1');
+INSERT INTO `system_dict_data` VALUES (1200, 1, '秒杀订单', '1', 'trade_order_type', 0, 'default', '', '交易订单的类型 - 秒杀订单', '1', '2022-12-10 16:34:26', '1', '2024-05-11 06:38:38', b'1');
+INSERT INTO `system_dict_data` VALUES (1201, 2, '拼团订单', '2', 'trade_order_type', 0, 'default', '', '交易订单的类型 - 拼团订单', '1', '2022-12-10 16:34:36', '1', '2024-05-11 06:38:38', b'1');
+INSERT INTO `system_dict_data` VALUES (1202, 3, '砍价订单', '3', 'trade_order_type', 0, 'default', '', '交易订单的类型 - 砍价订单', '1', '2022-12-10 16:34:48', '1', '2024-05-11 06:38:38', b'1');
+INSERT INTO `system_dict_data` VALUES (1203, 0, '待支付', '0', 'trade_order_status', 0, 'default', '', '交易订单状态 - 待支付', '1', '2022-12-10 16:49:29', '1', '2024-05-11 06:38:36', b'1');
+INSERT INTO `system_dict_data` VALUES (1204, 10, '待发货', '10', 'trade_order_status', 0, 'primary', '', '交易订单状态 - 待发货', '1', '2022-12-10 16:49:53', '1', '2024-05-11 06:38:36', b'1');
+INSERT INTO `system_dict_data` VALUES (1205, 20, '已发货', '20', 'trade_order_status', 0, 'primary', '', '交易订单状态 - 已发货', '1', '2022-12-10 16:50:13', '1', '2024-05-11 06:38:36', b'1');
+INSERT INTO `system_dict_data` VALUES (1206, 30, '已完成', '30', 'trade_order_status', 0, 'success', '', '交易订单状态 - 已完成', '1', '2022-12-10 16:50:30', '1', '2024-05-11 06:38:36', b'1');
+INSERT INTO `system_dict_data` VALUES (1207, 40, '已取消', '40', 'trade_order_status', 0, 'danger', '', '交易订单状态 - 已取消', '1', '2022-12-10 16:50:50', '1', '2024-05-11 06:38:36', b'1');
+INSERT INTO `system_dict_data` VALUES (1208, 0, '未售后', '0', 'trade_order_item_after_sale_status', 0, 'info', '', '交易订单项的售后状态 - 未售后', '1', '2022-12-10 20:58:42', '1', '2024-05-11 06:38:34', b'1');
+INSERT INTO `system_dict_data` VALUES (1209, 1, '售后中', '1', 'trade_order_item_after_sale_status', 0, 'primary', '', '交易订单项的售后状态 - 售后中', '1', '2022-12-10 20:59:21', '1', '2024-05-11 06:38:34', b'1');
+INSERT INTO `system_dict_data` VALUES (1210, 2, '已退款', '2', 'trade_order_item_after_sale_status', 0, 'success', '', '交易订单项的售后状态 - 已退款', '1', '2022-12-10 20:59:46', '1', '2024-05-11 06:38:34', b'1');
+INSERT INTO `system_dict_data` VALUES (1211, 1, '完全匹配', '1', 'mp_auto_reply_request_match', 0, 'primary', '', '公众号自动回复的请求关键字匹配模式 - 完全匹配', '1', '2023-01-16 23:30:39', '1', '2024-05-11 06:38:29', b'1');
+INSERT INTO `system_dict_data` VALUES (1212, 2, '半匹配', '2', 'mp_auto_reply_request_match', 0, 'success', '', '公众号自动回复的请求关键字匹配模式 - 半匹配', '1', '2023-01-16 23:30:55', '1', '2024-05-11 06:38:29', b'1');
+INSERT INTO `system_dict_data` VALUES (1213, 1, '文本', 'text', 'mp_message_type', 0, 'default', '', '公众号的消息类型 - 文本', '1', '2023-01-17 22:17:32', '1', '2024-05-11 06:38:26', b'1');
+INSERT INTO `system_dict_data` VALUES (1214, 2, '图片', 'image', 'mp_message_type', 0, 'default', '', '公众号的消息类型 - 图片', '1', '2023-01-17 22:17:32', '1', '2024-05-11 06:38:26', b'1');
+INSERT INTO `system_dict_data` VALUES (1215, 3, '语音', 'voice', 'mp_message_type', 0, 'default', '', '公众号的消息类型 - 语音', '1', '2023-01-17 22:17:32', '1', '2024-05-11 06:38:26', b'1');
+INSERT INTO `system_dict_data` VALUES (1216, 4, '视频', 'video', 'mp_message_type', 0, 'default', '', '公众号的消息类型 - 视频', '1', '2023-01-17 22:17:32', '1', '2024-05-11 06:38:26', b'1');
+INSERT INTO `system_dict_data` VALUES (1217, 5, '小视频', 'shortvideo', 'mp_message_type', 0, 'default', '', '公众号的消息类型 - 小视频', '1', '2023-01-17 22:17:32', '1', '2024-05-11 06:38:26', b'1');
+INSERT INTO `system_dict_data` VALUES (1218, 6, '图文', 'news', 'mp_message_type', 0, 'default', '', '公众号的消息类型 - 图文', '1', '2023-01-17 22:17:32', '1', '2024-05-11 06:38:26', b'1');
+INSERT INTO `system_dict_data` VALUES (1219, 7, '音乐', 'music', 'mp_message_type', 0, 'default', '', '公众号的消息类型 - 音乐', '1', '2023-01-17 22:17:32', '1', '2024-05-11 06:38:26', b'1');
+INSERT INTO `system_dict_data` VALUES (1220, 8, '地理位置', 'location', 'mp_message_type', 0, 'default', '', '公众号的消息类型 - 地理位置', '1', '2023-01-17 22:17:32', '1', '2024-05-11 06:38:26', b'1');
+INSERT INTO `system_dict_data` VALUES (1221, 9, '链接', 'link', 'mp_message_type', 0, 'default', '', '公众号的消息类型 - 链接', '1', '2023-01-17 22:17:32', '1', '2024-05-11 06:38:26', b'1');
+INSERT INTO `system_dict_data` VALUES (1222, 10, '事件', 'event', 'mp_message_type', 0, 'default', '', '公众号的消息类型 - 事件', '1', '2023-01-17 22:17:32', '1', '2024-05-11 06:38:26', b'1');
+INSERT INTO `system_dict_data` VALUES (1223, 0, '初始化', '0', 'system_mail_send_status', 0, 'primary', '', '邮件发送状态 - 初始化\n', '1', '2023-01-26 09:53:49', '1', '2023-01-26 16:36:14', b'0');
+INSERT INTO `system_dict_data` VALUES (1224, 10, '发送成功', '10', 'system_mail_send_status', 0, 'success', '', '邮件发送状态 - 发送成功', '1', '2023-01-26 09:54:28', '1', '2023-01-26 16:36:22', b'0');
+INSERT INTO `system_dict_data` VALUES (1225, 20, '发送失败', '20', 'system_mail_send_status', 0, 'danger', '', '邮件发送状态 - 发送失败', '1', '2023-01-26 09:54:50', '1', '2023-01-26 16:36:26', b'0');
+INSERT INTO `system_dict_data` VALUES (1226, 30, '不发送', '30', 'system_mail_send_status', 0, 'info', '', '邮件发送状态 -  不发送', '1', '2023-01-26 09:55:06', '1', '2023-01-26 16:36:36', b'0');
+INSERT INTO `system_dict_data` VALUES (1227, 1, '通知公告', '1', 'system_notify_template_type', 0, 'primary', '', '站内信模版的类型 - 通知公告', '1', '2023-01-28 10:35:59', '1', '2023-01-28 10:35:59', b'0');
+INSERT INTO `system_dict_data` VALUES (1228, 2, '系统消息', '2', 'system_notify_template_type', 0, 'success', '', '站内信模版的类型 - 系统消息', '1', '2023-01-28 10:36:20', '1', '2023-01-28 10:36:25', b'0');
+INSERT INTO `system_dict_data` VALUES (1230, 13, '支付宝条码支付', 'alipay_bar', 'pay_channel_code', 0, 'primary', '', '支付宝条码支付', '1', '2023-02-18 23:32:24', '1', '2024-05-11 06:49:23', b'1');
+INSERT INTO `system_dict_data` VALUES (1231, 10, 'Vue2 Element UI 标准模版', '10', 'infra_codegen_front_type', 0, '', '', '', '1', '2023-04-13 00:03:55', '1', '2023-04-13 00:03:55', b'0');
+INSERT INTO `system_dict_data` VALUES (1232, 20, 'Vue3 Element Plus 标准模版', '20', 'infra_codegen_front_type', 0, '', '', '', '1', '2023-04-13 00:04:08', '1', '2023-04-13 00:04:08', b'0');
+INSERT INTO `system_dict_data` VALUES (1233, 21, 'Vue3 Element Plus Schema 模版', '21', 'infra_codegen_front_type', 0, '', '', '', '1', '2023-04-13 00:04:26', '1', '2023-04-13 00:04:26', b'0');
+INSERT INTO `system_dict_data` VALUES (1234, 30, 'Vue3 vben 模版', '30', 'infra_codegen_front_type', 0, '', '', '', '1', '2023-04-13 00:04:26', '1', '2023-04-13 00:04:26', b'0');
+INSERT INTO `system_dict_data` VALUES (1244, 0, '按件', '1', 'trade_delivery_express_charge_mode', 0, '', '', '', '1', '2023-05-21 22:46:40', '1', '2024-05-11 06:38:22', b'1');
+INSERT INTO `system_dict_data` VALUES (1245, 1, '按重量', '2', 'trade_delivery_express_charge_mode', 0, '', '', '', '1', '2023-05-21 22:46:58', '1', '2024-05-11 06:38:22', b'1');
+INSERT INTO `system_dict_data` VALUES (1246, 2, '按体积', '3', 'trade_delivery_express_charge_mode', 0, '', '', '', '1', '2023-05-21 22:47:18', '1', '2024-05-11 06:38:22', b'1');
+INSERT INTO `system_dict_data` VALUES (1335, 11, '订单积分抵扣', '11', 'member_point_biz_type', 0, '', '', '', '1', '2023-06-10 12:15:27', '1', '2023-10-11 07:41:43', b'0');
+INSERT INTO `system_dict_data` VALUES (1336, 1, '签到', '1', 'member_point_biz_type', 0, '', '', '', '1', '2023-06-10 12:15:48', '1', '2023-08-20 11:59:53', b'0');
+INSERT INTO `system_dict_data` VALUES (1341, 20, '已退款', '20', 'pay_order_status', 0, 'danger', '', '已退款', '1', '2023-07-19 18:05:37', '1', '2024-05-11 06:49:13', b'1');
+INSERT INTO `system_dict_data` VALUES (1342, 21, '请求成功，但是结果失败', '21', 'pay_notify_status', 0, 'warning', '', '请求成功，但是结果失败', '1', '2023-07-19 18:10:47', '1', '2024-05-11 06:49:16', b'1');
+INSERT INTO `system_dict_data` VALUES (1343, 22, '请求失败', '22', 'pay_notify_status', 0, 'warning', '', NULL, '1', '2023-07-19 18:11:05', '1', '2024-05-11 06:49:16', b'1');
+INSERT INTO `system_dict_data` VALUES (1344, 4, '微信扫码支付', 'wx_native', 'pay_channel_code', 0, 'success', '', '微信扫码支付', '1', '2023-07-19 20:07:47', '1', '2024-05-11 06:49:23', b'1');
+INSERT INTO `system_dict_data` VALUES (1345, 5, '微信条码支付', 'wx_bar', 'pay_channel_code', 0, 'success', '', '微信条码支付\n', '1', '2023-07-19 20:08:06', '1', '2024-05-11 06:49:23', b'1');
+INSERT INTO `system_dict_data` VALUES (1346, 1, '支付单', '1', 'pay_notify_type', 0, 'primary', '', '支付单', '1', '2023-07-20 12:23:17', '1', '2024-05-11 06:38:18', b'1');
+INSERT INTO `system_dict_data` VALUES (1347, 2, '退款单', '2', 'pay_notify_type', 0, 'danger', '', NULL, '1', '2023-07-20 12:23:26', '1', '2024-05-11 06:38:18', b'1');
+INSERT INTO `system_dict_data` VALUES (1348, 20, '模拟支付', 'mock', 'pay_channel_code', 0, 'default', '', '模拟支付', '1', '2023-07-29 11:10:51', '1', '2024-05-11 06:49:23', b'1');
+INSERT INTO `system_dict_data` VALUES (1349, 12, '订单积分抵扣（整单取消）', '12', 'member_point_biz_type', 0, '', '', '', '1', '2023-08-20 12:00:03', '1', '2023-10-11 07:42:01', b'0');
+INSERT INTO `system_dict_data` VALUES (1350, 0, '管理员调整', '0', 'member_experience_biz_type', 0, '', '', NULL, '', '2023-08-22 12:41:01', '', '2023-08-22 12:41:01', b'0');
+INSERT INTO `system_dict_data` VALUES (1351, 1, '邀新奖励', '1', 'member_experience_biz_type', 0, '', '', NULL, '', '2023-08-22 12:41:01', '', '2023-08-22 12:41:01', b'0');
+INSERT INTO `system_dict_data` VALUES (1352, 11, '下单奖励', '11', 'member_experience_biz_type', 0, 'success', '', NULL, '', '2023-08-22 12:41:01', '1', '2023-10-11 07:45:09', b'0');
+INSERT INTO `system_dict_data` VALUES (1353, 12, '下单奖励（整单取消）', '12', 'member_experience_biz_type', 0, 'warning', '', NULL, '', '2023-08-22 12:41:01', '1', '2023-10-11 07:45:01', b'0');
+INSERT INTO `system_dict_data` VALUES (1354, 4, '签到奖励', '4', 'member_experience_biz_type', 0, '', '', NULL, '', '2023-08-22 12:41:01', '', '2023-08-22 12:41:01', b'0');
+INSERT INTO `system_dict_data` VALUES (1355, 5, '抽奖奖励', '5', 'member_experience_biz_type', 0, '', '', NULL, '', '2023-08-22 12:41:01', '', '2023-08-22 12:41:01', b'0');
+INSERT INTO `system_dict_data` VALUES (1356, 1, '快递发货', '1', 'trade_delivery_type', 0, '', '', '', '1', '2023-08-23 00:04:55', '1', '2024-05-11 06:38:11', b'1');
+INSERT INTO `system_dict_data` VALUES (1357, 2, '用户自提', '2', 'trade_delivery_type', 0, '', '', '', '1', '2023-08-23 00:05:05', '1', '2024-05-11 06:38:11', b'1');
+INSERT INTO `system_dict_data` VALUES (1358, 3, '品类劵', '3', 'promotion_product_scope', 0, 'default', '', '', '1', '2023-09-01 23:43:07', '1', '2024-05-11 06:39:01', b'1');
+INSERT INTO `system_dict_data` VALUES (1359, 1, '人人分销', '1', 'brokerage_enabled_condition', 0, '', '', '所有用户都可以分销', '', '2023-09-28 02:46:05', '', '2024-05-11 06:38:07', b'1');
+INSERT INTO `system_dict_data` VALUES (1360, 2, '指定分销', '2', 'brokerage_enabled_condition', 0, '', '', '仅可后台手动设置推广员', '', '2023-09-28 02:46:05', '', '2024-05-11 06:38:07', b'1');
+INSERT INTO `system_dict_data` VALUES (1361, 1, '首次绑定', '1', 'brokerage_bind_mode', 0, '', '', '只要用户没有推广人，随时都可以绑定推广关系', '', '2023-09-28 02:46:05', '', '2024-05-11 06:38:05', b'1');
+INSERT INTO `system_dict_data` VALUES (1362, 2, '注册绑定', '2', 'brokerage_bind_mode', 0, '', '', '仅新用户注册时才能绑定推广关系', '', '2023-09-28 02:46:05', '', '2024-05-11 06:38:05', b'1');
+INSERT INTO `system_dict_data` VALUES (1363, 3, '覆盖绑定', '3', 'brokerage_bind_mode', 0, '', '', '如果用户已经有推广人，推广人会被变更', '', '2023-09-28 02:46:05', '', '2024-05-11 06:38:05', b'1');
+INSERT INTO `system_dict_data` VALUES (1364, 1, '钱包', '1', 'brokerage_withdraw_type', 0, '', '', NULL, '', '2023-09-28 02:46:05', '', '2024-05-11 06:38:02', b'1');
+INSERT INTO `system_dict_data` VALUES (1365, 2, '银行卡', '2', 'brokerage_withdraw_type', 0, '', '', NULL, '', '2023-09-28 02:46:05', '', '2024-05-11 06:38:02', b'1');
+INSERT INTO `system_dict_data` VALUES (1366, 3, '微信', '3', 'brokerage_withdraw_type', 0, '', '', NULL, '', '2023-09-28 02:46:05', '', '2024-05-11 06:38:02', b'1');
+INSERT INTO `system_dict_data` VALUES (1367, 4, '支付宝', '4', 'brokerage_withdraw_type', 0, '', '', NULL, '', '2023-09-28 02:46:05', '', '2024-05-11 06:38:02', b'1');
+INSERT INTO `system_dict_data` VALUES (1368, 1, '订单返佣', '1', 'brokerage_record_biz_type', 0, '', '', NULL, '', '2023-09-28 02:46:05', '', '2024-05-11 06:38:00', b'1');
+INSERT INTO `system_dict_data` VALUES (1369, 2, '申请提现', '2', 'brokerage_record_biz_type', 0, '', '', NULL, '', '2023-09-28 02:46:05', '', '2024-05-11 06:38:00', b'1');
+INSERT INTO `system_dict_data` VALUES (1370, 3, '申请提现驳回', '3', 'brokerage_record_biz_type', 0, '', '', NULL, '', '2023-09-28 02:46:05', '', '2024-05-11 06:38:00', b'1');
+INSERT INTO `system_dict_data` VALUES (1371, 0, '待结算', '0', 'brokerage_record_status', 0, '', '', NULL, '', '2023-09-28 02:46:05', '', '2024-05-11 06:37:57', b'1');
+INSERT INTO `system_dict_data` VALUES (1372, 1, '已结算', '1', 'brokerage_record_status', 0, '', '', NULL, '', '2023-09-28 02:46:05', '', '2024-05-11 06:37:57', b'1');
+INSERT INTO `system_dict_data` VALUES (1373, 2, '已取消', '2', 'brokerage_record_status', 0, '', '', NULL, '', '2023-09-28 02:46:05', '', '2024-05-11 06:37:57', b'1');
+INSERT INTO `system_dict_data` VALUES (1374, 0, '审核中', '0', 'brokerage_withdraw_status', 0, '', '', NULL, '', '2023-09-28 02:46:05', '', '2024-05-11 06:37:55', b'1');
+INSERT INTO `system_dict_data` VALUES (1375, 10, '审核通过', '10', 'brokerage_withdraw_status', 0, 'success', '', NULL, '', '2023-09-28 02:46:05', '', '2024-05-11 06:37:55', b'1');
+INSERT INTO `system_dict_data` VALUES (1376, 11, '提现成功', '11', 'brokerage_withdraw_status', 0, 'success', '', NULL, '', '2023-09-28 02:46:05', '', '2024-05-11 06:37:55', b'1');
+INSERT INTO `system_dict_data` VALUES (1377, 20, '审核不通过', '20', 'brokerage_withdraw_status', 0, 'danger', '', NULL, '', '2023-09-28 02:46:05', '', '2024-05-11 06:37:55', b'1');
+INSERT INTO `system_dict_data` VALUES (1378, 21, '提现失败', '21', 'brokerage_withdraw_status', 0, 'danger', '', NULL, '', '2023-09-28 02:46:05', '', '2024-05-11 06:37:55', b'1');
+INSERT INTO `system_dict_data` VALUES (1379, 0, '工商银行', '0', 'brokerage_bank_name', 0, '', '', NULL, '', '2023-09-28 02:46:05', '', '2024-05-11 06:37:53', b'1');
+INSERT INTO `system_dict_data` VALUES (1380, 1, '建设银行', '1', 'brokerage_bank_name', 0, '', '', NULL, '', '2023-09-28 02:46:05', '', '2024-05-11 06:37:53', b'1');
+INSERT INTO `system_dict_data` VALUES (1381, 2, '农业银行', '2', 'brokerage_bank_name', 0, '', '', NULL, '', '2023-09-28 02:46:05', '', '2024-05-11 06:37:53', b'1');
+INSERT INTO `system_dict_data` VALUES (1382, 3, '中国银行', '3', 'brokerage_bank_name', 0, '', '', NULL, '', '2023-09-28 02:46:05', '', '2024-05-11 06:37:53', b'1');
+INSERT INTO `system_dict_data` VALUES (1383, 4, '交通银行', '4', 'brokerage_bank_name', 0, '', '', NULL, '', '2023-09-28 02:46:05', '', '2024-05-11 06:37:53', b'1');
+INSERT INTO `system_dict_data` VALUES (1384, 5, '招商银行', '5', 'brokerage_bank_name', 0, '', '', NULL, '', '2023-09-28 02:46:05', '', '2024-05-11 06:37:53', b'1');
+INSERT INTO `system_dict_data` VALUES (1385, 21, '钱包', 'wallet', 'pay_channel_code', 0, 'primary', '', '', '1', '2023-10-01 21:46:19', '1', '2024-05-11 06:49:23', b'1');
+INSERT INTO `system_dict_data` VALUES (1386, 1, '砍价中', '1', 'promotion_bargain_record_status', 0, 'default', '', '', '1', '2023-10-05 10:41:26', '1', '2024-05-11 06:37:50', b'1');
+INSERT INTO `system_dict_data` VALUES (1387, 2, '砍价成功', '2', 'promotion_bargain_record_status', 0, 'success', '', '', '1', '2023-10-05 10:41:39', '1', '2024-05-11 06:37:50', b'1');
+INSERT INTO `system_dict_data` VALUES (1388, 3, '砍价失败', '3', 'promotion_bargain_record_status', 0, 'warning', '', '', '1', '2023-10-05 10:41:57', '1', '2024-05-11 06:37:50', b'1');
+INSERT INTO `system_dict_data` VALUES (1389, 1, '拼团中', '1', 'promotion_combination_record_status', 0, '', '', '', '1', '2023-10-08 07:24:44', '1', '2024-05-11 06:37:47', b'1');
+INSERT INTO `system_dict_data` VALUES (1390, 2, '拼团成功', '2', 'promotion_combination_record_status', 0, 'success', '', '', '1', '2023-10-08 07:24:56', '1', '2024-05-11 06:37:47', b'1');
+INSERT INTO `system_dict_data` VALUES (1391, 3, '拼团失败', '3', 'promotion_combination_record_status', 0, 'warning', '', '', '1', '2023-10-08 07:25:11', '1', '2024-05-11 06:37:47', b'1');
+INSERT INTO `system_dict_data` VALUES (1392, 2, '管理员修改', '2', 'member_point_biz_type', 0, 'default', '', '', '1', '2023-10-11 07:41:34', '1', '2023-10-11 07:41:34', b'0');
+INSERT INTO `system_dict_data` VALUES (1393, 13, '订单积分抵扣（单个退款）', '13', 'member_point_biz_type', 0, '', '', '', '1', '2023-10-11 07:42:29', '1', '2023-10-11 07:42:29', b'0');
+INSERT INTO `system_dict_data` VALUES (1394, 21, '订单积分奖励', '21', 'member_point_biz_type', 0, 'default', '', '', '1', '2023-10-11 07:42:44', '1', '2023-10-11 07:42:44', b'0');
+INSERT INTO `system_dict_data` VALUES (1395, 22, '订单积分奖励（整单取消）', '22', 'member_point_biz_type', 0, 'default', '', '', '1', '2023-10-11 07:42:55', '1', '2023-10-11 07:43:01', b'0');
+INSERT INTO `system_dict_data` VALUES (1396, 23, '订单积分奖励（单个退款）', '23', 'member_point_biz_type', 0, 'default', '', '', '1', '2023-10-11 07:43:16', '1', '2023-10-11 07:43:16', b'0');
+INSERT INTO `system_dict_data` VALUES (1397, 13, '下单奖励（单个退款）', '13', 'member_experience_biz_type', 0, 'warning', '', '', '1', '2023-10-11 07:45:24', '1', '2023-10-11 07:45:38', b'0');
+INSERT INTO `system_dict_data` VALUES (1398, 5, '网上转账', '5', 'crm_receivable_return_type', 0, 'default', '', '', '1', '2023-10-18 21:55:24', '1', '2024-05-11 06:37:44', b'1');
+INSERT INTO `system_dict_data` VALUES (1399, 6, '支付宝', '6', 'crm_receivable_return_type', 0, 'default', '', '', '1', '2023-10-18 21:55:38', '1', '2024-05-11 06:37:44', b'1');
+INSERT INTO `system_dict_data` VALUES (1400, 7, '微信支付', '7', 'crm_receivable_return_type', 0, 'default', '', '', '1', '2023-10-18 21:55:53', '1', '2024-05-11 06:37:44', b'1');
+INSERT INTO `system_dict_data` VALUES (1401, 8, '其他', '8', 'crm_receivable_return_type', 0, 'default', '', '', '1', '2023-10-18 21:56:06', '1', '2024-05-11 06:37:44', b'1');
+INSERT INTO `system_dict_data` VALUES (1402, 1, 'IT', '1', 'crm_customer_industry', 0, 'default', '', '', '1', '2023-10-28 23:02:15', '1', '2024-05-11 06:37:41', b'1');
+INSERT INTO `system_dict_data` VALUES (1403, 2, '金融业', '2', 'crm_customer_industry', 0, 'default', '', '', '1', '2023-10-28 23:02:29', '1', '2024-05-11 06:37:41', b'1');
+INSERT INTO `system_dict_data` VALUES (1404, 3, '房地产', '3', 'crm_customer_industry', 0, 'default', '', '', '1', '2023-10-28 23:02:41', '1', '2024-05-11 06:37:41', b'1');
+INSERT INTO `system_dict_data` VALUES (1405, 4, '商业服务', '4', 'crm_customer_industry', 0, 'default', '', '', '1', '2023-10-28 23:02:54', '1', '2024-05-11 06:37:41', b'1');
+INSERT INTO `system_dict_data` VALUES (1406, 5, '运输/物流', '5', 'crm_customer_industry', 0, 'default', '', '', '1', '2023-10-28 23:03:03', '1', '2024-05-11 06:37:41', b'1');
+INSERT INTO `system_dict_data` VALUES (1407, 6, '生产', '6', 'crm_customer_industry', 0, 'default', '', '', '1', '2023-10-28 23:03:13', '1', '2024-05-11 06:37:41', b'1');
+INSERT INTO `system_dict_data` VALUES (1408, 7, '政府', '7', 'crm_customer_industry', 0, 'default', '', '', '1', '2023-10-28 23:03:27', '1', '2024-05-11 06:37:41', b'1');
+INSERT INTO `system_dict_data` VALUES (1409, 8, '文化传媒', '8', 'crm_customer_industry', 0, 'default', '', '', '1', '2023-10-28 23:03:37', '1', '2024-05-11 06:37:41', b'1');
+INSERT INTO `system_dict_data` VALUES (1422, 1, 'A （重点客户）', '1', 'crm_customer_level', 0, 'primary', '', '', '1', '2023-10-28 23:07:13', '1', '2024-05-11 06:37:38', b'1');
+INSERT INTO `system_dict_data` VALUES (1423, 2, 'B （普通客户）', '2', 'crm_customer_level', 0, 'info', '', '', '1', '2023-10-28 23:07:35', '1', '2024-05-11 06:37:38', b'1');
+INSERT INTO `system_dict_data` VALUES (1424, 3, 'C （非优先客户）', '3', 'crm_customer_level', 0, 'default', '', '', '1', '2023-10-28 23:07:53', '1', '2024-05-11 06:37:38', b'1');
+INSERT INTO `system_dict_data` VALUES (1425, 1, '促销', '1', 'crm_customer_source', 0, 'default', '', '', '1', '2023-10-28 23:08:29', '1', '2024-05-11 06:37:35', b'1');
+INSERT INTO `system_dict_data` VALUES (1426, 2, '搜索引擎', '2', 'crm_customer_source', 0, 'default', '', '', '1', '2023-10-28 23:08:39', '1', '2024-05-11 06:37:35', b'1');
+INSERT INTO `system_dict_data` VALUES (1427, 3, '广告', '3', 'crm_customer_source', 0, 'default', '', '', '1', '2023-10-28 23:08:47', '1', '2024-05-11 06:37:35', b'1');
+INSERT INTO `system_dict_data` VALUES (1428, 4, '转介绍', '4', 'crm_customer_source', 0, 'default', '', '', '1', '2023-10-28 23:08:58', '1', '2024-05-11 06:37:35', b'1');
+INSERT INTO `system_dict_data` VALUES (1429, 5, '线上注册', '5', 'crm_customer_source', 0, 'default', '', '', '1', '2023-10-28 23:09:12', '1', '2024-05-11 06:37:35', b'1');
+INSERT INTO `system_dict_data` VALUES (1430, 6, '线上咨询', '6', 'crm_customer_source', 0, 'default', '', '', '1', '2023-10-28 23:09:22', '1', '2024-05-11 06:37:35', b'1');
+INSERT INTO `system_dict_data` VALUES (1431, 7, '预约上门', '7', 'crm_customer_source', 0, 'default', '', '', '1', '2023-10-28 23:09:39', '1', '2024-05-11 06:37:35', b'1');
+INSERT INTO `system_dict_data` VALUES (1432, 8, '陌拜', '8', 'crm_customer_source', 0, 'default', '', '', '1', '2023-10-28 23:10:04', '1', '2024-05-11 06:37:35', b'1');
+INSERT INTO `system_dict_data` VALUES (1433, 9, '电话咨询', '9', 'crm_customer_source', 0, 'default', '', '', '1', '2023-10-28 23:10:18', '1', '2024-05-11 06:37:35', b'1');
+INSERT INTO `system_dict_data` VALUES (1434, 10, '邮件咨询', '10', 'crm_customer_source', 0, 'default', '', '', '1', '2023-10-28 23:10:33', '1', '2024-05-11 06:37:35', b'1');
+INSERT INTO `system_dict_data` VALUES (1435, 10, 'Gitee', '10', 'system_social_type', 0, '', '', '', '1', '2023-11-04 13:04:42', '1', '2023-11-04 13:04:42', b'0');
+INSERT INTO `system_dict_data` VALUES (1436, 20, '钉钉', '20', 'system_social_type', 0, '', '', '', '1', '2023-11-04 13:04:54', '1', '2023-11-04 13:04:54', b'0');
+INSERT INTO `system_dict_data` VALUES (1437, 30, '企业微信', '30', 'system_social_type', 0, '', '', '', '1', '2023-11-04 13:05:09', '1', '2023-11-04 13:05:09', b'0');
+INSERT INTO `system_dict_data` VALUES (1438, 31, '微信公众平台', '31', 'system_social_type', 0, '', '', '', '1', '2023-11-04 13:05:18', '1', '2023-11-04 13:05:18', b'0');
+INSERT INTO `system_dict_data` VALUES (1439, 32, '微信开放平台', '32', 'system_social_type', 0, '', '', '', '1', '2023-11-04 13:05:30', '1', '2023-11-04 13:05:30', b'0');
+INSERT INTO `system_dict_data` VALUES (1440, 34, '微信小程序', '34', 'system_social_type', 0, '', '', '', '1', '2023-11-04 13:05:38', '1', '2023-11-04 13:07:16', b'0');
+INSERT INTO `system_dict_data` VALUES (1441, 1, '上架', '1', 'crm_product_status', 0, 'success', '', '', '1', '2023-10-30 21:49:34', '1', '2024-05-11 06:37:26', b'1');
+INSERT INTO `system_dict_data` VALUES (1442, 0, '下架', '0', 'crm_product_status', 0, 'success', '', '', '1', '2023-10-30 21:49:13', '1', '2024-05-11 06:37:26', b'1');
+INSERT INTO `system_dict_data` VALUES (1443, 15, '子表', '15', 'infra_codegen_template_type', 0, 'default', '', '', '1', '2023-11-13 23:06:16', '1', '2023-11-13 23:06:16', b'0');
+INSERT INTO `system_dict_data` VALUES (1444, 10, '主表（标准模式）', '10', 'infra_codegen_template_type', 0, 'default', '', '', '1', '2023-11-14 12:32:49', '1', '2023-11-14 12:32:49', b'0');
+INSERT INTO `system_dict_data` VALUES (1445, 11, '主表（ERP 模式）', '11', 'infra_codegen_template_type', 0, 'default', '', '', '1', '2023-11-14 12:33:05', '1', '2023-11-14 12:33:05', b'0');
+INSERT INTO `system_dict_data` VALUES (1446, 12, '主表（内嵌模式）', '12', 'infra_codegen_template_type', 0, '', '', '', '1', '2023-11-14 12:33:31', '1', '2023-11-14 12:33:31', b'0');
+INSERT INTO `system_dict_data` VALUES (1447, 1, '负责人', '1', 'crm_permission_level', 0, 'default', '', '', '1', '2023-11-30 09:53:12', '1', '2024-05-11 06:37:22', b'1');
+INSERT INTO `system_dict_data` VALUES (1448, 2, '只读', '2', 'crm_permission_level', 0, '', '', '', '1', '2023-11-30 09:53:29', '1', '2024-05-11 06:37:22', b'1');
+INSERT INTO `system_dict_data` VALUES (1449, 3, '读写', '3', 'crm_permission_level', 0, '', '', '', '1', '2023-11-30 09:53:36', '1', '2024-05-11 06:37:22', b'1');
+INSERT INTO `system_dict_data` VALUES (1450, 0, '未提交', '0', 'crm_audit_status', 0, '', '', '', '1', '2023-11-30 18:56:59', '1', '2024-05-11 06:37:20', b'1');
+INSERT INTO `system_dict_data` VALUES (1451, 10, '审批中', '10', 'crm_audit_status', 0, '', '', '', '1', '2023-11-30 18:57:10', '1', '2024-05-11 06:37:20', b'1');
+INSERT INTO `system_dict_data` VALUES (1452, 20, '审核通过', '20', 'crm_audit_status', 0, '', '', '', '1', '2023-11-30 18:57:24', '1', '2024-05-11 06:37:20', b'1');
+INSERT INTO `system_dict_data` VALUES (1453, 30, '审核不通过', '30', 'crm_audit_status', 0, '', '', '', '1', '2023-11-30 18:57:32', '1', '2024-05-11 06:37:20', b'1');
+INSERT INTO `system_dict_data` VALUES (1454, 40, '已取消', '40', 'crm_audit_status', 0, '', '', '', '1', '2023-11-30 18:57:42', '1', '2024-05-11 06:37:20', b'1');
+INSERT INTO `system_dict_data` VALUES (1456, 1, '支票', '1', 'crm_receivable_return_type', 0, 'default', '', '', '1', '2023-10-18 21:54:29', '1', '2024-05-11 06:37:44', b'1');
+INSERT INTO `system_dict_data` VALUES (1457, 2, '现金', '2', 'crm_receivable_return_type', 0, 'default', '', '', '1', '2023-10-18 21:54:41', '1', '2024-05-11 06:37:44', b'1');
+INSERT INTO `system_dict_data` VALUES (1458, 3, '邮政汇款', '3', 'crm_receivable_return_type', 0, 'default', '', '', '1', '2023-10-18 21:54:53', '1', '2024-05-11 06:37:44', b'1');
+INSERT INTO `system_dict_data` VALUES (1459, 4, '电汇', '4', 'crm_receivable_return_type', 0, 'default', '', '', '1', '2023-10-18 21:55:07', '1', '2024-05-11 06:37:44', b'1');
+INSERT INTO `system_dict_data` VALUES (1460, 5, '网上转账', '5', 'crm_receivable_return_type', 0, 'default', '', '', '1', '2023-10-18 21:55:24', '1', '2024-05-11 06:37:44', b'1');
+INSERT INTO `system_dict_data` VALUES (1461, 1, '个', '1', 'crm_product_unit', 0, '', '', '', '1', '2023-12-05 23:02:26', '1', '2024-05-11 06:37:18', b'1');
+INSERT INTO `system_dict_data` VALUES (1462, 2, '块', '2', 'crm_product_unit', 0, '', '', '', '1', '2023-12-05 23:02:34', '1', '2024-05-11 06:37:18', b'1');
+INSERT INTO `system_dict_data` VALUES (1463, 3, '只', '3', 'crm_product_unit', 0, '', '', '', '1', '2023-12-05 23:02:57', '1', '2024-05-11 06:37:18', b'1');
+INSERT INTO `system_dict_data` VALUES (1464, 4, '把', '4', 'crm_product_unit', 0, '', '', '', '1', '2023-12-05 23:03:05', '1', '2024-05-11 06:37:18', b'1');
+INSERT INTO `system_dict_data` VALUES (1465, 5, '枚', '5', 'crm_product_unit', 0, '', '', '', '1', '2023-12-05 23:03:14', '1', '2024-05-11 06:37:18', b'1');
+INSERT INTO `system_dict_data` VALUES (1466, 6, '瓶', '6', 'crm_product_unit', 0, '', '', '', '1', '2023-12-05 23:03:20', '1', '2024-05-11 06:37:18', b'1');
+INSERT INTO `system_dict_data` VALUES (1467, 7, '盒', '7', 'crm_product_unit', 0, '', '', '', '1', '2023-12-05 23:03:30', '1', '2024-05-11 06:37:18', b'1');
+INSERT INTO `system_dict_data` VALUES (1468, 8, '台', '8', 'crm_product_unit', 0, '', '', '', '1', '2023-12-05 23:03:41', '1', '2024-05-11 06:37:18', b'1');
+INSERT INTO `system_dict_data` VALUES (1469, 9, '吨', '9', 'crm_product_unit', 0, '', '', '', '1', '2023-12-05 23:03:48', '1', '2024-05-11 06:37:18', b'1');
+INSERT INTO `system_dict_data` VALUES (1470, 10, '千克', '10', 'crm_product_unit', 0, '', '', '', '1', '2023-12-05 23:04:03', '1', '2024-05-11 06:37:18', b'1');
+INSERT INTO `system_dict_data` VALUES (1471, 11, '米', '11', 'crm_product_unit', 0, '', '', '', '1', '2023-12-05 23:04:12', '1', '2024-05-11 06:37:18', b'1');
+INSERT INTO `system_dict_data` VALUES (1472, 12, '箱', '12', 'crm_product_unit', 0, '', '', '', '1', '2023-12-05 23:04:25', '1', '2024-05-11 06:37:18', b'1');
+INSERT INTO `system_dict_data` VALUES (1473, 13, '套', '13', 'crm_product_unit', 0, '', '', '', '1', '2023-12-05 23:04:34', '1', '2024-05-11 06:37:18', b'1');
+INSERT INTO `system_dict_data` VALUES (1474, 1, '打电话', '1', 'crm_follow_up_type', 0, '', '', '', '1', '2024-01-15 20:48:20', '1', '2024-05-11 06:37:14', b'1');
+INSERT INTO `system_dict_data` VALUES (1475, 2, '发短信', '2', 'crm_follow_up_type', 0, '', '', '', '1', '2024-01-15 20:48:31', '1', '2024-05-11 06:37:14', b'1');
+INSERT INTO `system_dict_data` VALUES (1476, 3, '上门拜访', '3', 'crm_follow_up_type', 0, '', '', '', '1', '2024-01-15 20:49:07', '1', '2024-05-11 06:37:14', b'1');
+INSERT INTO `system_dict_data` VALUES (1477, 4, '微信沟通', '4', 'crm_follow_up_type', 0, '', '', '', '1', '2024-01-15 20:49:15', '1', '2024-05-11 06:37:14', b'1');
+INSERT INTO `system_dict_data` VALUES (1478, 4, '钱包余额', '4', 'pay_transfer_type', 0, 'info', '', '', '1', '2023-10-28 16:28:37', '1', '2024-05-11 06:37:10', b'1');
+INSERT INTO `system_dict_data` VALUES (1479, 3, '银行卡', '3', 'pay_transfer_type', 0, 'default', '', '', '1', '2023-10-28 16:28:21', '1', '2024-05-11 06:37:10', b'1');
+INSERT INTO `system_dict_data` VALUES (1480, 2, '微信余额', '2', 'pay_transfer_type', 0, 'info', '', '', '1', '2023-10-28 16:28:07', '1', '2024-05-11 06:37:10', b'1');
+INSERT INTO `system_dict_data` VALUES (1481, 1, '支付宝余额', '1', 'pay_transfer_type', 0, 'default', '', '', '1', '2023-10-28 16:27:44', '1', '2024-05-11 06:37:10', b'1');
+INSERT INTO `system_dict_data` VALUES (1482, 4, '转账失败', '30', 'pay_transfer_status', 0, 'warning', '', '', '1', '2023-10-28 16:24:16', '1', '2024-05-11 06:37:08', b'1');
+INSERT INTO `system_dict_data` VALUES (1483, 3, '转账成功', '20', 'pay_transfer_status', 0, 'success', '', '', '1', '2023-10-28 16:23:50', '1', '2024-05-11 06:37:08', b'1');
+INSERT INTO `system_dict_data` VALUES (1484, 2, '转账进行中', '10', 'pay_transfer_status', 0, 'info', '', '', '1', '2023-10-28 16:23:12', '1', '2024-05-11 06:37:08', b'1');
+INSERT INTO `system_dict_data` VALUES (1485, 1, '等待转账', '0', 'pay_transfer_status', 0, 'default', '', '', '1', '2023-10-28 16:21:43', '1', '2024-05-11 06:37:08', b'1');
+INSERT INTO `system_dict_data` VALUES (1486, 10, '其它入库', '10', 'erp_stock_record_biz_type', 0, '', '', '', '1', '2024-02-05 18:07:25', '1', '2024-05-11 06:37:05', b'1');
+INSERT INTO `system_dict_data` VALUES (1487, 11, '其它入库（作废）', '11', 'erp_stock_record_biz_type', 0, 'danger', '', '', '1', '2024-02-05 18:08:07', '1', '2024-05-11 06:37:05', b'1');
+INSERT INTO `system_dict_data` VALUES (1488, 20, '其它出库', '20', 'erp_stock_record_biz_type', 0, '', '', '', '1', '2024-02-05 18:08:51', '1', '2024-05-11 06:37:05', b'1');
+INSERT INTO `system_dict_data` VALUES (1489, 21, '其它出库（作废）', '21', 'erp_stock_record_biz_type', 0, 'danger', '', '', '1', '2024-02-05 18:09:00', '1', '2024-05-11 06:37:05', b'1');
+INSERT INTO `system_dict_data` VALUES (1490, 10, '未审核', '10', 'erp_audit_status', 0, 'default', '', '', '1', '2024-02-06 00:00:21', '1', '2024-05-11 06:37:02', b'1');
+INSERT INTO `system_dict_data` VALUES (1491, 20, '已审核', '20', 'erp_audit_status', 0, 'success', '', '', '1', '2024-02-06 00:00:35', '1', '2024-05-11 06:37:02', b'1');
+INSERT INTO `system_dict_data` VALUES (1492, 30, '调拨入库', '30', 'erp_stock_record_biz_type', 0, '', '', '', '1', '2024-02-07 20:34:19', '1', '2024-05-11 06:37:05', b'1');
+INSERT INTO `system_dict_data` VALUES (1493, 31, '调拨入库（作废）', '31', 'erp_stock_record_biz_type', 0, 'danger', '', '', '1', '2024-02-07 20:34:29', '1', '2024-05-11 06:37:05', b'1');
+INSERT INTO `system_dict_data` VALUES (1494, 32, '调拨出库', '32', 'erp_stock_record_biz_type', 0, '', '', '', '1', '2024-02-07 20:34:38', '1', '2024-05-11 06:37:05', b'1');
+INSERT INTO `system_dict_data` VALUES (1495, 33, '调拨出库（作废）', '33', 'erp_stock_record_biz_type', 0, 'danger', '', '', '1', '2024-02-07 20:34:49', '1', '2024-05-11 06:37:05', b'1');
+INSERT INTO `system_dict_data` VALUES (1496, 40, '盘盈入库', '40', 'erp_stock_record_biz_type', 0, '', '', '', '1', '2024-02-08 08:53:00', '1', '2024-05-11 06:37:05', b'1');
+INSERT INTO `system_dict_data` VALUES (1497, 41, '盘盈入库（作废）', '41', 'erp_stock_record_biz_type', 0, 'danger', '', '', '1', '2024-02-08 08:53:39', '1', '2024-05-11 06:37:05', b'1');
+INSERT INTO `system_dict_data` VALUES (1498, 42, '盘亏出库', '42', 'erp_stock_record_biz_type', 0, '', '', '', '1', '2024-02-08 08:54:16', '1', '2024-05-11 06:37:05', b'1');
+INSERT INTO `system_dict_data` VALUES (1499, 43, '盘亏出库（作废）', '43', 'erp_stock_record_biz_type', 0, 'danger', '', '', '1', '2024-02-08 08:54:31', '1', '2024-05-11 06:37:05', b'1');
+INSERT INTO `system_dict_data` VALUES (1500, 50, '销售出库', '50', 'erp_stock_record_biz_type', 0, '', '', '', '1', '2024-02-11 21:47:25', '1', '2024-05-11 06:37:05', b'1');
+INSERT INTO `system_dict_data` VALUES (1501, 51, '销售出库（作废）', '51', 'erp_stock_record_biz_type', 0, 'danger', '', '', '1', '2024-02-11 21:47:37', '1', '2024-05-11 06:37:05', b'1');
+INSERT INTO `system_dict_data` VALUES (1502, 60, '销售退货入库', '60', 'erp_stock_record_biz_type', 0, '', '', '', '1', '2024-02-12 06:51:05', '1', '2024-05-11 06:37:05', b'1');
+INSERT INTO `system_dict_data` VALUES (1503, 61, '销售退货入库（作废）', '61', 'erp_stock_record_biz_type', 0, 'danger', '', '', '1', '2024-02-12 06:51:18', '1', '2024-05-11 06:37:05', b'1');
+INSERT INTO `system_dict_data` VALUES (1504, 70, '采购入库', '70', 'erp_stock_record_biz_type', 0, '', '', '', '1', '2024-02-16 13:10:02', '1', '2024-05-11 06:37:05', b'1');
+INSERT INTO `system_dict_data` VALUES (1505, 71, '采购入库（作废）', '71', 'erp_stock_record_biz_type', 0, 'danger', '', '', '1', '2024-02-16 13:10:10', '1', '2024-05-11 06:37:05', b'1');
+INSERT INTO `system_dict_data` VALUES (1506, 80, '采购退货出库', '80', 'erp_stock_record_biz_type', 0, '', '', '', '1', '2024-02-16 13:10:17', '1', '2024-05-11 06:37:05', b'1');
+INSERT INTO `system_dict_data` VALUES (1507, 81, '采购退货出库（作废）', '81', 'erp_stock_record_biz_type', 0, 'danger', '', '', '1', '2024-02-16 13:10:26', '1', '2024-05-11 06:37:05', b'1');
+INSERT INTO `system_dict_data` VALUES (1509, 3, '审批不通过', '3', 'bpm_process_instance_status', 0, 'danger', '', '', '1', '2024-03-16 16:12:06', '1', '2024-05-11 06:49:07', b'1');
+INSERT INTO `system_dict_data` VALUES (1510, 4, '已取消', '4', 'bpm_process_instance_status', 0, 'warning', '', '', '1', '2024-03-16 16:12:22', '1', '2024-05-11 06:49:07', b'1');
+INSERT INTO `system_dict_data` VALUES (1511, 5, '已退回', '5', 'bpm_task_status', 0, 'warning', '', '', '1', '2024-03-16 19:10:46', '1', '2024-05-11 06:49:04', b'1');
+INSERT INTO `system_dict_data` VALUES (1512, 6, '委派中', '6', 'bpm_task_status', 0, 'primary', '', '', '1', '2024-03-17 10:06:22', '1', '2024-05-11 06:49:04', b'1');
+INSERT INTO `system_dict_data` VALUES (1513, 7, '审批通过中', '7', 'bpm_task_status', 0, 'success', '', '', '1', '2024-03-17 10:06:47', '1', '2024-05-11 06:49:04', b'1');
+INSERT INTO `system_dict_data` VALUES (1514, 0, '待审批', '0', 'bpm_task_status', 0, 'info', '', '', '1', '2024-03-17 10:07:11', '1', '2024-05-11 06:49:04', b'1');
+INSERT INTO `system_dict_data` VALUES (1515, 35, '发起人自选', '35', 'bpm_task_candidate_strategy', 0, '', '', '', '1', '2024-03-22 19:45:16', '1', '2024-05-11 06:48:58', b'1');
+INSERT INTO `system_dict_data` VALUES (1516, 1, '执行监听器', 'execution', 'bpm_process_listener_type', 0, 'primary', '', '', '1', '2024-03-23 12:54:03', '1', '2024-05-11 06:36:59', b'1');
+INSERT INTO `system_dict_data` VALUES (1517, 1, '任务监听器', 'task', 'bpm_process_listener_type', 0, 'success', '', '', '1', '2024-03-23 12:54:13', '1', '2024-05-11 06:36:59', b'1');
+INSERT INTO `system_dict_data` VALUES (1526, 1, 'Java 类', 'class', 'bpm_process_listener_value_type', 0, 'primary', '', '', '1', '2024-03-23 15:08:45', '1', '2024-05-11 06:36:53', b'1');
+INSERT INTO `system_dict_data` VALUES (1527, 2, '表达式', 'expression', 'bpm_process_listener_value_type', 0, 'success', '', '', '1', '2024-03-23 15:09:06', '1', '2024-05-11 06:36:53', b'1');
+INSERT INTO `system_dict_data` VALUES (1528, 3, '代理表达式', 'delegateExpression', 'bpm_process_listener_value_type', 0, 'info', '', '', '1', '2024-03-23 15:11:23', '1', '2024-05-11 06:36:53', b'1');
+INSERT INTO `system_dict_data` VALUES (1529, 1, '天', '1', 'date_interval', 0, '', '', '', '1', '2024-03-29 22:50:26', '1', '2024-03-29 22:50:26', b'0');
+INSERT INTO `system_dict_data` VALUES (1530, 2, '周', '2', 'date_interval', 0, '', '', '', '1', '2024-03-29 22:50:36', '1', '2024-03-29 22:50:36', b'0');
+INSERT INTO `system_dict_data` VALUES (1531, 3, '月', '3', 'date_interval', 0, '', '', '', '1', '2024-03-29 22:50:46', '1', '2024-03-29 22:50:54', b'0');
+INSERT INTO `system_dict_data` VALUES (1532, 4, '季度', '4', 'date_interval', 0, '', '', '', '1', '2024-03-29 22:51:01', '1', '2024-03-29 22:51:01', b'0');
+INSERT INTO `system_dict_data` VALUES (1533, 5, '年', '5', 'date_interval', 0, '', '', '', '1', '2024-03-29 22:51:07', '1', '2024-03-29 22:51:07', b'0');
+INSERT INTO `system_dict_data` VALUES (1534, 1, '赢单', '1', 'crm_business_end_status_type', 0, 'success', '', '', '1', '2024-04-13 23:26:57', '1', '2024-05-11 06:36:46', b'1');
+INSERT INTO `system_dict_data` VALUES (1535, 2, '输单', '2', 'crm_business_end_status_type', 0, 'primary', '', '', '1', '2024-04-13 23:27:31', '1', '2024-05-11 06:36:46', b'1');
+INSERT INTO `system_dict_data` VALUES (1536, 3, '无效', '3', 'crm_business_end_status_type', 0, 'info', '', '', '1', '2024-04-13 23:27:59', '1', '2024-05-11 06:36:46', b'1');
+INSERT INTO `system_dict_data` VALUES (1537, 0, '保密', '0', 'system_user_sex', 0, '', '', NULL, '1', '2024-05-11 14:57:51', '1', '2024-05-11 14:57:51', b'0');
+
+-- ----------------------------
+-- Table structure for system_dict_type
+-- ----------------------------
+DROP TABLE IF EXISTS `system_dict_type`;
+CREATE TABLE `system_dict_type`  (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '字典主键',
+  `name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT '字典名称',
+  `type` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT '字典类型',
+  `status` tinyint NOT NULL DEFAULT 0 COMMENT '状态（0正常 1停用）',
+  `remark` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '备注',
+  `creator` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '创建者',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `updater` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '更新者',
+  `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `deleted` bit(1) NOT NULL DEFAULT b'0' COMMENT '是否删除',
+  `deleted_time` datetime NULL DEFAULT NULL COMMENT '删除时间',
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE INDEX `dict_type`(`type` ASC) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 620 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '字典类型表' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of system_dict_type
+-- ----------------------------
+INSERT INTO `system_dict_type` VALUES (1, '用户性别', 'system_user_sex', 0, NULL, 'admin', '2021-01-05 17:03:48', '1', '2022-05-16 20:29:32', b'0', NULL);
+INSERT INTO `system_dict_type` VALUES (6, '参数类型', 'infra_config_type', 0, NULL, 'admin', '2021-01-05 17:03:48', '', '2022-02-01 16:36:54', b'0', NULL);
+INSERT INTO `system_dict_type` VALUES (7, '通知类型', 'system_notice_type', 0, NULL, 'admin', '2021-01-05 17:03:48', '', '2022-02-01 16:35:26', b'0', NULL);
+INSERT INTO `system_dict_type` VALUES (9, '操作类型', 'infra_operate_type', 0, NULL, 'admin', '2021-01-05 17:03:48', '1', '2024-03-14 12:44:01', b'0', NULL);
+INSERT INTO `system_dict_type` VALUES (10, '系统状态', 'common_status', 0, NULL, 'admin', '2021-01-05 17:03:48', '', '2022-02-01 16:21:28', b'0', NULL);
+INSERT INTO `system_dict_type` VALUES (11, 'Boolean 是否类型', 'infra_boolean_string', 0, 'boolean 转是否', '', '2021-01-19 03:20:08', '', '2022-02-01 16:37:10', b'0', NULL);
+INSERT INTO `system_dict_type` VALUES (104, '登陆结果', 'system_login_result', 0, '登陆结果', '', '2021-01-18 06:17:11', '', '2022-02-01 16:36:00', b'0', NULL);
+INSERT INTO `system_dict_type` VALUES (106, '代码生成模板类型', 'infra_codegen_template_type', 0, NULL, '', '2021-02-05 07:08:06', '1', '2022-05-16 20:26:50', b'0', NULL);
+INSERT INTO `system_dict_type` VALUES (107, '定时任务状态', 'infra_job_status', 0, NULL, '', '2021-02-07 07:44:16', '', '2022-02-01 16:51:11', b'0', NULL);
+INSERT INTO `system_dict_type` VALUES (108, '定时任务日志状态', 'infra_job_log_status', 0, NULL, '', '2021-02-08 10:03:51', '', '2022-02-01 16:50:43', b'0', NULL);
+INSERT INTO `system_dict_type` VALUES (109, '用户类型', 'user_type', 0, NULL, '', '2021-02-26 00:15:51', '', '2021-02-26 00:15:51', b'0', NULL);
+INSERT INTO `system_dict_type` VALUES (110, 'API 异常数据的处理状态', 'infra_api_error_log_process_status', 0, NULL, '', '2021-02-26 07:07:01', '', '2022-02-01 16:50:53', b'0', NULL);
+INSERT INTO `system_dict_type` VALUES (111, '短信渠道编码', 'system_sms_channel_code', 0, NULL, '1', '2021-04-05 01:04:50', '1', '2022-02-16 02:09:08', b'0', NULL);
+INSERT INTO `system_dict_type` VALUES (112, '短信模板的类型', 'system_sms_template_type', 0, NULL, '1', '2021-04-05 21:50:43', '1', '2022-02-01 16:35:06', b'0', NULL);
+INSERT INTO `system_dict_type` VALUES (113, '短信发送状态', 'system_sms_send_status', 0, NULL, '1', '2021-04-11 20:18:03', '1', '2022-02-01 16:35:09', b'0', NULL);
+INSERT INTO `system_dict_type` VALUES (114, '短信接收状态', 'system_sms_receive_status', 0, NULL, '1', '2021-04-11 20:27:14', '1', '2022-02-01 16:35:14', b'0', NULL);
+INSERT INTO `system_dict_type` VALUES (116, '登陆日志的类型', 'system_login_type', 0, '登陆日志的类型', '1', '2021-10-06 00:50:46', '1', '2022-02-01 16:35:56', b'0', NULL);
+INSERT INTO `system_dict_type` VALUES (117, 'OA 请假类型', 'bpm_oa_leave_type', 0, NULL, '1', '2021-09-21 22:34:33', '1', '2024-05-11 06:49:26', b'1', '2024-05-11 14:49:27');
+INSERT INTO `system_dict_type` VALUES (130, '支付渠道编码类型', 'pay_channel_code', 0, '支付渠道的编码', '1', '2021-12-03 10:35:08', '1', '2024-05-11 06:49:23', b'1', '2024-05-11 14:49:24');
+INSERT INTO `system_dict_type` VALUES (131, '支付回调状态', 'pay_notify_status', 0, '支付回调状态（包括退款回调）', '1', '2021-12-03 10:53:29', '1', '2024-05-11 06:49:16', b'1', '2024-05-11 14:49:17');
+INSERT INTO `system_dict_type` VALUES (132, '支付订单状态', 'pay_order_status', 0, '支付订单状态', '1', '2021-12-03 11:17:50', '1', '2024-05-11 06:49:13', b'1', '2024-05-11 14:49:14');
+INSERT INTO `system_dict_type` VALUES (134, '退款订单状态', 'pay_refund_status', 0, '退款订单状态', '1', '2021-12-10 16:42:50', '1', '2024-05-11 06:49:10', b'1', '2024-05-11 14:49:11');
+INSERT INTO `system_dict_type` VALUES (139, '流程实例的状态', 'bpm_process_instance_status', 0, '流程实例的状态', '1', '2022-01-07 23:46:42', '1', '2024-05-11 06:49:07', b'1', '2024-05-11 14:49:08');
+INSERT INTO `system_dict_type` VALUES (140, '流程实例的结果', 'bpm_task_status', 0, '流程实例的结果', '1', '2022-01-07 23:48:10', '1', '2024-05-11 06:49:04', b'1', '2024-05-11 14:49:05');
+INSERT INTO `system_dict_type` VALUES (141, '流程的表单类型', 'bpm_model_form_type', 0, '流程的表单类型', '103', '2022-01-11 23:50:45', '103', '2024-05-11 06:49:01', b'1', '2024-05-11 14:49:01');
+INSERT INTO `system_dict_type` VALUES (142, '任务分配规则的类型', 'bpm_task_candidate_strategy', 0, 'BPM 任务的候选人的策略', '103', '2022-01-12 23:21:04', '103', '2024-05-11 06:48:58', b'1', '2024-05-11 14:48:59');
+INSERT INTO `system_dict_type` VALUES (144, '代码生成的场景枚举', 'infra_codegen_scene', 0, '代码生成的场景枚举', '1', '2022-02-02 13:14:45', '1', '2022-03-10 16:33:46', b'0', NULL);
+INSERT INTO `system_dict_type` VALUES (145, '角色类型', 'system_role_type', 0, '角色类型', '1', '2022-02-16 13:01:46', '1', '2022-02-16 13:01:46', b'0', NULL);
+INSERT INTO `system_dict_type` VALUES (146, '文件存储器', 'infra_file_storage', 0, '文件存储器', '1', '2022-03-15 00:24:38', '1', '2022-03-15 00:24:38', b'0', NULL);
+INSERT INTO `system_dict_type` VALUES (147, 'OAuth 2.0 授权类型', 'system_oauth2_grant_type', 0, 'OAuth 2.0 授权类型（模式）', '1', '2022-05-12 00:20:52', '1', '2022-05-11 16:25:49', b'0', NULL);
+INSERT INTO `system_dict_type` VALUES (149, '商品 SPU 状态', 'product_spu_status', 0, '商品 SPU 状态', '1', '2022-10-24 21:19:04', '1', '2024-05-11 06:48:51', b'1', '2024-05-11 14:48:51');
+INSERT INTO `system_dict_type` VALUES (150, '优惠类型', 'promotion_discount_type', 0, '优惠类型', '1', '2022-11-01 12:46:06', '1', '2024-05-11 06:48:49', b'1', '2024-05-11 14:48:49');
+INSERT INTO `system_dict_type` VALUES (151, '优惠劵模板的有限期类型', 'promotion_coupon_template_validity_type', 0, '优惠劵模板的有限期类型', '1', '2022-11-02 00:06:20', '1', '2024-05-11 06:48:47', b'1', '2024-05-11 14:48:47');
+INSERT INTO `system_dict_type` VALUES (152, '营销的商品范围', 'promotion_product_scope', 0, '营销的商品范围', '1', '2022-11-02 00:28:01', '1', '2024-05-11 06:39:01', b'1', '2024-05-11 14:39:02');
+INSERT INTO `system_dict_type` VALUES (153, '优惠劵的状态', 'promotion_coupon_status', 0, '优惠劵的状态', '1', '2022-11-04 00:14:49', '1', '2024-05-11 06:38:58', b'1', '2024-05-11 14:38:59');
+INSERT INTO `system_dict_type` VALUES (154, '优惠劵的领取方式', 'promotion_coupon_take_type', 0, '优惠劵的领取方式', '1', '2022-11-04 19:12:27', '1', '2024-05-11 06:38:56', b'1', '2024-05-11 14:38:57');
+INSERT INTO `system_dict_type` VALUES (155, '促销活动的状态', 'promotion_activity_status', 0, '促销活动的状态', '1', '2022-11-04 22:54:23', '1', '2024-05-11 06:38:54', b'1', '2024-05-11 14:38:55');
+INSERT INTO `system_dict_type` VALUES (156, '营销的条件类型', 'promotion_condition_type', 0, '营销的条件类型', '1', '2022-11-04 22:59:23', '1', '2024-05-11 06:38:52', b'1', '2024-05-11 14:38:52');
+INSERT INTO `system_dict_type` VALUES (157, '交易售后状态', 'trade_after_sale_status', 0, '交易售后状态', '1', '2022-11-19 20:52:56', '1', '2024-05-11 06:38:49', b'1', '2024-05-11 14:38:50');
+INSERT INTO `system_dict_type` VALUES (158, '交易售后的类型', 'trade_after_sale_type', 0, '交易售后的类型', '1', '2022-11-19 21:04:09', '1', '2024-05-11 06:38:45', b'1', '2024-05-11 14:38:45');
+INSERT INTO `system_dict_type` VALUES (159, '交易售后的方式', 'trade_after_sale_way', 0, '交易售后的方式', '1', '2022-11-19 21:39:04', '1', '2024-05-11 06:38:47', b'1', '2024-05-11 14:38:48');
+INSERT INTO `system_dict_type` VALUES (160, '终端', 'terminal', 0, '终端', '1', '2022-12-10 10:50:50', '1', '2022-12-10 10:53:11', b'0', NULL);
+INSERT INTO `system_dict_type` VALUES (161, '交易订单的类型', 'trade_order_type', 0, '交易订单的类型', '1', '2022-12-10 16:33:54', '1', '2024-05-11 06:38:38', b'1', '2024-05-11 14:38:39');
+INSERT INTO `system_dict_type` VALUES (162, '交易订单的状态', 'trade_order_status', 0, '交易订单的状态', '1', '2022-12-10 16:48:44', '1', '2024-05-11 06:38:36', b'1', '2024-05-11 14:38:36');
+INSERT INTO `system_dict_type` VALUES (163, '交易订单项的售后状态', 'trade_order_item_after_sale_status', 0, '交易订单项的售后状态', '1', '2022-12-10 20:58:08', '1', '2024-05-11 06:38:34', b'1', '2024-05-11 14:38:34');
+INSERT INTO `system_dict_type` VALUES (164, '公众号自动回复的请求关键字匹配模式', 'mp_auto_reply_request_match', 0, '公众号自动回复的请求关键字匹配模式', '1', '2023-01-16 23:29:56', '1', '2024-05-11 06:38:29', b'1', '2024-05-11 14:38:30');
+INSERT INTO `system_dict_type` VALUES (165, '公众号的消息类型', 'mp_message_type', 0, '公众号的消息类型', '1', '2023-01-17 22:17:09', '1', '2024-05-11 06:38:26', b'1', '2024-05-11 14:38:27');
+INSERT INTO `system_dict_type` VALUES (166, '邮件发送状态', 'system_mail_send_status', 0, '邮件发送状态', '1', '2023-01-26 09:53:13', '1', '2023-01-26 09:53:13', b'0', '1970-01-01 00:00:00');
+INSERT INTO `system_dict_type` VALUES (167, '站内信模版的类型', 'system_notify_template_type', 0, '站内信模版的类型', '1', '2023-01-28 10:35:10', '1', '2023-01-28 10:35:10', b'0', '1970-01-01 00:00:00');
+INSERT INTO `system_dict_type` VALUES (168, '代码生成的前端类型', 'infra_codegen_front_type', 0, '', '1', '2023-04-12 23:57:52', '1', '2023-04-12 23:57:52', b'0', '1970-01-01 00:00:00');
+INSERT INTO `system_dict_type` VALUES (170, '快递计费方式', 'trade_delivery_express_charge_mode', 0, '用于商城交易模块配送管理', '1', '2023-05-21 22:45:03', '1', '2024-05-11 06:38:22', b'1', '2024-05-11 14:38:23');
+INSERT INTO `system_dict_type` VALUES (171, '积分业务类型', 'member_point_biz_type', 0, '', '1', '2023-06-10 12:15:00', '1', '2023-06-28 13:48:20', b'0', '1970-01-01 00:00:00');
+INSERT INTO `system_dict_type` VALUES (173, '支付通知类型', 'pay_notify_type', 0, NULL, '1', '2023-07-20 12:23:03', '1', '2024-05-11 06:38:18', b'1', '2024-05-11 14:38:18');
+INSERT INTO `system_dict_type` VALUES (174, '会员经验业务类型', 'member_experience_biz_type', 0, NULL, '', '2023-08-22 12:41:01', '', '2023-08-22 12:41:01', b'0', NULL);
+INSERT INTO `system_dict_type` VALUES (175, '交易配送类型', 'trade_delivery_type', 0, '', '1', '2023-08-23 00:03:14', '1', '2024-05-11 06:38:11', b'1', '2024-05-11 14:38:12');
+INSERT INTO `system_dict_type` VALUES (176, '分佣模式', 'brokerage_enabled_condition', 0, NULL, '', '2023-09-28 02:46:05', '', '2024-05-11 06:38:07', b'1', '2024-05-11 14:38:07');
+INSERT INTO `system_dict_type` VALUES (177, '分销关系绑定模式', 'brokerage_bind_mode', 0, NULL, '', '2023-09-28 02:46:05', '', '2024-05-11 06:38:05', b'1', '2024-05-11 14:38:05');
+INSERT INTO `system_dict_type` VALUES (178, '佣金提现类型', 'brokerage_withdraw_type', 0, NULL, '', '2023-09-28 02:46:05', '', '2024-05-11 06:38:02', b'1', '2024-05-11 14:38:02');
+INSERT INTO `system_dict_type` VALUES (179, '佣金记录业务类型', 'brokerage_record_biz_type', 0, NULL, '', '2023-09-28 02:46:05', '', '2024-05-11 06:38:00', b'1', '2024-05-11 14:38:00');
+INSERT INTO `system_dict_type` VALUES (180, '佣金记录状态', 'brokerage_record_status', 0, NULL, '', '2023-09-28 02:46:05', '', '2024-05-11 06:37:57', b'1', '2024-05-11 14:37:58');
+INSERT INTO `system_dict_type` VALUES (181, '佣金提现状态', 'brokerage_withdraw_status', 0, NULL, '', '2023-09-28 02:46:05', '', '2024-05-11 06:37:55', b'1', '2024-05-11 14:37:56');
+INSERT INTO `system_dict_type` VALUES (182, '佣金提现银行', 'brokerage_bank_name', 0, NULL, '', '2023-09-28 02:46:05', '', '2024-05-11 06:37:53', b'1', '2024-05-11 14:37:54');
+INSERT INTO `system_dict_type` VALUES (183, '砍价记录的状态', 'promotion_bargain_record_status', 0, '', '1', '2023-10-05 10:41:08', '1', '2024-05-11 06:37:50', b'1', '2024-05-11 14:37:50');
+INSERT INTO `system_dict_type` VALUES (184, '拼团记录的状态', 'promotion_combination_record_status', 0, '', '1', '2023-10-08 07:24:25', '1', '2024-05-11 06:37:47', b'1', '2024-05-11 14:37:47');
+INSERT INTO `system_dict_type` VALUES (185, '回款-回款方式', 'crm_receivable_return_type', 0, '回款-回款方式', '1', '2023-10-18 21:54:10', '1', '2024-05-11 06:37:44', b'1', '2024-05-11 14:37:44');
+INSERT INTO `system_dict_type` VALUES (186, 'CRM 客户行业', 'crm_customer_industry', 0, 'CRM 客户所属行业', '1', '2023-10-28 22:57:07', '1', '2024-05-11 06:37:41', b'1', '2024-05-11 14:37:41');
+INSERT INTO `system_dict_type` VALUES (187, '客户等级', 'crm_customer_level', 0, 'CRM 客户等级', '1', '2023-10-28 22:59:12', '1', '2024-05-11 06:37:38', b'1', '2024-05-11 14:37:39');
+INSERT INTO `system_dict_type` VALUES (188, '客户来源', 'crm_customer_source', 0, 'CRM 客户来源', '1', '2023-10-28 23:00:34', '1', '2024-05-11 06:37:35', b'1', '2024-05-11 14:37:35');
+INSERT INTO `system_dict_type` VALUES (600, 'Banner 位置', 'promotion_banner_position', 0, '', '1', '2023-10-08 07:24:25', '1', '2024-05-11 06:37:31', b'1', '2024-05-11 14:37:32');
+INSERT INTO `system_dict_type` VALUES (601, '社交类型', 'system_social_type', 0, '', '1', '2023-11-04 13:03:54', '1', '2023-11-04 13:03:54', b'0', '1970-01-01 00:00:00');
+INSERT INTO `system_dict_type` VALUES (604, '产品状态', 'crm_product_status', 0, '', '1', '2023-10-30 21:47:59', '1', '2024-05-11 06:37:26', b'1', '2024-05-11 14:37:26');
+INSERT INTO `system_dict_type` VALUES (605, 'CRM 数据权限的级别', 'crm_permission_level', 0, '', '1', '2023-11-30 09:51:59', '1', '2024-05-11 06:37:22', b'1', '2024-05-11 14:37:23');
+INSERT INTO `system_dict_type` VALUES (606, 'CRM 审批状态', 'crm_audit_status', 0, '', '1', '2023-11-30 18:56:23', '1', '2024-05-11 06:37:20', b'1', '2024-05-11 14:37:20');
+INSERT INTO `system_dict_type` VALUES (607, 'CRM 产品单位', 'crm_product_unit', 0, '', '1', '2023-12-05 23:01:51', '1', '2024-05-11 06:37:18', b'1', '2024-05-11 14:37:18');
+INSERT INTO `system_dict_type` VALUES (608, 'CRM 跟进方式', 'crm_follow_up_type', 0, '', '1', '2024-01-15 20:48:05', '1', '2024-05-11 06:37:14', b'1', '2024-05-11 14:37:15');
+INSERT INTO `system_dict_type` VALUES (609, '支付转账类型', 'pay_transfer_type', 0, '', '1', '2023-10-28 16:27:18', '1', '2024-05-11 06:37:10', b'1', '2024-05-11 14:37:11');
+INSERT INTO `system_dict_type` VALUES (610, '转账订单状态', 'pay_transfer_status', 0, '', '1', '2023-10-28 16:18:32', '1', '2024-05-11 06:37:08', b'1', '2024-05-11 14:37:08');
+INSERT INTO `system_dict_type` VALUES (611, 'ERP 库存明细的业务类型', 'erp_stock_record_biz_type', 0, 'ERP 库存明细的业务类型', '1', '2024-02-05 18:07:02', '1', '2024-05-11 06:37:05', b'1', '2024-05-11 14:37:05');
+INSERT INTO `system_dict_type` VALUES (612, 'ERP 审批状态', 'erp_audit_status', 0, '', '1', '2024-02-06 00:00:07', '1', '2024-05-11 06:37:02', b'1', '2024-05-11 14:37:02');
+INSERT INTO `system_dict_type` VALUES (613, 'BPM 监听器类型', 'bpm_process_listener_type', 0, '', '1', '2024-03-23 12:52:24', '1', '2024-05-11 06:36:59', b'1', '2024-05-11 14:37:00');
+INSERT INTO `system_dict_type` VALUES (615, 'BPM 监听器值类型', 'bpm_process_listener_value_type', 0, '', '1', '2024-03-23 13:00:31', '1', '2024-05-11 06:36:53', b'1', '2024-05-11 14:36:53');
+INSERT INTO `system_dict_type` VALUES (616, '时间间隔', 'date_interval', 0, '', '1', '2024-03-29 22:50:09', '1', '2024-03-29 22:50:09', b'0', '1970-01-01 00:00:00');
+INSERT INTO `system_dict_type` VALUES (619, 'CRM 商机结束状态类型', 'crm_business_end_status_type', 0, '', '1', '2024-04-13 23:23:00', '1', '2024-05-11 06:36:46', b'1', '2024-05-11 14:36:47');
+
+-- ----------------------------
+-- Table structure for system_login_log
+-- ----------------------------
+DROP TABLE IF EXISTS `system_login_log`;
+CREATE TABLE `system_login_log`  (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '访问ID',
+  `log_type` bigint NOT NULL COMMENT '日志类型',
+  `trace_id` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT '链路追踪编号',
+  `user_id` bigint NOT NULL DEFAULT 0 COMMENT '用户编号',
+  `user_type` tinyint NOT NULL DEFAULT 0 COMMENT '用户类型',
+  `username` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT '用户账号',
+  `result` tinyint NOT NULL COMMENT '登陆结果',
+  `user_ip` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '用户 IP',
+  `user_agent` varchar(512) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '浏览器 UA',
+  `creator` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '创建者',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `updater` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '更新者',
+  `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `deleted` bit(1) NOT NULL DEFAULT b'0' COMMENT '是否删除',
+  `tenant_id` bigint NOT NULL DEFAULT 0 COMMENT '租户编号',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 3111 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '系统访问记录' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of system_login_log
+-- ----------------------------
+INSERT INTO `system_login_log` VALUES (3104, 100, '', 1, 2, 'admin', 0, '0:0:0:0:0:0:0:1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36 Edg/124.0.0.0', NULL, '2024-05-11 10:11:26', NULL, '2024-05-11 10:11:26', b'0', 1);
+INSERT INTO `system_login_log` VALUES (3105, 200, '', 1, 2, 'admin', 0, '0:0:0:0:0:0:0:1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36 Edg/124.0.0.0', '1', '2024-05-11 14:07:08', '1', '2024-05-11 14:07:08', b'0', 0);
+INSERT INTO `system_login_log` VALUES (3106, 100, '', 1, 2, 'admin', 0, '0:0:0:0:0:0:0:1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36 Edg/124.0.0.0', NULL, '2024-05-11 14:12:24', NULL, '2024-05-11 14:12:24', b'0', 0);
+INSERT INTO `system_login_log` VALUES (3107, 200, '', 1, 2, 'admin', 0, '0:0:0:0:0:0:0:1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36 Edg/124.0.0.0', '1', '2024-05-11 14:12:53', '1', '2024-05-11 14:12:53', b'0', 0);
+INSERT INTO `system_login_log` VALUES (3108, 100, '', 1, 2, 'admin', 0, '0:0:0:0:0:0:0:1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36 Edg/124.0.0.0', NULL, '2024-05-11 14:16:49', NULL, '2024-05-11 14:16:49', b'0', 0);
+INSERT INTO `system_login_log` VALUES (3109, 200, '', 1, 2, 'admin', 0, '0:0:0:0:0:0:0:1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36 Edg/124.0.0.0', '1', '2024-05-11 14:17:06', '1', '2024-05-11 14:17:06', b'0', 0);
+INSERT INTO `system_login_log` VALUES (3110, 100, '', 1, 2, 'admin', 0, '0:0:0:0:0:0:0:1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36 Edg/124.0.0.0', NULL, '2024-05-11 14:17:10', NULL, '2024-05-11 14:17:10', b'0', 0);
+
+-- ----------------------------
+-- Table structure for system_mail_account
+-- ----------------------------
+DROP TABLE IF EXISTS `system_mail_account`;
+CREATE TABLE `system_mail_account`  (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `mail` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '邮箱',
+  `username` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '用户名',
+  `password` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '密码',
+  `host` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'SMTP 服务器域名',
+  `port` int NOT NULL COMMENT 'SMTP 服务器端口',
+  `ssl_enable` bit(1) NOT NULL DEFAULT b'0' COMMENT '是否开启 SSL',
+  `starttls_enable` bit(1) NOT NULL DEFAULT b'0' COMMENT '是否开启 STARTTLS',
+  `creator` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '创建者',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `updater` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '更新者',
+  `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `deleted` bit(1) NOT NULL DEFAULT b'0' COMMENT '是否删除',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 5 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '邮箱账号表' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of system_mail_account
+-- ----------------------------
+INSERT INTO `system_mail_account` VALUES (1, '7684413@qq.com', '7684413@qq.com', '1234576', '127.0.0.1', 8080, b'0', b'0', '1', '2023-01-25 17:39:52', '1', '2024-04-24 09:13:56', b'0');
+INSERT INTO `system_mail_account` VALUES (2, 'ydym_test@163.com', 'ydym_test@163.com', 'WBZTEINMIFVRYSOE', 'smtp.163.com', 465, b'1', b'0', '1', '2023-01-26 01:26:03', '1', '2023-04-12 22:39:38', b'0');
+INSERT INTO `system_mail_account` VALUES (3, '76854114@qq.com', '3335', '11234', 'yunai1.cn', 466, b'0', b'0', '1', '2023-01-27 15:06:38', '1', '2023-01-27 07:08:36', b'1');
+INSERT INTO `system_mail_account` VALUES (4, '7685413x@qq.com', '2', '3', '4', 5, b'1', b'0', '1', '2023-04-12 23:05:06', '1', '2023-04-12 15:05:11', b'1');
+
+-- ----------------------------
+-- Table structure for system_mail_log
+-- ----------------------------
+DROP TABLE IF EXISTS `system_mail_log`;
+CREATE TABLE `system_mail_log`  (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '编号',
+  `user_id` bigint NULL DEFAULT NULL COMMENT '用户编号',
+  `user_type` tinyint NULL DEFAULT NULL COMMENT '用户类型',
+  `to_mail` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '接收邮箱地址',
+  `account_id` bigint NOT NULL COMMENT '邮箱账号编号',
+  `from_mail` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '发送邮箱地址',
+  `template_id` bigint NOT NULL COMMENT '模板编号',
+  `template_code` varchar(63) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '模板编码',
+  `template_nickname` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '模版发送人名称',
+  `template_title` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '邮件标题',
+  `template_content` varchar(10240) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '邮件内容',
+  `template_params` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '邮件参数',
+  `send_status` tinyint NOT NULL DEFAULT 0 COMMENT '发送状态',
+  `send_time` datetime NULL DEFAULT NULL COMMENT '发送时间',
+  `send_message_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '发送返回的消息 ID',
+  `send_exception` varchar(4096) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '发送异常',
+  `creator` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '创建者',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `updater` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '更新者',
+  `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `deleted` bit(1) NOT NULL DEFAULT b'0' COMMENT '是否删除',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 356 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '邮件日志表' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of system_mail_log
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for system_mail_template
+-- ----------------------------
+DROP TABLE IF EXISTS `system_mail_template`;
+CREATE TABLE `system_mail_template`  (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '编号',
+  `name` varchar(63) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '模板名称',
+  `code` varchar(63) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '模板编码',
+  `account_id` bigint NOT NULL COMMENT '发送的邮箱账号编号',
+  `nickname` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '发送人名称',
+  `title` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '模板标题',
+  `content` varchar(10240) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '模板内容',
+  `params` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '参数数组',
+  `status` tinyint NOT NULL COMMENT '开启状态',
+  `remark` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '备注',
+  `creator` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '创建者',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `updater` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '更新者',
+  `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `deleted` bit(1) NOT NULL DEFAULT b'0' COMMENT '是否删除',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 16 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '邮件模版表' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of system_mail_template
+-- ----------------------------
+INSERT INTO `system_mail_template` VALUES (13, '后台用户短信登录', 'admin-sms-login', 1, '奥特曼', '你猜我猜', '<p>您的验证码是{code}，名字是{name}</p>', '[\"code\",\"name\"]', 0, '3', '1', '2021-10-11 08:10:00', '1', '2023-12-02 19:51:14', b'0');
+INSERT INTO `system_mail_template` VALUES (14, '测试模版', 'test_01', 2, '芋艿', '一个标题', '<p>你是 {key01} 吗？</p><p><br></p><p>是的话，赶紧 {key02} 一下！</p>', '[\"key01\",\"key02\"]', 0, NULL, '1', '2023-01-26 01:27:40', '1', '2023-01-27 10:32:16', b'0');
+INSERT INTO `system_mail_template` VALUES (15, '3', '2', 2, '7', '4', '<p>45</p>', '[]', 1, '80', '1', '2023-01-27 15:50:35', '1', '2023-01-27 16:34:49', b'0');
+
+-- ----------------------------
+-- Table structure for system_menu
+-- ----------------------------
+DROP TABLE IF EXISTS `system_menu`;
+CREATE TABLE `system_menu`  (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '菜单ID',
+  `name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '菜单名称',
+  `permission` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT '权限标识',
+  `type` tinyint NOT NULL COMMENT '菜单类型',
+  `sort` int NOT NULL DEFAULT 0 COMMENT '显示顺序',
+  `parent_id` bigint NOT NULL DEFAULT 0 COMMENT '父菜单ID',
+  `path` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '路由地址',
+  `icon` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '#' COMMENT '菜单图标',
+  `component` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '组件路径',
+  `component_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '组件名',
+  `status` tinyint NOT NULL DEFAULT 0 COMMENT '菜单状态',
+  `visible` bit(1) NOT NULL DEFAULT b'1' COMMENT '是否可见',
+  `keep_alive` bit(1) NOT NULL DEFAULT b'1' COMMENT '是否缓存',
+  `always_show` bit(1) NOT NULL DEFAULT b'1' COMMENT '是否总是显示',
+  `creator` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '创建者',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `updater` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '更新者',
+  `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `deleted` bit(1) NOT NULL DEFAULT b'0' COMMENT '是否删除',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 2758 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '菜单权限表' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of system_menu
+-- ----------------------------
+INSERT INTO `system_menu` VALUES (1, '系统管理', '', 1, 10, 0, '/system', 'ep:tools', NULL, NULL, 0, b'1', b'1', b'1', 'admin', '2021-01-05 17:03:48', '1', '2024-05-11 02:28:40', b'0');
+INSERT INTO `system_menu` VALUES (2, '基础设施', '', 1, 20, 0, '/infra', 'ep:monitor', NULL, NULL, 0, b'1', b'1', b'1', 'admin', '2021-01-05 17:03:48', '1', '2024-05-11 02:28:42', b'0');
+INSERT INTO `system_menu` VALUES (5, 'OA 示例', '', 1, 40, 1185, 'oa', 'fa:road', NULL, NULL, 0, b'1', b'1', b'1', 'admin', '2021-09-20 16:26:19', '1', '2024-05-11 02:21:49', b'1');
+INSERT INTO `system_menu` VALUES (100, '用户管理', 'system:user:list', 2, 1, 1, 'user', 'ep:avatar', 'system/user/index', 'SystemUser', 0, b'1', b'1', b'1', 'admin', '2021-01-05 17:03:48', '1', '2024-02-29 01:02:04', b'0');
+INSERT INTO `system_menu` VALUES (101, '角色管理', '', 2, 2, 1, 'role', 'ep:user', 'system/role/index', 'SystemRole', 0, b'1', b'1', b'1', 'admin', '2021-01-05 17:03:48', '1', '2024-02-29 01:03:28', b'0');
+INSERT INTO `system_menu` VALUES (102, '菜单管理', '', 2, 3, 1, 'menu', 'ep:menu', 'system/menu/index', 'SystemMenu', 0, b'1', b'1', b'1', 'admin', '2021-01-05 17:03:48', '1', '2024-02-29 01:03:50', b'0');
+INSERT INTO `system_menu` VALUES (103, '部门管理', '', 2, 4, 1, 'dept', 'fa:address-card', 'system/dept/index', 'SystemDept', 0, b'1', b'1', b'1', 'admin', '2021-01-05 17:03:48', '1', '2024-02-29 01:06:28', b'0');
+INSERT INTO `system_menu` VALUES (104, '岗位管理', '', 2, 5, 1, 'post', 'fa:address-book-o', 'system/post/index', 'SystemPost', 0, b'1', b'1', b'1', 'admin', '2021-01-05 17:03:48', '1', '2024-02-29 01:06:39', b'0');
+INSERT INTO `system_menu` VALUES (105, '字典管理', '', 2, 6, 1, 'dict', 'ep:collection', 'system/dict/index', 'SystemDictType', 0, b'1', b'1', b'1', 'admin', '2021-01-05 17:03:48', '1', '2024-02-29 01:07:12', b'0');
+INSERT INTO `system_menu` VALUES (106, '配置管理', '', 2, 8, 2, 'config', 'fa:connectdevelop', 'infra/config/index', 'InfraConfig', 0, b'1', b'1', b'1', 'admin', '2021-01-05 17:03:48', '1', '2024-04-23 00:02:45', b'0');
+INSERT INTO `system_menu` VALUES (107, '通知公告', '', 2, 4, 2739, 'notice', 'ep:takeaway-box', 'system/notice/index', 'SystemNotice', 0, b'1', b'1', b'1', 'admin', '2021-01-05 17:03:48', '1', '2024-04-22 23:56:17', b'0');
+INSERT INTO `system_menu` VALUES (108, '审计日志', '', 1, 9, 1, 'log', 'ep:document-copy', '', NULL, 0, b'1', b'1', b'1', 'admin', '2021-01-05 17:03:48', '1', '2024-02-29 01:08:30', b'0');
+INSERT INTO `system_menu` VALUES (109, '令牌管理', '', 2, 2, 1261, 'token', 'fa:key', 'system/oauth2/token/index', 'SystemTokenClient', 0, b'1', b'1', b'1', 'admin', '2021-01-05 17:03:48', '1', '2024-02-29 01:13:48', b'0');
+INSERT INTO `system_menu` VALUES (110, '定时任务', '', 2, 7, 2, 'job', 'fa-solid:tasks', 'infra/job/index', 'InfraJob', 0, b'1', b'1', b'1', 'admin', '2021-01-05 17:03:48', '1', '2024-02-29 08:57:36', b'0');
+INSERT INTO `system_menu` VALUES (111, 'MySQL 监控', '', 2, 1, 2740, 'druid', 'fa-solid:box', 'infra/druid/index', 'InfraDruid', 0, b'1', b'1', b'1', 'admin', '2021-01-05 17:03:48', '1', '2024-04-23 00:05:58', b'0');
+INSERT INTO `system_menu` VALUES (112, 'Java 监控', '', 2, 3, 2740, 'admin-server', 'ep:coffee-cup', 'infra/server/index', 'InfraAdminServer', 0, b'1', b'1', b'1', 'admin', '2021-01-05 17:03:48', '1', '2024-04-23 00:06:57', b'0');
+INSERT INTO `system_menu` VALUES (113, 'Redis 监控', '', 2, 2, 2740, 'redis', 'fa:reddit-square', 'infra/redis/index', 'InfraRedis', 0, b'1', b'1', b'1', 'admin', '2021-01-05 17:03:48', '1', '2024-04-23 00:06:09', b'0');
+INSERT INTO `system_menu` VALUES (114, '表单构建', 'infra:build:list', 2, 2, 2, 'build', 'fa:wpforms', 'infra/build/index', 'InfraBuild', 0, b'1', b'1', b'1', 'admin', '2021-01-05 17:03:48', '1', '2024-02-29 08:51:35', b'0');
+INSERT INTO `system_menu` VALUES (115, '代码生成', 'infra:codegen:query', 2, 1, 2, 'codegen', 'ep:document-copy', 'infra/codegen/index', 'InfraCodegen', 0, b'1', b'1', b'1', 'admin', '2021-01-05 17:03:48', '1', '2024-02-29 08:51:06', b'0');
+INSERT INTO `system_menu` VALUES (116, 'API 接口', 'infra:swagger:list', 2, 3, 2, 'swagger', 'fa:fighter-jet', 'infra/swagger/index', 'InfraSwagger', 0, b'1', b'1', b'1', 'admin', '2021-01-05 17:03:48', '1', '2024-04-23 00:01:24', b'0');
+INSERT INTO `system_menu` VALUES (500, '操作日志', '', 2, 1, 108, 'operate-log', 'ep:position', 'system/operatelog/index', 'SystemOperateLog', 0, b'1', b'1', b'1', 'admin', '2021-01-05 17:03:48', '1', '2024-02-29 01:09:59', b'0');
+INSERT INTO `system_menu` VALUES (501, '登录日志', '', 2, 2, 108, 'login-log', 'ep:promotion', 'system/loginlog/index', 'SystemLoginLog', 0, b'1', b'1', b'1', 'admin', '2021-01-05 17:03:48', '1', '2024-02-29 01:10:29', b'0');
+INSERT INTO `system_menu` VALUES (1001, '用户查询', 'system:user:query', 3, 1, 100, '', '#', '', NULL, 0, b'1', b'1', b'1', 'admin', '2021-01-05 17:03:48', '', '2022-04-20 17:03:10', b'0');
+INSERT INTO `system_menu` VALUES (1002, '用户新增', 'system:user:create', 3, 2, 100, '', '', '', NULL, 0, b'1', b'1', b'1', 'admin', '2021-01-05 17:03:48', '1', '2022-04-20 17:03:10', b'0');
+INSERT INTO `system_menu` VALUES (1003, '用户修改', 'system:user:update', 3, 3, 100, '', '', '', NULL, 0, b'1', b'1', b'1', 'admin', '2021-01-05 17:03:48', '1', '2022-04-20 17:03:10', b'0');
+INSERT INTO `system_menu` VALUES (1004, '用户删除', 'system:user:delete', 3, 4, 100, '', '', '', NULL, 0, b'1', b'1', b'1', 'admin', '2021-01-05 17:03:48', '1', '2022-04-20 17:03:10', b'0');
+INSERT INTO `system_menu` VALUES (1005, '用户导出', 'system:user:export', 3, 5, 100, '', '#', '', NULL, 0, b'1', b'1', b'1', 'admin', '2021-01-05 17:03:48', '', '2022-04-20 17:03:10', b'0');
+INSERT INTO `system_menu` VALUES (1006, '用户导入', 'system:user:import', 3, 6, 100, '', '#', '', NULL, 0, b'1', b'1', b'1', 'admin', '2021-01-05 17:03:48', '', '2022-04-20 17:03:10', b'0');
+INSERT INTO `system_menu` VALUES (1007, '重置密码', 'system:user:update-password', 3, 7, 100, '', '', '', NULL, 0, b'1', b'1', b'1', 'admin', '2021-01-05 17:03:48', '1', '2022-04-20 17:03:10', b'0');
+INSERT INTO `system_menu` VALUES (1008, '角色查询', 'system:role:query', 3, 1, 101, '', '#', '', NULL, 0, b'1', b'1', b'1', 'admin', '2021-01-05 17:03:48', '', '2022-04-20 17:03:10', b'0');
+INSERT INTO `system_menu` VALUES (1009, '角色新增', 'system:role:create', 3, 2, 101, '', '', '', NULL, 0, b'1', b'1', b'1', 'admin', '2021-01-05 17:03:48', '1', '2022-04-20 17:03:10', b'0');
+INSERT INTO `system_menu` VALUES (1010, '角色修改', 'system:role:update', 3, 3, 101, '', '', '', NULL, 0, b'1', b'1', b'1', 'admin', '2021-01-05 17:03:48', '1', '2022-04-20 17:03:10', b'0');
+INSERT INTO `system_menu` VALUES (1011, '角色删除', 'system:role:delete', 3, 4, 101, '', '', '', NULL, 0, b'1', b'1', b'1', 'admin', '2021-01-05 17:03:48', '1', '2022-04-20 17:03:10', b'0');
+INSERT INTO `system_menu` VALUES (1012, '角色导出', 'system:role:export', 3, 5, 101, '', '#', '', NULL, 0, b'1', b'1', b'1', 'admin', '2021-01-05 17:03:48', '', '2022-04-20 17:03:10', b'0');
+INSERT INTO `system_menu` VALUES (1013, '菜单查询', 'system:menu:query', 3, 1, 102, '', '#', '', NULL, 0, b'1', b'1', b'1', 'admin', '2021-01-05 17:03:48', '', '2022-04-20 17:03:10', b'0');
+INSERT INTO `system_menu` VALUES (1014, '菜单新增', 'system:menu:create', 3, 2, 102, '', '#', '', NULL, 0, b'1', b'1', b'1', 'admin', '2021-01-05 17:03:48', '', '2022-04-20 17:03:10', b'0');
+INSERT INTO `system_menu` VALUES (1015, '菜单修改', 'system:menu:update', 3, 3, 102, '', '#', '', NULL, 0, b'1', b'1', b'1', 'admin', '2021-01-05 17:03:48', '', '2022-04-20 17:03:10', b'0');
+INSERT INTO `system_menu` VALUES (1016, '菜单删除', 'system:menu:delete', 3, 4, 102, '', '#', '', NULL, 0, b'1', b'1', b'1', 'admin', '2021-01-05 17:03:48', '', '2022-04-20 17:03:10', b'0');
+INSERT INTO `system_menu` VALUES (1017, '部门查询', 'system:dept:query', 3, 1, 103, '', '#', '', NULL, 0, b'1', b'1', b'1', 'admin', '2021-01-05 17:03:48', '', '2022-04-20 17:03:10', b'0');
+INSERT INTO `system_menu` VALUES (1018, '部门新增', 'system:dept:create', 3, 2, 103, '', '', '', NULL, 0, b'1', b'1', b'1', 'admin', '2021-01-05 17:03:48', '1', '2022-04-20 17:03:10', b'0');
+INSERT INTO `system_menu` VALUES (1019, '部门修改', 'system:dept:update', 3, 3, 103, '', '', '', NULL, 0, b'1', b'1', b'1', 'admin', '2021-01-05 17:03:48', '1', '2022-04-20 17:03:10', b'0');
+INSERT INTO `system_menu` VALUES (1020, '部门删除', 'system:dept:delete', 3, 4, 103, '', '', '', NULL, 0, b'1', b'1', b'1', 'admin', '2021-01-05 17:03:48', '1', '2022-04-20 17:03:10', b'0');
+INSERT INTO `system_menu` VALUES (1021, '岗位查询', 'system:post:query', 3, 1, 104, '', '#', '', NULL, 0, b'1', b'1', b'1', 'admin', '2021-01-05 17:03:48', '', '2022-04-20 17:03:10', b'0');
+INSERT INTO `system_menu` VALUES (1022, '岗位新增', 'system:post:create', 3, 2, 104, '', '', '', NULL, 0, b'1', b'1', b'1', 'admin', '2021-01-05 17:03:48', '1', '2022-04-20 17:03:10', b'0');
+INSERT INTO `system_menu` VALUES (1023, '岗位修改', 'system:post:update', 3, 3, 104, '', '', '', NULL, 0, b'1', b'1', b'1', 'admin', '2021-01-05 17:03:48', '1', '2022-04-20 17:03:10', b'0');
+INSERT INTO `system_menu` VALUES (1024, '岗位删除', 'system:post:delete', 3, 4, 104, '', '', '', NULL, 0, b'1', b'1', b'1', 'admin', '2021-01-05 17:03:48', '1', '2022-04-20 17:03:10', b'0');
+INSERT INTO `system_menu` VALUES (1025, '岗位导出', 'system:post:export', 3, 5, 104, '', '#', '', NULL, 0, b'1', b'1', b'1', 'admin', '2021-01-05 17:03:48', '', '2022-04-20 17:03:10', b'0');
+INSERT INTO `system_menu` VALUES (1026, '字典查询', 'system:dict:query', 3, 1, 105, '#', '#', '', NULL, 0, b'1', b'1', b'1', 'admin', '2021-01-05 17:03:48', '', '2022-04-20 17:03:10', b'0');
+INSERT INTO `system_menu` VALUES (1027, '字典新增', 'system:dict:create', 3, 2, 105, '', '', '', NULL, 0, b'1', b'1', b'1', 'admin', '2021-01-05 17:03:48', '1', '2022-04-20 17:03:10', b'0');
+INSERT INTO `system_menu` VALUES (1028, '字典修改', 'system:dict:update', 3, 3, 105, '', '', '', NULL, 0, b'1', b'1', b'1', 'admin', '2021-01-05 17:03:48', '1', '2022-04-20 17:03:10', b'0');
+INSERT INTO `system_menu` VALUES (1029, '字典删除', 'system:dict:delete', 3, 4, 105, '', '', '', NULL, 0, b'1', b'1', b'1', 'admin', '2021-01-05 17:03:48', '1', '2022-04-20 17:03:10', b'0');
+INSERT INTO `system_menu` VALUES (1030, '字典导出', 'system:dict:export', 3, 5, 105, '#', '#', '', NULL, 0, b'1', b'1', b'1', 'admin', '2021-01-05 17:03:48', '', '2022-04-20 17:03:10', b'0');
+INSERT INTO `system_menu` VALUES (1031, '配置查询', 'infra:config:query', 3, 1, 106, '', '', '', NULL, 0, b'1', b'1', b'1', 'admin', '2021-01-05 17:03:48', '', '2022-04-20 17:03:10', b'0');
+INSERT INTO `system_menu` VALUES (1032, '配置新增', 'infra:config:create', 3, 2, 106, '', '', '', NULL, 0, b'1', b'1', b'1', 'admin', '2021-01-05 17:03:48', '1', '2022-04-20 17:03:10', b'0');
+INSERT INTO `system_menu` VALUES (1033, '配置修改', 'infra:config:update', 3, 3, 106, '', '', '', NULL, 0, b'1', b'1', b'1', 'admin', '2021-01-05 17:03:48', '1', '2022-04-20 17:03:10', b'0');
+INSERT INTO `system_menu` VALUES (1034, '配置删除', 'infra:config:delete', 3, 4, 106, '', '', '', NULL, 0, b'1', b'1', b'1', 'admin', '2021-01-05 17:03:48', '1', '2022-04-20 17:03:10', b'0');
+INSERT INTO `system_menu` VALUES (1035, '配置导出', 'infra:config:export', 3, 5, 106, '', '', '', NULL, 0, b'1', b'1', b'1', 'admin', '2021-01-05 17:03:48', '', '2022-04-20 17:03:10', b'0');
+INSERT INTO `system_menu` VALUES (1036, '公告查询', 'system:notice:query', 3, 1, 107, '#', '#', '', NULL, 0, b'1', b'1', b'1', 'admin', '2021-01-05 17:03:48', '', '2022-04-20 17:03:10', b'0');
+INSERT INTO `system_menu` VALUES (1037, '公告新增', 'system:notice:create', 3, 2, 107, '', '', '', NULL, 0, b'1', b'1', b'1', 'admin', '2021-01-05 17:03:48', '1', '2022-04-20 17:03:10', b'0');
+INSERT INTO `system_menu` VALUES (1038, '公告修改', 'system:notice:update', 3, 3, 107, '', '', '', NULL, 0, b'1', b'1', b'1', 'admin', '2021-01-05 17:03:48', '1', '2022-04-20 17:03:10', b'0');
+INSERT INTO `system_menu` VALUES (1039, '公告删除', 'system:notice:delete', 3, 4, 107, '', '', '', NULL, 0, b'1', b'1', b'1', 'admin', '2021-01-05 17:03:48', '1', '2022-04-20 17:03:10', b'0');
+INSERT INTO `system_menu` VALUES (1040, '操作查询', 'system:operate-log:query', 3, 1, 500, '', '', '', NULL, 0, b'1', b'1', b'1', 'admin', '2021-01-05 17:03:48', '', '2022-04-20 17:03:10', b'0');
+INSERT INTO `system_menu` VALUES (1042, '日志导出', 'system:operate-log:export', 3, 2, 500, '', '', '', NULL, 0, b'1', b'1', b'1', 'admin', '2021-01-05 17:03:48', '', '2022-04-20 17:03:10', b'0');
+INSERT INTO `system_menu` VALUES (1043, '登录查询', 'system:login-log:query', 3, 1, 501, '#', '#', '', NULL, 0, b'1', b'1', b'1', 'admin', '2021-01-05 17:03:48', '', '2022-04-20 17:03:10', b'0');
+INSERT INTO `system_menu` VALUES (1045, '日志导出', 'system:login-log:export', 3, 3, 501, '#', '#', '', NULL, 0, b'1', b'1', b'1', 'admin', '2021-01-05 17:03:48', '', '2022-04-20 17:03:10', b'0');
+INSERT INTO `system_menu` VALUES (1046, '令牌列表', 'system:oauth2-token:page', 3, 1, 109, '', '', '', NULL, 0, b'1', b'1', b'1', 'admin', '2021-01-05 17:03:48', '1', '2022-05-09 23:54:42', b'0');
+INSERT INTO `system_menu` VALUES (1048, '令牌删除', 'system:oauth2-token:delete', 3, 2, 109, '', '', '', NULL, 0, b'1', b'1', b'1', 'admin', '2021-01-05 17:03:48', '1', '2022-05-09 23:54:53', b'0');
+INSERT INTO `system_menu` VALUES (1050, '任务新增', 'infra:job:create', 3, 2, 110, '', '', '', NULL, 0, b'1', b'1', b'1', 'admin', '2021-01-05 17:03:48', '', '2022-04-20 17:03:10', b'0');
+INSERT INTO `system_menu` VALUES (1051, '任务修改', 'infra:job:update', 3, 3, 110, '', '', '', NULL, 0, b'1', b'1', b'1', 'admin', '2021-01-05 17:03:48', '', '2022-04-20 17:03:10', b'0');
+INSERT INTO `system_menu` VALUES (1052, '任务删除', 'infra:job:delete', 3, 4, 110, '', '', '', NULL, 0, b'1', b'1', b'1', 'admin', '2021-01-05 17:03:48', '', '2022-04-20 17:03:10', b'0');
+INSERT INTO `system_menu` VALUES (1053, '状态修改', 'infra:job:update', 3, 5, 110, '', '', '', NULL, 0, b'1', b'1', b'1', 'admin', '2021-01-05 17:03:48', '', '2022-04-20 17:03:10', b'0');
+INSERT INTO `system_menu` VALUES (1054, '任务导出', 'infra:job:export', 3, 7, 110, '', '', '', NULL, 0, b'1', b'1', b'1', 'admin', '2021-01-05 17:03:48', '', '2022-04-20 17:03:10', b'0');
+INSERT INTO `system_menu` VALUES (1056, '生成修改', 'infra:codegen:update', 3, 2, 115, '', '', '', NULL, 0, b'1', b'1', b'1', 'admin', '2021-01-05 17:03:48', '1', '2022-04-20 17:03:10', b'0');
+INSERT INTO `system_menu` VALUES (1057, '生成删除', 'infra:codegen:delete', 3, 3, 115, '', '', '', NULL, 0, b'1', b'1', b'1', 'admin', '2021-01-05 17:03:48', '1', '2022-04-20 17:03:10', b'0');
+INSERT INTO `system_menu` VALUES (1058, '导入代码', 'infra:codegen:create', 3, 2, 115, '', '', '', NULL, 0, b'1', b'1', b'1', 'admin', '2021-01-05 17:03:48', '1', '2022-04-20 17:03:10', b'0');
+INSERT INTO `system_menu` VALUES (1059, '预览代码', 'infra:codegen:preview', 3, 4, 115, '', '', '', NULL, 0, b'1', b'1', b'1', 'admin', '2021-01-05 17:03:48', '1', '2022-04-20 17:03:10', b'0');
+INSERT INTO `system_menu` VALUES (1060, '生成代码', 'infra:codegen:download', 3, 5, 115, '', '', '', NULL, 0, b'1', b'1', b'1', 'admin', '2021-01-05 17:03:48', '1', '2022-04-20 17:03:10', b'0');
+INSERT INTO `system_menu` VALUES (1063, '设置角色菜单权限', 'system:permission:assign-role-menu', 3, 6, 101, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2021-01-06 17:53:44', '', '2022-04-20 17:03:10', b'0');
+INSERT INTO `system_menu` VALUES (1064, '设置角色数据权限', 'system:permission:assign-role-data-scope', 3, 7, 101, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2021-01-06 17:56:31', '', '2022-04-20 17:03:10', b'0');
+INSERT INTO `system_menu` VALUES (1065, '设置用户角色', 'system:permission:assign-user-role', 3, 8, 101, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2021-01-07 10:23:28', '', '2022-04-20 17:03:10', b'0');
+INSERT INTO `system_menu` VALUES (1066, '获得 Redis 监控信息', 'infra:redis:get-monitor-info', 3, 1, 113, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2021-01-26 01:02:31', '', '2022-04-20 17:03:10', b'0');
+INSERT INTO `system_menu` VALUES (1067, '获得 Redis Key 列表', 'infra:redis:get-key-list', 3, 2, 113, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2021-01-26 01:02:52', '', '2022-04-20 17:03:10', b'0');
+INSERT INTO `system_menu` VALUES (1070, '代码生成案例', '', 1, 1, 2, 'demo', 'ep:aim', 'infra/testDemo/index', NULL, 0, b'1', b'1', b'1', '', '2021-02-06 12:42:49', '1', '2023-11-15 23:45:53', b'0');
+INSERT INTO `system_menu` VALUES (1075, '任务触发', 'infra:job:trigger', 3, 8, 110, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2021-02-07 13:03:10', '', '2022-04-20 17:03:10', b'0');
+INSERT INTO `system_menu` VALUES (1077, '链路追踪', '', 2, 4, 2740, 'skywalking', 'fa:eye', 'infra/skywalking/index', 'InfraSkyWalking', 0, b'1', b'1', b'1', '', '2021-02-08 20:41:31', '1', '2024-04-23 00:07:15', b'0');
+INSERT INTO `system_menu` VALUES (1078, '访问日志', '', 2, 1, 1083, 'api-access-log', 'ep:place', 'infra/apiAccessLog/index', 'InfraApiAccessLog', 0, b'1', b'1', b'1', '', '2021-02-26 01:32:59', '1', '2024-02-29 08:54:57', b'0');
+INSERT INTO `system_menu` VALUES (1082, '日志导出', 'infra:api-access-log:export', 3, 2, 1078, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2021-02-26 01:32:59', '1', '2022-04-20 17:03:10', b'0');
+INSERT INTO `system_menu` VALUES (1083, 'API 日志', '', 2, 4, 2, 'log', 'fa:tasks', NULL, NULL, 0, b'1', b'1', b'1', '', '2021-02-26 02:18:24', '1', '2024-04-22 23:58:36', b'0');
+INSERT INTO `system_menu` VALUES (1084, '错误日志', 'infra:api-error-log:query', 2, 2, 1083, 'api-error-log', 'ep:warning-filled', 'infra/apiErrorLog/index', 'InfraApiErrorLog', 0, b'1', b'1', b'1', '', '2021-02-26 07:53:20', '1', '2024-02-29 08:55:17', b'0');
+INSERT INTO `system_menu` VALUES (1085, '日志处理', 'infra:api-error-log:update-status', 3, 2, 1084, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2021-02-26 07:53:20', '1', '2022-04-20 17:03:10', b'0');
+INSERT INTO `system_menu` VALUES (1086, '日志导出', 'infra:api-error-log:export', 3, 3, 1084, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2021-02-26 07:53:20', '1', '2022-04-20 17:03:10', b'0');
+INSERT INTO `system_menu` VALUES (1087, '任务查询', 'infra:job:query', 3, 1, 110, '', '', '', NULL, 0, b'1', b'1', b'1', '1', '2021-03-10 01:26:19', '1', '2022-04-20 17:03:10', b'0');
+INSERT INTO `system_menu` VALUES (1088, '日志查询', 'infra:api-access-log:query', 3, 1, 1078, '', '', '', NULL, 0, b'1', b'1', b'1', '1', '2021-03-10 01:28:04', '1', '2022-04-20 17:03:10', b'0');
+INSERT INTO `system_menu` VALUES (1089, '日志查询', 'infra:api-error-log:query', 3, 1, 1084, '', '', '', NULL, 0, b'1', b'1', b'1', '1', '2021-03-10 01:29:09', '1', '2022-04-20 17:03:10', b'0');
+INSERT INTO `system_menu` VALUES (1090, '文件列表', '', 2, 5, 1243, 'file', 'ep:upload-filled', 'infra/file/index', 'InfraFile', 0, b'1', b'1', b'1', '', '2021-03-12 20:16:20', '1', '2024-02-29 08:53:02', b'0');
+INSERT INTO `system_menu` VALUES (1091, '文件查询', 'infra:file:query', 3, 1, 1090, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2021-03-12 20:16:20', '', '2022-04-20 17:03:10', b'0');
+INSERT INTO `system_menu` VALUES (1092, '文件删除', 'infra:file:delete', 3, 4, 1090, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2021-03-12 20:16:20', '', '2022-04-20 17:03:10', b'0');
+INSERT INTO `system_menu` VALUES (1093, '短信管理', '', 1, 1, 2739, 'sms', 'ep:message', NULL, NULL, 0, b'1', b'1', b'1', '1', '2021-04-05 01:10:16', '1', '2024-04-22 23:56:03', b'0');
+INSERT INTO `system_menu` VALUES (1094, '短信渠道', '', 2, 0, 1093, 'sms-channel', 'fa:stack-exchange', 'system/sms/channel/index', 'SystemSmsChannel', 0, b'1', b'1', b'1', '', '2021-04-01 11:07:15', '1', '2024-02-29 01:15:54', b'0');
+INSERT INTO `system_menu` VALUES (1095, '短信渠道查询', 'system:sms-channel:query', 3, 1, 1094, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2021-04-01 11:07:15', '', '2022-04-20 17:03:10', b'0');
+INSERT INTO `system_menu` VALUES (1096, '短信渠道创建', 'system:sms-channel:create', 3, 2, 1094, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2021-04-01 11:07:15', '', '2022-04-20 17:03:10', b'0');
+INSERT INTO `system_menu` VALUES (1097, '短信渠道更新', 'system:sms-channel:update', 3, 3, 1094, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2021-04-01 11:07:15', '', '2022-04-20 17:03:10', b'0');
+INSERT INTO `system_menu` VALUES (1098, '短信渠道删除', 'system:sms-channel:delete', 3, 4, 1094, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2021-04-01 11:07:15', '', '2022-04-20 17:03:10', b'0');
+INSERT INTO `system_menu` VALUES (1100, '短信模板', '', 2, 1, 1093, 'sms-template', 'ep:connection', 'system/sms/template/index', 'SystemSmsTemplate', 0, b'1', b'1', b'1', '', '2021-04-01 17:35:17', '1', '2024-02-29 01:16:18', b'0');
+INSERT INTO `system_menu` VALUES (1101, '短信模板查询', 'system:sms-template:query', 3, 1, 1100, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2021-04-01 17:35:17', '', '2022-04-20 17:03:10', b'0');
+INSERT INTO `system_menu` VALUES (1102, '短信模板创建', 'system:sms-template:create', 3, 2, 1100, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2021-04-01 17:35:17', '', '2022-04-20 17:03:10', b'0');
+INSERT INTO `system_menu` VALUES (1103, '短信模板更新', 'system:sms-template:update', 3, 3, 1100, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2021-04-01 17:35:17', '', '2022-04-20 17:03:10', b'0');
+INSERT INTO `system_menu` VALUES (1104, '短信模板删除', 'system:sms-template:delete', 3, 4, 1100, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2021-04-01 17:35:17', '', '2022-04-20 17:03:10', b'0');
+INSERT INTO `system_menu` VALUES (1105, '短信模板导出', 'system:sms-template:export', 3, 5, 1100, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2021-04-01 17:35:17', '', '2022-04-20 17:03:10', b'0');
+INSERT INTO `system_menu` VALUES (1106, '发送测试短信', 'system:sms-template:send-sms', 3, 6, 1100, '', '', '', NULL, 0, b'1', b'1', b'1', '1', '2021-04-11 00:26:40', '1', '2022-04-20 17:03:10', b'0');
+INSERT INTO `system_menu` VALUES (1107, '短信日志', '', 2, 2, 1093, 'sms-log', 'fa:edit', 'system/sms/log/index', 'SystemSmsLog', 0, b'1', b'1', b'1', '', '2021-04-11 08:37:05', '1', '2024-02-29 08:49:02', b'0');
+INSERT INTO `system_menu` VALUES (1108, '短信日志查询', 'system:sms-log:query', 3, 1, 1107, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2021-04-11 08:37:05', '', '2022-04-20 17:03:10', b'0');
+INSERT INTO `system_menu` VALUES (1109, '短信日志导出', 'system:sms-log:export', 3, 5, 1107, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2021-04-11 08:37:05', '', '2022-04-20 17:03:10', b'0');
+INSERT INTO `system_menu` VALUES (1117, '支付管理', '', 1, 30, 0, '/pay', 'ep:money', NULL, NULL, 0, b'1', b'1', b'1', '1', '2021-12-25 16:43:41', '1', '2024-05-11 02:23:07', b'1');
+INSERT INTO `system_menu` VALUES (1118, '请假查询', '', 2, 0, 5, 'leave', 'fa:leanpub', 'bpm/oa/leave/index', 'BpmOALeave', 0, b'1', b'1', b'1', '', '2021-09-20 08:51:03', '1', '2024-05-11 02:21:49', b'1');
+INSERT INTO `system_menu` VALUES (1119, '请假申请查询', 'bpm:oa-leave:query', 3, 1, 1118, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2021-09-20 08:51:03', '1', '2024-05-11 02:21:49', b'1');
+INSERT INTO `system_menu` VALUES (1120, '请假申请创建', 'bpm:oa-leave:create', 3, 2, 1118, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2021-09-20 08:51:03', '1', '2024-05-11 02:21:49', b'1');
+INSERT INTO `system_menu` VALUES (1126, '应用信息', '', 2, 1, 1117, 'app', 'fa:apple', 'pay/app/index', 'PayApp', 0, b'1', b'1', b'1', '', '2021-11-10 01:13:30', '1', '2024-05-11 02:21:13', b'1');
+INSERT INTO `system_menu` VALUES (1127, '支付应用信息查询', 'pay:app:query', 3, 1, 1126, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2021-11-10 01:13:31', '', '2024-05-11 02:21:13', b'1');
+INSERT INTO `system_menu` VALUES (1128, '支付应用信息创建', 'pay:app:create', 3, 2, 1126, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2021-11-10 01:13:31', '', '2024-05-11 02:21:13', b'1');
+INSERT INTO `system_menu` VALUES (1129, '支付应用信息更新', 'pay:app:update', 3, 3, 1126, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2021-11-10 01:13:31', '', '2024-05-11 02:21:13', b'1');
+INSERT INTO `system_menu` VALUES (1130, '支付应用信息删除', 'pay:app:delete', 3, 4, 1126, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2021-11-10 01:13:31', '', '2024-05-11 02:21:13', b'1');
+INSERT INTO `system_menu` VALUES (1132, '秘钥解析', 'pay:channel:parsing', 3, 6, 1129, '', '', '', NULL, 0, b'1', b'1', b'1', '1', '2021-11-08 15:15:47', '1', '2024-05-11 02:21:13', b'1');
+INSERT INTO `system_menu` VALUES (1133, '支付商户信息查询', 'pay:merchant:query', 3, 1, 1132, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2021-11-10 01:13:41', '', '2024-05-11 02:27:16', b'1');
+INSERT INTO `system_menu` VALUES (1134, '支付商户信息创建', 'pay:merchant:create', 3, 2, 1132, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2021-11-10 01:13:41', '', '2024-05-11 02:28:36', b'1');
+INSERT INTO `system_menu` VALUES (1135, '支付商户信息更新', 'pay:merchant:update', 3, 3, 1132, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2021-11-10 01:13:41', '', '2024-05-11 02:28:36', b'1');
+INSERT INTO `system_menu` VALUES (1136, '支付商户信息删除', 'pay:merchant:delete', 3, 4, 1132, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2021-11-10 01:13:41', '', '2024-05-11 02:28:36', b'1');
+INSERT INTO `system_menu` VALUES (1137, '支付商户信息导出', 'pay:merchant:export', 3, 5, 1132, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2021-11-10 01:13:41', '', '2024-05-11 02:28:36', b'1');
+INSERT INTO `system_menu` VALUES (1138, '租户列表', '', 2, 0, 1224, 'list', 'ep:house', 'system/tenant/index', 'SystemTenant', 0, b'1', b'1', b'1', '', '2021-12-14 12:31:43', '1', '2024-05-11 02:53:27', b'1');
+INSERT INTO `system_menu` VALUES (1139, '租户查询', 'system:tenant:query', 3, 1, 1138, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2021-12-14 12:31:44', '', '2024-05-11 02:53:27', b'1');
+INSERT INTO `system_menu` VALUES (1140, '租户创建', 'system:tenant:create', 3, 2, 1138, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2021-12-14 12:31:44', '', '2024-05-11 02:53:27', b'1');
+INSERT INTO `system_menu` VALUES (1141, '租户更新', 'system:tenant:update', 3, 3, 1138, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2021-12-14 12:31:44', '', '2024-05-11 02:53:27', b'1');
+INSERT INTO `system_menu` VALUES (1142, '租户删除', 'system:tenant:delete', 3, 4, 1138, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2021-12-14 12:31:44', '', '2024-05-11 02:53:27', b'1');
+INSERT INTO `system_menu` VALUES (1143, '租户导出', 'system:tenant:export', 3, 5, 1138, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2021-12-14 12:31:44', '', '2024-05-11 02:53:27', b'1');
+INSERT INTO `system_menu` VALUES (1150, '秘钥解析', '', 3, 6, 1129, '', '', '', NULL, 0, b'1', b'1', b'1', '1', '2021-11-08 15:15:47', '1', '2024-05-11 02:21:13', b'1');
+INSERT INTO `system_menu` VALUES (1161, '退款订单', '', 2, 3, 1117, 'refund', 'fa:registered', 'pay/refund/index', 'PayRefund', 0, b'1', b'1', b'1', '', '2021-12-25 08:29:07', '1', '2024-05-11 02:21:13', b'1');
+INSERT INTO `system_menu` VALUES (1162, '退款订单查询', 'pay:refund:query', 3, 1, 1161, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2021-12-25 08:29:07', '', '2024-05-11 02:21:13', b'1');
+INSERT INTO `system_menu` VALUES (1163, '退款订单创建', 'pay:refund:create', 3, 2, 1161, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2021-12-25 08:29:07', '', '2024-05-11 02:21:13', b'1');
+INSERT INTO `system_menu` VALUES (1164, '退款订单更新', 'pay:refund:update', 3, 3, 1161, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2021-12-25 08:29:07', '', '2024-05-11 02:21:13', b'1');
+INSERT INTO `system_menu` VALUES (1165, '退款订单删除', 'pay:refund:delete', 3, 4, 1161, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2021-12-25 08:29:07', '', '2024-05-11 02:21:13', b'1');
+INSERT INTO `system_menu` VALUES (1166, '退款订单导出', 'pay:refund:export', 3, 5, 1161, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2021-12-25 08:29:07', '', '2024-05-11 02:21:13', b'1');
+INSERT INTO `system_menu` VALUES (1173, '支付订单', '', 2, 2, 1117, 'order', 'fa:cc-paypal', 'pay/order/index', 'PayOrder', 0, b'1', b'1', b'1', '', '2021-12-25 08:49:43', '1', '2024-05-11 02:21:13', b'1');
+INSERT INTO `system_menu` VALUES (1174, '支付订单查询', 'pay:order:query', 3, 1, 1173, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2021-12-25 08:49:43', '', '2024-05-11 02:21:13', b'1');
+INSERT INTO `system_menu` VALUES (1175, '支付订单创建', 'pay:order:create', 3, 2, 1173, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2021-12-25 08:49:43', '', '2024-05-11 02:21:13', b'1');
+INSERT INTO `system_menu` VALUES (1176, '支付订单更新', 'pay:order:update', 3, 3, 1173, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2021-12-25 08:49:43', '', '2024-05-11 02:21:13', b'1');
+INSERT INTO `system_menu` VALUES (1177, '支付订单删除', 'pay:order:delete', 3, 4, 1173, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2021-12-25 08:49:43', '', '2024-05-11 02:21:13', b'1');
+INSERT INTO `system_menu` VALUES (1178, '支付订单导出', 'pay:order:export', 3, 5, 1173, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2021-12-25 08:49:43', '', '2024-05-11 02:21:13', b'1');
+INSERT INTO `system_menu` VALUES (1185, '工作流程', '', 1, 50, 0, '/bpm', 'fa:medium', NULL, NULL, 0, b'1', b'1', b'1', '1', '2021-12-30 20:26:36', '1', '2024-05-11 02:23:16', b'1');
+INSERT INTO `system_menu` VALUES (1186, '流程管理', '', 1, 10, 1185, 'manager', 'fa:dedent', NULL, NULL, 0, b'1', b'1', b'1', '1', '2021-12-30 20:28:30', '1', '2024-05-11 02:21:49', b'1');
+INSERT INTO `system_menu` VALUES (1187, '流程表单', '', 2, 2, 1186, 'form', 'fa:hdd-o', 'bpm/form/index', 'BpmForm', 0, b'1', b'1', b'1', '', '2021-12-30 12:38:22', '1', '2024-05-11 02:21:49', b'1');
+INSERT INTO `system_menu` VALUES (1188, '表单查询', 'bpm:form:query', 3, 1, 1187, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2021-12-30 12:38:22', '1', '2024-05-11 02:21:49', b'1');
+INSERT INTO `system_menu` VALUES (1189, '表单创建', 'bpm:form:create', 3, 2, 1187, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2021-12-30 12:38:22', '1', '2024-05-11 02:21:49', b'1');
+INSERT INTO `system_menu` VALUES (1190, '表单更新', 'bpm:form:update', 3, 3, 1187, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2021-12-30 12:38:22', '1', '2024-05-11 02:21:49', b'1');
+INSERT INTO `system_menu` VALUES (1191, '表单删除', 'bpm:form:delete', 3, 4, 1187, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2021-12-30 12:38:22', '1', '2024-05-11 02:21:49', b'1');
+INSERT INTO `system_menu` VALUES (1192, '表单导出', 'bpm:form:export', 3, 5, 1187, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2021-12-30 12:38:22', '1', '2024-05-11 02:21:49', b'1');
+INSERT INTO `system_menu` VALUES (1193, '流程模型', '', 2, 1, 1186, 'model', 'fa-solid:project-diagram', 'bpm/model/index', 'BpmModel', 0, b'1', b'1', b'1', '1', '2021-12-31 23:24:58', '1', '2024-05-11 02:21:49', b'1');
+INSERT INTO `system_menu` VALUES (1194, '模型查询', 'bpm:model:query', 3, 1, 1193, '', '', '', NULL, 0, b'1', b'1', b'1', '1', '2022-01-03 19:01:10', '1', '2024-05-11 02:21:49', b'1');
+INSERT INTO `system_menu` VALUES (1195, '模型创建', 'bpm:model:create', 3, 2, 1193, '', '', '', NULL, 0, b'1', b'1', b'1', '1', '2022-01-03 19:01:24', '1', '2024-05-11 02:21:49', b'1');
+INSERT INTO `system_menu` VALUES (1196, '模型导入', 'bpm:model:import', 3, 3, 1193, '', '', '', NULL, 0, b'1', b'1', b'1', '1', '2022-01-03 19:01:35', '1', '2024-05-11 02:21:49', b'1');
+INSERT INTO `system_menu` VALUES (1197, '模型更新', 'bpm:model:update', 3, 4, 1193, '', '', '', NULL, 0, b'1', b'1', b'1', '1', '2022-01-03 19:02:28', '1', '2024-05-11 02:21:49', b'1');
+INSERT INTO `system_menu` VALUES (1198, '模型删除', 'bpm:model:delete', 3, 5, 1193, '', '', '', NULL, 0, b'1', b'1', b'1', '1', '2022-01-03 19:02:43', '1', '2024-05-11 02:21:49', b'1');
+INSERT INTO `system_menu` VALUES (1199, '模型发布', 'bpm:model:deploy', 3, 6, 1193, '', '', '', NULL, 0, b'1', b'1', b'1', '1', '2022-01-03 19:03:24', '1', '2024-05-11 02:21:49', b'1');
+INSERT INTO `system_menu` VALUES (1200, '审批中心', '', 2, 20, 1185, 'task', 'fa:tasks', NULL, NULL, 0, b'1', b'1', b'1', '1', '2022-01-07 23:51:48', '1', '2024-05-11 02:21:49', b'1');
+INSERT INTO `system_menu` VALUES (1201, '我的流程', '', 2, 1, 1200, 'my', 'fa-solid:book', 'bpm/processInstance/index', 'BpmProcessInstanceMy', 0, b'1', b'1', b'1', '', '2022-01-07 15:53:44', '1', '2024-05-11 02:21:49', b'1');
+INSERT INTO `system_menu` VALUES (1202, '流程实例的查询', 'bpm:process-instance:query', 3, 1, 1201, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2022-01-07 15:53:44', '1', '2024-05-11 02:21:49', b'1');
+INSERT INTO `system_menu` VALUES (1207, '待办任务', '', 2, 10, 1200, 'todo', 'fa:slack', 'bpm/task/todo/index', 'BpmTodoTask', 0, b'1', b'1', b'1', '1', '2022-01-08 10:33:37', '1', '2024-05-11 02:21:49', b'1');
+INSERT INTO `system_menu` VALUES (1208, '已办任务', '', 2, 20, 1200, 'done', 'fa:delicious', 'bpm/task/done/index', 'BpmDoneTask', 0, b'1', b'1', b'1', '1', '2022-01-08 10:34:13', '1', '2024-05-11 02:21:49', b'1');
+INSERT INTO `system_menu` VALUES (1209, '用户分组', '', 2, 4, 1186, 'user-group', 'fa:user-secret', 'bpm/group/index', 'BpmUserGroup', 0, b'1', b'1', b'1', '', '2022-01-14 02:14:20', '1', '2024-05-11 02:21:49', b'1');
+INSERT INTO `system_menu` VALUES (1210, '用户组查询', 'bpm:user-group:query', 3, 1, 1209, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2022-01-14 02:14:20', '', '2024-05-11 02:21:49', b'1');
+INSERT INTO `system_menu` VALUES (1211, '用户组创建', 'bpm:user-group:create', 3, 2, 1209, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2022-01-14 02:14:20', '', '2024-05-11 02:21:49', b'1');
+INSERT INTO `system_menu` VALUES (1212, '用户组更新', 'bpm:user-group:update', 3, 3, 1209, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2022-01-14 02:14:20', '', '2024-05-11 02:21:49', b'1');
+INSERT INTO `system_menu` VALUES (1213, '用户组删除', 'bpm:user-group:delete', 3, 4, 1209, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2022-01-14 02:14:20', '', '2024-05-11 02:21:49', b'1');
+INSERT INTO `system_menu` VALUES (1215, '流程定义查询', 'bpm:process-definition:query', 3, 10, 1193, '', '', '', NULL, 0, b'1', b'1', b'1', '1', '2022-01-23 00:21:43', '1', '2024-05-11 02:21:49', b'1');
+INSERT INTO `system_menu` VALUES (1216, '流程任务分配规则查询', 'bpm:task-assign-rule:query', 3, 20, 1193, '', '', '', NULL, 0, b'1', b'1', b'1', '1', '2022-01-23 00:26:53', '1', '2024-05-11 02:21:49', b'1');
+INSERT INTO `system_menu` VALUES (1217, '流程任务分配规则创建', 'bpm:task-assign-rule:create', 3, 21, 1193, '', '', '', NULL, 0, b'1', b'1', b'1', '1', '2022-01-23 00:28:15', '1', '2024-05-11 02:21:49', b'1');
+INSERT INTO `system_menu` VALUES (1218, '流程任务分配规则更新', 'bpm:task-assign-rule:update', 3, 22, 1193, '', '', '', NULL, 0, b'1', b'1', b'1', '1', '2022-01-23 00:28:41', '1', '2024-05-11 02:21:49', b'1');
+INSERT INTO `system_menu` VALUES (1219, '流程实例的创建', 'bpm:process-instance:create', 3, 2, 1201, '', '', '', NULL, 0, b'1', b'1', b'1', '1', '2022-01-23 00:36:15', '1', '2024-05-11 02:21:49', b'1');
+INSERT INTO `system_menu` VALUES (1220, '流程实例的取消', 'bpm:process-instance:cancel', 3, 3, 1201, '', '', '', NULL, 0, b'1', b'1', b'1', '1', '2022-01-23 00:36:33', '1', '2024-05-11 02:21:49', b'1');
+INSERT INTO `system_menu` VALUES (1221, '流程任务的查询', 'bpm:task:query', 3, 1, 1207, '', '', '', NULL, 0, b'1', b'1', b'1', '1', '2022-01-23 00:38:52', '1', '2024-05-11 02:21:49', b'1');
+INSERT INTO `system_menu` VALUES (1222, '流程任务的更新', 'bpm:task:update', 3, 2, 1207, '', '', '', NULL, 0, b'1', b'1', b'1', '1', '2022-01-23 00:39:24', '1', '2024-05-11 02:21:49', b'1');
+INSERT INTO `system_menu` VALUES (1224, '租户管理', '', 2, 0, 1, 'tenant', 'fa-solid:house-user', NULL, NULL, 0, b'1', b'1', b'1', '1', '2022-02-20 01:41:13', '1', '2024-05-11 02:53:27', b'1');
+INSERT INTO `system_menu` VALUES (1225, '租户套餐', '', 2, 0, 1224, 'package', 'fa:bars', 'system/tenantPackage/index', 'SystemTenantPackage', 0, b'1', b'1', b'1', '', '2022-02-19 17:44:06', '1', '2024-05-11 02:53:27', b'1');
+INSERT INTO `system_menu` VALUES (1226, '租户套餐查询', 'system:tenant-package:query', 3, 1, 1225, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2022-02-19 17:44:06', '', '2024-05-11 02:53:27', b'1');
+INSERT INTO `system_menu` VALUES (1227, '租户套餐创建', 'system:tenant-package:create', 3, 2, 1225, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2022-02-19 17:44:06', '', '2024-05-11 02:53:27', b'1');
+INSERT INTO `system_menu` VALUES (1228, '租户套餐更新', 'system:tenant-package:update', 3, 3, 1225, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2022-02-19 17:44:06', '', '2024-05-11 02:53:27', b'1');
+INSERT INTO `system_menu` VALUES (1229, '租户套餐删除', 'system:tenant-package:delete', 3, 4, 1225, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2022-02-19 17:44:06', '', '2024-05-11 02:53:27', b'1');
+INSERT INTO `system_menu` VALUES (1237, '文件配置', '', 2, 0, 1243, 'file-config', 'fa-solid:file-signature', 'infra/fileConfig/index', 'InfraFileConfig', 0, b'1', b'1', b'1', '', '2022-03-15 14:35:28', '1', '2024-02-29 08:52:54', b'0');
+INSERT INTO `system_menu` VALUES (1238, '文件配置查询', 'infra:file-config:query', 3, 1, 1237, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2022-03-15 14:35:28', '', '2022-04-20 17:03:10', b'0');
+INSERT INTO `system_menu` VALUES (1239, '文件配置创建', 'infra:file-config:create', 3, 2, 1237, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2022-03-15 14:35:28', '', '2022-04-20 17:03:10', b'0');
+INSERT INTO `system_menu` VALUES (1240, '文件配置更新', 'infra:file-config:update', 3, 3, 1237, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2022-03-15 14:35:28', '', '2022-04-20 17:03:10', b'0');
+INSERT INTO `system_menu` VALUES (1241, '文件配置删除', 'infra:file-config:delete', 3, 4, 1237, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2022-03-15 14:35:28', '', '2022-04-20 17:03:10', b'0');
+INSERT INTO `system_menu` VALUES (1242, '文件配置导出', 'infra:file-config:export', 3, 5, 1237, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2022-03-15 14:35:28', '', '2022-04-20 17:03:10', b'0');
+INSERT INTO `system_menu` VALUES (1243, '文件管理', '', 2, 6, 2, 'file', 'ep:files', NULL, '', 0, b'1', b'1', b'1', '1', '2022-03-16 23:47:40', '1', '2024-04-23 00:02:11', b'0');
+INSERT INTO `system_menu` VALUES (1254, '作者动态', '', 1, 0, 0, 'https://www.iocoder.cn', 'ep:avatar', NULL, NULL, 0, b'1', b'1', b'1', '1', '2022-04-23 01:03:15', '1', '2024-05-11 02:12:53', b'1');
+INSERT INTO `system_menu` VALUES (1255, '数据源配置', '', 2, 1, 2, 'data-source-config', 'ep:data-analysis', 'infra/dataSourceConfig/index', 'InfraDataSourceConfig', 0, b'1', b'1', b'1', '', '2022-04-27 14:37:32', '1', '2024-02-29 08:51:25', b'0');
+INSERT INTO `system_menu` VALUES (1256, '数据源配置查询', 'infra:data-source-config:query', 3, 1, 1255, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2022-04-27 14:37:32', '', '2022-04-27 14:37:32', b'0');
+INSERT INTO `system_menu` VALUES (1257, '数据源配置创建', 'infra:data-source-config:create', 3, 2, 1255, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2022-04-27 14:37:32', '', '2022-04-27 14:37:32', b'0');
+INSERT INTO `system_menu` VALUES (1258, '数据源配置更新', 'infra:data-source-config:update', 3, 3, 1255, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2022-04-27 14:37:32', '', '2022-04-27 14:37:32', b'0');
+INSERT INTO `system_menu` VALUES (1259, '数据源配置删除', 'infra:data-source-config:delete', 3, 4, 1255, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2022-04-27 14:37:32', '', '2022-04-27 14:37:32', b'0');
+INSERT INTO `system_menu` VALUES (1260, '数据源配置导出', 'infra:data-source-config:export', 3, 5, 1255, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2022-04-27 14:37:32', '', '2022-04-27 14:37:32', b'0');
+INSERT INTO `system_menu` VALUES (1261, 'OAuth 2.0', '', 2, 10, 1, 'oauth2', 'fa:dashcube', NULL, NULL, 0, b'1', b'1', b'1', '1', '2022-05-09 23:38:17', '1', '2024-02-29 01:12:08', b'0');
+INSERT INTO `system_menu` VALUES (1263, '应用管理', '', 2, 0, 1261, 'oauth2/application', 'fa:hdd-o', 'system/oauth2/client/index', 'SystemOAuth2Client', 0, b'1', b'1', b'1', '', '2022-05-10 16:26:33', '1', '2024-02-29 01:13:14', b'0');
+INSERT INTO `system_menu` VALUES (1264, '客户端查询', 'system:oauth2-client:query', 3, 1, 1263, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2022-05-10 16:26:33', '1', '2022-05-11 00:31:06', b'0');
+INSERT INTO `system_menu` VALUES (1265, '客户端创建', 'system:oauth2-client:create', 3, 2, 1263, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2022-05-10 16:26:33', '1', '2022-05-11 00:31:23', b'0');
+INSERT INTO `system_menu` VALUES (1266, '客户端更新', 'system:oauth2-client:update', 3, 3, 1263, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2022-05-10 16:26:33', '1', '2022-05-11 00:31:28', b'0');
+INSERT INTO `system_menu` VALUES (1267, '客户端删除', 'system:oauth2-client:delete', 3, 4, 1263, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2022-05-10 16:26:33', '1', '2022-05-11 00:31:33', b'0');
+INSERT INTO `system_menu` VALUES (1281, '报表管理', '', 2, 40, 0, '/report', 'ep:pie-chart', NULL, NULL, 0, b'1', b'1', b'1', '1', '2022-07-10 20:22:15', '1', '2024-05-11 02:23:12', b'1');
+INSERT INTO `system_menu` VALUES (1282, '报表设计器', '', 2, 1, 1281, 'jimu-report', 'ep:trend-charts', 'report/jmreport/index', 'GoView', 0, b'1', b'1', b'1', '1', '2022-07-10 20:26:36', '1', '2024-05-11 02:21:39', b'1');
+INSERT INTO `system_menu` VALUES (2000, '商品中心', '', 1, 60, 2362, 'product', 'fa:product-hunt', NULL, NULL, 0, b'1', b'1', b'1', '', '2022-07-29 15:53:53', '1', '2024-05-11 02:21:59', b'1');
+INSERT INTO `system_menu` VALUES (2002, '商品分类', '', 2, 2, 2000, 'category', 'ep:cellphone', 'mall/product/category/index', 'ProductCategory', 0, b'1', b'1', b'1', '', '2022-07-29 15:53:53', '1', '2024-05-11 02:21:59', b'1');
+INSERT INTO `system_menu` VALUES (2003, '分类查询', 'product:category:query', 3, 1, 2002, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2022-07-29 15:53:53', '', '2024-05-11 02:21:59', b'1');
+INSERT INTO `system_menu` VALUES (2004, '分类创建', 'product:category:create', 3, 2, 2002, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2022-07-29 15:53:53', '', '2024-05-11 02:21:59', b'1');
+INSERT INTO `system_menu` VALUES (2005, '分类更新', 'product:category:update', 3, 3, 2002, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2022-07-29 15:53:53', '', '2024-05-11 02:21:59', b'1');
+INSERT INTO `system_menu` VALUES (2006, '分类删除', 'product:category:delete', 3, 4, 2002, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2022-07-29 15:53:53', '', '2024-05-11 02:21:59', b'1');
+INSERT INTO `system_menu` VALUES (2008, '商品品牌', '', 2, 3, 2000, 'brand', 'ep:chicken', 'mall/product/brand/index', 'ProductBrand', 0, b'1', b'1', b'1', '', '2022-07-30 13:52:44', '1', '2024-05-11 02:21:59', b'1');
+INSERT INTO `system_menu` VALUES (2009, '品牌查询', 'product:brand:query', 3, 1, 2008, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2022-07-30 13:52:44', '', '2024-05-11 02:21:59', b'1');
+INSERT INTO `system_menu` VALUES (2010, '品牌创建', 'product:brand:create', 3, 2, 2008, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2022-07-30 13:52:44', '', '2024-05-11 02:21:59', b'1');
+INSERT INTO `system_menu` VALUES (2011, '品牌更新', 'product:brand:update', 3, 3, 2008, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2022-07-30 13:52:44', '', '2024-05-11 02:21:59', b'1');
+INSERT INTO `system_menu` VALUES (2012, '品牌删除', 'product:brand:delete', 3, 4, 2008, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2022-07-30 13:52:44', '', '2024-05-11 02:21:59', b'1');
+INSERT INTO `system_menu` VALUES (2014, '商品列表', '', 2, 1, 2000, 'spu', 'ep:apple', 'mall/product/spu/index', 'ProductSpu', 0, b'1', b'1', b'1', '', '2022-07-30 14:22:58', '1', '2024-05-11 02:21:59', b'1');
+INSERT INTO `system_menu` VALUES (2015, '商品查询', 'product:spu:query', 3, 1, 2014, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2022-07-30 14:22:58', '', '2024-05-11 02:21:59', b'1');
+INSERT INTO `system_menu` VALUES (2016, '商品创建', 'product:spu:create', 3, 2, 2014, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2022-07-30 14:22:58', '', '2024-05-11 02:21:59', b'1');
+INSERT INTO `system_menu` VALUES (2017, '商品更新', 'product:spu:update', 3, 3, 2014, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2022-07-30 14:22:58', '', '2024-05-11 02:21:59', b'1');
+INSERT INTO `system_menu` VALUES (2018, '商品删除', 'product:spu:delete', 3, 4, 2014, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2022-07-30 14:22:58', '', '2024-05-11 02:21:59', b'1');
+INSERT INTO `system_menu` VALUES (2019, '商品属性', '', 2, 4, 2000, 'property', 'ep:cold-drink', 'mall/product/property/index', 'ProductProperty', 0, b'1', b'1', b'1', '', '2022-08-01 14:55:35', '1', '2024-05-11 02:21:59', b'1');
+INSERT INTO `system_menu` VALUES (2020, '规格查询', 'product:property:query', 3, 1, 2019, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2022-08-01 14:55:35', '', '2024-05-11 02:21:59', b'1');
+INSERT INTO `system_menu` VALUES (2021, '规格创建', 'product:property:create', 3, 2, 2019, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2022-08-01 14:55:35', '', '2024-05-11 02:22:00', b'1');
+INSERT INTO `system_menu` VALUES (2022, '规格更新', 'product:property:update', 3, 3, 2019, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2022-08-01 14:55:35', '', '2024-05-11 02:22:00', b'1');
+INSERT INTO `system_menu` VALUES (2023, '规格删除', 'product:property:delete', 3, 4, 2019, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2022-08-01 14:55:35', '', '2024-05-11 02:22:00', b'1');
+INSERT INTO `system_menu` VALUES (2025, 'Banner', '', 2, 100, 2387, 'banner', 'fa:bandcamp', 'mall/promotion/banner/index', NULL, 0, b'1', b'1', b'1', '', '2022-08-01 14:56:14', '1', '2024-05-11 02:22:00', b'1');
+INSERT INTO `system_menu` VALUES (2026, 'Banner查询', 'promotion:banner:query', 3, 1, 2025, '', '', '', '', 0, b'1', b'1', b'1', '', '2022-08-01 14:56:14', '1', '2024-05-11 02:28:36', b'1');
+INSERT INTO `system_menu` VALUES (2027, 'Banner创建', 'promotion:banner:create', 3, 2, 2025, '', '', '', '', 0, b'1', b'1', b'1', '', '2022-08-01 14:56:14', '1', '2024-05-11 02:28:36', b'1');
+INSERT INTO `system_menu` VALUES (2028, 'Banner更新', 'promotion:banner:update', 3, 3, 2025, '', '', '', '', 0, b'1', b'1', b'1', '', '2022-08-01 14:56:14', '1', '2024-05-11 02:28:36', b'1');
+INSERT INTO `system_menu` VALUES (2029, 'Banner删除', 'promotion:banner:delete', 3, 4, 2025, '', '', '', '', 0, b'1', b'1', b'1', '', '2022-08-01 14:56:14', '1', '2024-05-11 02:28:36', b'1');
+INSERT INTO `system_menu` VALUES (2030, '营销中心', '', 1, 70, 2362, 'promotion', 'ep:present', NULL, NULL, 0, b'1', b'1', b'1', '1', '2022-10-31 21:25:09', '1', '2024-05-11 02:22:00', b'1');
+INSERT INTO `system_menu` VALUES (2032, '优惠劵列表', '', 2, 1, 2365, 'template', 'ep:discount', 'mall/promotion/coupon/template/index', 'PromotionCouponTemplate', 0, b'1', b'1', b'1', '', '2022-10-31 22:27:14', '1', '2024-05-11 02:22:00', b'1');
+INSERT INTO `system_menu` VALUES (2033, '优惠劵模板查询', 'promotion:coupon-template:query', 3, 1, 2032, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2022-10-31 22:27:14', '', '2024-05-11 02:28:36', b'1');
+INSERT INTO `system_menu` VALUES (2034, '优惠劵模板创建', 'promotion:coupon-template:create', 3, 2, 2032, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2022-10-31 22:27:14', '', '2024-05-11 02:28:36', b'1');
+INSERT INTO `system_menu` VALUES (2035, '优惠劵模板更新', 'promotion:coupon-template:update', 3, 3, 2032, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2022-10-31 22:27:14', '', '2024-05-11 02:28:36', b'1');
+INSERT INTO `system_menu` VALUES (2036, '优惠劵模板删除', 'promotion:coupon-template:delete', 3, 4, 2032, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2022-10-31 22:27:14', '', '2024-05-11 02:28:36', b'1');
+INSERT INTO `system_menu` VALUES (2038, '领取记录', '', 2, 2, 2365, 'list', 'ep:collection-tag', 'mall/promotion/coupon/index', 'PromotionCoupon', 0, b'1', b'1', b'1', '', '2022-11-03 23:21:31', '1', '2024-05-11 02:22:00', b'1');
+INSERT INTO `system_menu` VALUES (2039, '优惠劵查询', 'promotion:coupon:query', 3, 1, 2038, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2022-11-03 23:21:31', '', '2024-05-11 02:28:36', b'1');
+INSERT INTO `system_menu` VALUES (2040, '优惠劵删除', 'promotion:coupon:delete', 3, 4, 2038, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2022-11-03 23:21:31', '', '2024-05-11 02:28:36', b'1');
+INSERT INTO `system_menu` VALUES (2041, '满减送', '', 2, 10, 2390, 'reward-activity', 'ep:goblet-square-full', 'mall/promotion/rewardActivity/index', 'PromotionRewardActivity', 0, b'1', b'1', b'1', '', '2022-11-04 23:47:49', '1', '2024-05-11 02:22:00', b'1');
+INSERT INTO `system_menu` VALUES (2042, '满减送活动查询', 'promotion:reward-activity:query', 3, 1, 2041, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2022-11-04 23:47:49', '', '2024-05-11 02:28:36', b'1');
+INSERT INTO `system_menu` VALUES (2043, '满减送活动创建', 'promotion:reward-activity:create', 3, 2, 2041, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2022-11-04 23:47:49', '', '2024-05-11 02:28:36', b'1');
+INSERT INTO `system_menu` VALUES (2044, '满减送活动更新', 'promotion:reward-activity:update', 3, 3, 2041, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2022-11-04 23:47:50', '', '2024-05-11 02:28:36', b'1');
+INSERT INTO `system_menu` VALUES (2045, '满减送活动删除', 'promotion:reward-activity:delete', 3, 4, 2041, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2022-11-04 23:47:50', '', '2024-05-11 02:28:36', b'1');
+INSERT INTO `system_menu` VALUES (2046, '满减送活动关闭', 'promotion:reward-activity:close', 3, 5, 2041, '', '', '', NULL, 0, b'1', b'1', b'1', '1', '2022-11-05 10:42:53', '1', '2024-05-11 02:28:36', b'1');
+INSERT INTO `system_menu` VALUES (2047, '限时折扣', '', 2, 7, 2390, 'discount-activity', 'ep:timer', 'mall/promotion/discountActivity/index', 'PromotionDiscountActivity', 0, b'1', b'1', b'1', '', '2022-11-05 17:12:15', '1', '2024-05-11 02:22:00', b'1');
+INSERT INTO `system_menu` VALUES (2048, '限时折扣活动查询', 'promotion:discount-activity:query', 3, 1, 2047, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2022-11-05 17:12:15', '', '2024-05-11 02:28:36', b'1');
+INSERT INTO `system_menu` VALUES (2049, '限时折扣活动创建', 'promotion:discount-activity:create', 3, 2, 2047, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2022-11-05 17:12:15', '', '2024-05-11 02:28:36', b'1');
+INSERT INTO `system_menu` VALUES (2050, '限时折扣活动更新', 'promotion:discount-activity:update', 3, 3, 2047, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2022-11-05 17:12:16', '', '2024-05-11 02:28:36', b'1');
+INSERT INTO `system_menu` VALUES (2051, '限时折扣活动删除', 'promotion:discount-activity:delete', 3, 4, 2047, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2022-11-05 17:12:16', '', '2024-05-11 02:28:36', b'1');
+INSERT INTO `system_menu` VALUES (2052, '限时折扣活动关闭', 'promotion:discount-activity:close', 3, 5, 2047, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2022-11-05 17:12:16', '', '2024-05-11 02:28:36', b'1');
+INSERT INTO `system_menu` VALUES (2059, '秒杀商品', '', 2, 2, 2209, 'activity', 'ep:basketball', 'mall/promotion/seckill/activity/index', 'PromotionSeckillActivity', 0, b'1', b'1', b'1', '', '2022-11-06 22:24:49', '1', '2024-05-11 02:22:00', b'1');
+INSERT INTO `system_menu` VALUES (2060, '秒杀活动查询', 'promotion:seckill-activity:query', 3, 1, 2059, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2022-11-06 22:24:49', '', '2024-05-11 02:28:36', b'1');
+INSERT INTO `system_menu` VALUES (2061, '秒杀活动创建', 'promotion:seckill-activity:create', 3, 2, 2059, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2022-11-06 22:24:49', '', '2024-05-11 02:28:36', b'1');
+INSERT INTO `system_menu` VALUES (2062, '秒杀活动更新', 'promotion:seckill-activity:update', 3, 3, 2059, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2022-11-06 22:24:49', '', '2024-05-11 02:28:36', b'1');
+INSERT INTO `system_menu` VALUES (2063, '秒杀活动删除', 'promotion:seckill-activity:delete', 3, 4, 2059, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2022-11-06 22:24:49', '', '2024-05-11 02:28:36', b'1');
+INSERT INTO `system_menu` VALUES (2066, '秒杀时段', '', 2, 1, 2209, 'config', 'ep:baseball', 'mall/promotion/seckill/config/index', 'PromotionSeckillConfig', 0, b'1', b'1', b'1', '', '2022-11-15 19:46:50', '1', '2024-05-11 02:22:00', b'1');
+INSERT INTO `system_menu` VALUES (2067, '秒杀时段查询', 'promotion:seckill-config:query', 3, 1, 2066, '', '', '', '', 0, b'1', b'1', b'1', '', '2022-11-15 19:46:51', '1', '2024-05-11 02:28:36', b'1');
+INSERT INTO `system_menu` VALUES (2068, '秒杀时段创建', 'promotion:seckill-config:create', 3, 2, 2066, '', '', '', '', 0, b'1', b'1', b'1', '', '2022-11-15 19:46:51', '1', '2024-05-11 02:28:36', b'1');
+INSERT INTO `system_menu` VALUES (2069, '秒杀时段更新', 'promotion:seckill-config:update', 3, 3, 2066, '', '', '', '', 0, b'1', b'1', b'1', '', '2022-11-15 19:46:51', '1', '2024-05-11 02:28:36', b'1');
+INSERT INTO `system_menu` VALUES (2070, '秒杀时段删除', 'promotion:seckill-config:delete', 3, 4, 2066, '', '', '', '', 0, b'1', b'1', b'1', '', '2022-11-15 19:46:51', '1', '2024-05-11 02:28:36', b'1');
+INSERT INTO `system_menu` VALUES (2072, '订单中心', '', 1, 65, 2362, 'trade', 'ep:eleme', NULL, NULL, 0, b'1', b'1', b'1', '1', '2022-11-19 18:57:19', '1', '2024-05-11 02:22:00', b'1');
+INSERT INTO `system_menu` VALUES (2073, '售后退款', '', 2, 2, 2072, 'after-sale', 'ep:refrigerator', 'mall/trade/afterSale/index', 'TradeAfterSale', 0, b'1', b'1', b'1', '', '2022-11-19 20:15:32', '1', '2024-05-11 02:22:00', b'1');
+INSERT INTO `system_menu` VALUES (2074, '售后查询', 'trade:after-sale:query', 3, 1, 2073, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2022-11-19 20:15:33', '1', '2024-05-11 02:22:00', b'1');
+INSERT INTO `system_menu` VALUES (2075, '秒杀活动关闭', 'promotion:seckill-activity:close', 3, 5, 2059, '', '', '', '', 0, b'1', b'1', b'1', '1', '2022-11-28 20:20:15', '1', '2024-05-11 02:28:36', b'1');
+INSERT INTO `system_menu` VALUES (2076, '订单列表', '', 2, 1, 2072, 'order', 'ep:list', 'mall/trade/order/index', 'TradeOrder', 0, b'1', b'1', b'1', '1', '2022-12-10 21:05:44', '1', '2024-05-11 02:22:00', b'1');
+INSERT INTO `system_menu` VALUES (2083, '地区管理', '', 2, 14, 1, 'area', 'fa:map-marker', 'system/area/index', 'SystemArea', 0, b'1', b'1', b'1', '1', '2022-12-23 17:35:05', '1', '2024-02-29 08:50:28', b'0');
+INSERT INTO `system_menu` VALUES (2084, '公众号管理', '', 1, 100, 0, '/mp', 'ep:compass', NULL, NULL, 0, b'1', b'1', b'1', '1', '2023-01-01 20:11:04', '1', '2024-05-11 02:23:26', b'1');
+INSERT INTO `system_menu` VALUES (2085, '账号管理', '', 2, 1, 2084, 'account', 'fa:user', 'mp/account/index', 'MpAccount', 0, b'1', b'1', b'1', '1', '2023-01-01 20:13:31', '1', '2024-05-11 02:22:12', b'1');
+INSERT INTO `system_menu` VALUES (2086, '新增账号', 'mp:account:create', 3, 1, 2085, '', '', '', NULL, 0, b'1', b'1', b'1', '1', '2023-01-01 20:21:40', '1', '2024-05-11 02:22:12', b'1');
+INSERT INTO `system_menu` VALUES (2087, '修改账号', 'mp:account:update', 3, 2, 2085, '', '', '', NULL, 0, b'1', b'1', b'1', '1', '2023-01-07 17:32:46', '1', '2024-05-11 02:22:12', b'1');
+INSERT INTO `system_menu` VALUES (2088, '查询账号', 'mp:account:query', 3, 0, 2085, '', '', '', NULL, 0, b'1', b'1', b'1', '1', '2023-01-07 17:33:07', '1', '2024-05-11 02:22:12', b'1');
+INSERT INTO `system_menu` VALUES (2089, '删除账号', 'mp:account:delete', 3, 3, 2085, '', '', '', NULL, 0, b'1', b'1', b'1', '1', '2023-01-07 17:33:21', '1', '2024-05-11 02:22:12', b'1');
+INSERT INTO `system_menu` VALUES (2090, '生成二维码', 'mp:account:qr-code', 3, 4, 2085, '', '', '', NULL, 0, b'1', b'1', b'1', '1', '2023-01-07 17:33:58', '1', '2024-05-11 02:22:12', b'1');
+INSERT INTO `system_menu` VALUES (2091, '清空 API 配额', 'mp:account:clear-quota', 3, 5, 2085, '', '', '', NULL, 0, b'1', b'1', b'1', '1', '2023-01-07 18:20:32', '1', '2024-05-11 02:22:12', b'1');
+INSERT INTO `system_menu` VALUES (2092, '数据统计', 'mp:statistics:query', 2, 2, 2084, 'statistics', 'ep:trend-charts', 'mp/statistics/index', 'MpStatistics', 0, b'1', b'1', b'1', '1', '2023-01-07 20:17:36', '1', '2024-05-11 02:22:12', b'1');
+INSERT INTO `system_menu` VALUES (2093, '标签管理', '', 2, 3, 2084, 'tag', 'ep:collection-tag', 'mp/tag/index', 'MpTag', 0, b'1', b'1', b'1', '1', '2023-01-08 11:37:32', '1', '2024-05-11 02:22:12', b'1');
+INSERT INTO `system_menu` VALUES (2094, '查询标签', 'mp:tag:query', 3, 0, 2093, '', '', '', NULL, 0, b'1', b'1', b'1', '1', '2023-01-08 11:59:03', '1', '2024-05-11 02:22:12', b'1');
+INSERT INTO `system_menu` VALUES (2095, '新增标签', 'mp:tag:create', 3, 1, 2093, '', '', '', NULL, 0, b'1', b'1', b'1', '1', '2023-01-08 11:59:23', '1', '2024-05-11 02:22:12', b'1');
+INSERT INTO `system_menu` VALUES (2096, '修改标签', 'mp:tag:update', 3, 2, 2093, '', '', '', NULL, 0, b'1', b'1', b'1', '1', '2023-01-08 11:59:41', '1', '2024-05-11 02:22:12', b'1');
+INSERT INTO `system_menu` VALUES (2097, '删除标签', 'mp:tag:delete', 3, 3, 2093, '', '', '', NULL, 0, b'1', b'1', b'1', '1', '2023-01-08 12:00:04', '1', '2024-05-11 02:22:12', b'1');
+INSERT INTO `system_menu` VALUES (2098, '同步标签', 'mp:tag:sync', 3, 4, 2093, '', '', '', NULL, 0, b'1', b'1', b'1', '1', '2023-01-08 12:00:29', '1', '2024-05-11 02:22:12', b'1');
+INSERT INTO `system_menu` VALUES (2099, '粉丝管理', '', 2, 4, 2084, 'user', 'fa:user-secret', 'mp/user/index', 'MpUser', 0, b'1', b'1', b'1', '1', '2023-01-08 16:51:20', '1', '2024-05-11 02:22:12', b'1');
+INSERT INTO `system_menu` VALUES (2100, '查询粉丝', 'mp:user:query', 3, 0, 2099, '', '', '', NULL, 0, b'1', b'1', b'1', '1', '2023-01-08 17:16:59', '1', '2024-05-11 02:22:12', b'1');
+INSERT INTO `system_menu` VALUES (2101, '修改粉丝', 'mp:user:update', 3, 1, 2099, '', '', '', NULL, 0, b'1', b'1', b'1', '1', '2023-01-08 17:17:11', '1', '2024-05-11 02:22:12', b'1');
+INSERT INTO `system_menu` VALUES (2102, '同步粉丝', 'mp:user:sync', 3, 2, 2099, '', '', '', NULL, 0, b'1', b'1', b'1', '1', '2023-01-08 17:17:40', '1', '2024-05-11 02:22:12', b'1');
+INSERT INTO `system_menu` VALUES (2103, '消息管理', '', 2, 5, 2084, 'message', 'ep:message', 'mp/message/index', 'MpMessage', 0, b'1', b'1', b'1', '1', '2023-01-08 18:44:19', '1', '2024-05-11 02:22:12', b'1');
+INSERT INTO `system_menu` VALUES (2104, '图文发表记录', '', 2, 10, 2084, 'free-publish', 'ep:edit-pen', 'mp/freePublish/index', 'MpFreePublish', 0, b'1', b'1', b'1', '1', '2023-01-13 00:30:50', '1', '2024-05-11 02:22:12', b'1');
+INSERT INTO `system_menu` VALUES (2105, '查询发布列表', 'mp:free-publish:query', 3, 1, 2104, '', '', '', NULL, 0, b'1', b'1', b'1', '1', '2023-01-13 07:19:17', '1', '2024-05-11 02:22:12', b'1');
+INSERT INTO `system_menu` VALUES (2106, '发布草稿', 'mp:free-publish:submit', 3, 2, 2104, '', '', '', NULL, 0, b'1', b'1', b'1', '1', '2023-01-13 07:19:46', '1', '2024-05-11 02:22:12', b'1');
+INSERT INTO `system_menu` VALUES (2107, '删除发布记录', 'mp:free-publish:delete', 3, 3, 2104, '', '', '', NULL, 0, b'1', b'1', b'1', '1', '2023-01-13 07:20:01', '1', '2024-05-11 02:22:12', b'1');
+INSERT INTO `system_menu` VALUES (2108, '图文草稿箱', '', 2, 9, 2084, 'draft', 'ep:edit', 'mp/draft/index', 'MpDraft', 0, b'1', b'1', b'1', '1', '2023-01-13 07:40:21', '1', '2024-05-11 02:22:12', b'1');
+INSERT INTO `system_menu` VALUES (2109, '新建草稿', 'mp:draft:create', 3, 1, 2108, '', '', '', NULL, 0, b'1', b'1', b'1', '1', '2023-01-13 23:15:30', '1', '2024-05-11 02:22:12', b'1');
+INSERT INTO `system_menu` VALUES (2110, '修改草稿', 'mp:draft:update', 3, 2, 2108, '', '', '', NULL, 0, b'1', b'1', b'1', '1', '2023-01-14 10:08:47', '1', '2024-05-11 02:22:12', b'1');
+INSERT INTO `system_menu` VALUES (2111, '查询草稿', 'mp:draft:query', 3, 0, 2108, '', '', '', NULL, 0, b'1', b'1', b'1', '1', '2023-01-14 10:09:01', '1', '2024-05-11 02:22:12', b'1');
+INSERT INTO `system_menu` VALUES (2112, '删除草稿', 'mp:draft:delete', 3, 3, 2108, '', '', '', NULL, 0, b'1', b'1', b'1', '1', '2023-01-14 10:09:19', '1', '2024-05-11 02:22:12', b'1');
+INSERT INTO `system_menu` VALUES (2113, '素材管理', '', 2, 8, 2084, 'material', 'ep:basketball', 'mp/material/index', 'MpMaterial', 0, b'1', b'1', b'1', '1', '2023-01-14 14:12:07', '1', '2024-05-11 02:22:12', b'1');
+INSERT INTO `system_menu` VALUES (2114, '上传临时素材', 'mp:material:upload-temporary', 3, 1, 2113, '', '', '', NULL, 0, b'1', b'1', b'1', '1', '2023-01-14 15:33:55', '1', '2024-05-11 02:22:12', b'1');
+INSERT INTO `system_menu` VALUES (2115, '上传永久素材', 'mp:material:upload-permanent', 3, 2, 2113, '', '', '', NULL, 0, b'1', b'1', b'1', '1', '2023-01-14 15:34:14', '1', '2024-05-11 02:22:12', b'1');
+INSERT INTO `system_menu` VALUES (2116, '删除素材', 'mp:material:delete', 3, 3, 2113, '', '', '', NULL, 0, b'1', b'1', b'1', '1', '2023-01-14 15:35:37', '1', '2024-05-11 02:22:12', b'1');
+INSERT INTO `system_menu` VALUES (2117, '上传图文图片', 'mp:material:upload-news-image', 3, 4, 2113, '', '', '', NULL, 0, b'1', b'1', b'1', '1', '2023-01-14 15:36:31', '1', '2024-05-11 02:22:12', b'1');
+INSERT INTO `system_menu` VALUES (2118, '查询素材', 'mp:material:query', 3, 5, 2113, '', '', '', NULL, 0, b'1', b'1', b'1', '1', '2023-01-14 15:39:22', '1', '2024-05-11 02:22:12', b'1');
+INSERT INTO `system_menu` VALUES (2119, '菜单管理', '', 2, 6, 2084, 'menu', 'ep:menu', 'mp/menu/index', 'MpMenu', 0, b'1', b'1', b'1', '1', '2023-01-14 17:43:54', '1', '2024-05-11 02:22:12', b'1');
+INSERT INTO `system_menu` VALUES (2120, '自动回复', '', 2, 7, 2084, 'auto-reply', 'fa-solid:republican', 'mp/autoReply/index', 'MpAutoReply', 0, b'1', b'1', b'1', '1', '2023-01-15 22:13:09', '1', '2024-05-11 02:22:12', b'1');
+INSERT INTO `system_menu` VALUES (2121, '查询回复', 'mp:auto-reply:query', 3, 0, 2120, '', '', '', NULL, 0, b'1', b'1', b'1', '1', '2023-01-16 22:28:41', '1', '2024-05-11 02:22:12', b'1');
+INSERT INTO `system_menu` VALUES (2122, '新增回复', 'mp:auto-reply:create', 3, 1, 2120, '', '', '', NULL, 0, b'1', b'1', b'1', '1', '2023-01-16 22:28:54', '1', '2024-05-11 02:22:12', b'1');
+INSERT INTO `system_menu` VALUES (2123, '修改回复', 'mp:auto-reply:update', 3, 2, 2120, '', '', '', NULL, 0, b'1', b'1', b'1', '1', '2023-01-16 22:29:05', '1', '2024-05-11 02:22:12', b'1');
+INSERT INTO `system_menu` VALUES (2124, '删除回复', 'mp:auto-reply:delete', 3, 3, 2120, '', '', '', NULL, 0, b'1', b'1', b'1', '1', '2023-01-16 22:29:34', '1', '2024-05-11 02:22:12', b'1');
+INSERT INTO `system_menu` VALUES (2125, '查询菜单', 'mp:menu:query', 3, 0, 2119, '', '', '', NULL, 0, b'1', b'1', b'1', '1', '2023-01-17 23:05:41', '1', '2024-05-11 02:22:12', b'1');
+INSERT INTO `system_menu` VALUES (2126, '保存菜单', 'mp:menu:save', 3, 1, 2119, '', '', '', NULL, 0, b'1', b'1', b'1', '1', '2023-01-17 23:06:01', '1', '2024-05-11 02:22:12', b'1');
+INSERT INTO `system_menu` VALUES (2127, '删除菜单', 'mp:menu:delete', 3, 2, 2119, '', '', '', NULL, 0, b'1', b'1', b'1', '1', '2023-01-17 23:06:16', '1', '2024-05-11 02:22:12', b'1');
+INSERT INTO `system_menu` VALUES (2128, '查询消息', 'mp:message:query', 3, 0, 2103, '', '', '', NULL, 0, b'1', b'1', b'1', '1', '2023-01-17 23:07:14', '1', '2024-05-11 02:22:12', b'1');
+INSERT INTO `system_menu` VALUES (2129, '发送消息', 'mp:message:send', 3, 1, 2103, '', '', '', NULL, 0, b'1', b'1', b'1', '1', '2023-01-17 23:07:26', '1', '2024-05-11 02:22:12', b'1');
+INSERT INTO `system_menu` VALUES (2130, '邮箱管理', '', 2, 2, 2739, 'mail', 'fa-solid:mail-bulk', NULL, NULL, 0, b'1', b'1', b'1', '1', '2023-01-25 17:27:44', '1', '2024-04-22 23:56:08', b'0');
+INSERT INTO `system_menu` VALUES (2131, '邮箱账号', '', 2, 0, 2130, 'mail-account', 'fa:universal-access', 'system/mail/account/index', 'SystemMailAccount', 0, b'1', b'1', b'1', '', '2023-01-25 09:33:48', '1', '2024-02-29 08:48:16', b'0');
+INSERT INTO `system_menu` VALUES (2132, '账号查询', 'system:mail-account:query', 3, 1, 2131, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-01-25 09:33:48', '', '2023-01-25 09:33:48', b'0');
+INSERT INTO `system_menu` VALUES (2133, '账号创建', 'system:mail-account:create', 3, 2, 2131, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-01-25 09:33:48', '', '2023-01-25 09:33:48', b'0');
+INSERT INTO `system_menu` VALUES (2134, '账号更新', 'system:mail-account:update', 3, 3, 2131, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-01-25 09:33:48', '', '2023-01-25 09:33:48', b'0');
+INSERT INTO `system_menu` VALUES (2135, '账号删除', 'system:mail-account:delete', 3, 4, 2131, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-01-25 09:33:48', '', '2023-01-25 09:33:48', b'0');
+INSERT INTO `system_menu` VALUES (2136, '邮件模版', '', 2, 0, 2130, 'mail-template', 'fa:tag', 'system/mail/template/index', 'SystemMailTemplate', 0, b'1', b'1', b'1', '', '2023-01-25 12:05:31', '1', '2024-02-29 08:48:41', b'0');
+INSERT INTO `system_menu` VALUES (2137, '模版查询', 'system:mail-template:query', 3, 1, 2136, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-01-25 12:05:31', '', '2023-01-25 12:05:31', b'0');
+INSERT INTO `system_menu` VALUES (2138, '模版创建', 'system:mail-template:create', 3, 2, 2136, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-01-25 12:05:31', '', '2023-01-25 12:05:31', b'0');
+INSERT INTO `system_menu` VALUES (2139, '模版更新', 'system:mail-template:update', 3, 3, 2136, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-01-25 12:05:31', '', '2023-01-25 12:05:31', b'0');
+INSERT INTO `system_menu` VALUES (2140, '模版删除', 'system:mail-template:delete', 3, 4, 2136, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-01-25 12:05:31', '', '2023-01-25 12:05:31', b'0');
+INSERT INTO `system_menu` VALUES (2141, '邮件记录', '', 2, 0, 2130, 'mail-log', 'fa:edit', 'system/mail/log/index', 'SystemMailLog', 0, b'1', b'1', b'1', '', '2023-01-26 02:16:50', '1', '2024-02-29 08:48:51', b'0');
+INSERT INTO `system_menu` VALUES (2142, '日志查询', 'system:mail-log:query', 3, 1, 2141, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-01-26 02:16:50', '', '2023-01-26 02:16:50', b'0');
+INSERT INTO `system_menu` VALUES (2143, '发送测试邮件', 'system:mail-template:send-mail', 3, 5, 2136, '', '', '', NULL, 0, b'1', b'1', b'1', '1', '2023-01-26 23:29:15', '1', '2023-01-26 23:29:15', b'0');
+INSERT INTO `system_menu` VALUES (2144, '站内信管理', '', 1, 3, 2739, 'notify', 'ep:message-box', NULL, NULL, 0, b'1', b'1', b'1', '1', '2023-01-28 10:25:18', '1', '2024-04-22 23:56:12', b'0');
+INSERT INTO `system_menu` VALUES (2145, '模板管理', '', 2, 0, 2144, 'notify-template', 'fa:archive', 'system/notify/template/index', 'SystemNotifyTemplate', 0, b'1', b'1', b'1', '', '2023-01-28 02:26:42', '1', '2024-02-29 08:49:14', b'0');
+INSERT INTO `system_menu` VALUES (2146, '站内信模板查询', 'system:notify-template:query', 3, 1, 2145, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-01-28 02:26:42', '', '2023-01-28 02:26:42', b'0');
+INSERT INTO `system_menu` VALUES (2147, '站内信模板创建', 'system:notify-template:create', 3, 2, 2145, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-01-28 02:26:42', '', '2023-01-28 02:26:42', b'0');
+INSERT INTO `system_menu` VALUES (2148, '站内信模板更新', 'system:notify-template:update', 3, 3, 2145, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-01-28 02:26:42', '', '2023-01-28 02:26:42', b'0');
+INSERT INTO `system_menu` VALUES (2149, '站内信模板删除', 'system:notify-template:delete', 3, 4, 2145, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-01-28 02:26:42', '', '2023-01-28 02:26:42', b'0');
+INSERT INTO `system_menu` VALUES (2150, '发送测试站内信', 'system:notify-template:send-notify', 3, 5, 2145, '', '', '', NULL, 0, b'1', b'1', b'1', '1', '2023-01-28 10:54:43', '1', '2023-01-28 10:54:43', b'0');
+INSERT INTO `system_menu` VALUES (2151, '消息记录', '', 2, 0, 2144, 'notify-message', 'fa:edit', 'system/notify/message/index', 'SystemNotifyMessage', 0, b'1', b'1', b'1', '', '2023-01-28 04:28:22', '1', '2024-02-29 08:49:22', b'0');
+INSERT INTO `system_menu` VALUES (2152, '站内信消息查询', 'system:notify-message:query', 3, 1, 2151, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-01-28 04:28:22', '', '2023-01-28 04:28:22', b'0');
+INSERT INTO `system_menu` VALUES (2153, '大屏设计器', '', 2, 2, 1281, 'go-view', 'fa:area-chart', 'report/goview/index', 'JimuReport', 0, b'1', b'1', b'1', '1', '2023-02-07 00:03:19', '1', '2024-05-11 02:21:39', b'1');
+INSERT INTO `system_menu` VALUES (2154, '创建项目', 'report:go-view-project:create', 3, 1, 2153, '', '', '', NULL, 0, b'1', b'1', b'1', '1', '2023-02-07 19:25:14', '1', '2024-05-11 02:21:39', b'1');
+INSERT INTO `system_menu` VALUES (2155, '更新项目', 'report:go-view-project:update', 3, 2, 2153, '', '', '', '', 0, b'1', b'1', b'1', '1', '2023-02-07 19:25:34', '1', '2024-05-11 02:21:39', b'1');
+INSERT INTO `system_menu` VALUES (2156, '查询项目', 'report:go-view-project:query', 3, 0, 2153, '', '', '', NULL, 0, b'1', b'1', b'1', '1', '2023-02-07 19:25:53', '1', '2024-05-11 02:21:39', b'1');
+INSERT INTO `system_menu` VALUES (2157, '使用 SQL 查询数据', 'report:go-view-data:get-by-sql', 3, 3, 2153, '', '', '', NULL, 0, b'1', b'1', b'1', '1', '2023-02-07 19:26:15', '1', '2024-05-11 02:21:39', b'1');
+INSERT INTO `system_menu` VALUES (2158, '使用 HTTP 查询数据', 'report:go-view-data:get-by-http', 3, 4, 2153, '', '', '', NULL, 0, b'1', b'1', b'1', '1', '2023-02-07 19:26:35', '1', '2024-05-11 02:21:39', b'1');
+INSERT INTO `system_menu` VALUES (2159, 'Boot 开发文档', '', 1, 1, 0, 'https://doc.iocoder.cn/', 'ep:document', NULL, NULL, 0, b'1', b'1', b'1', '1', '2023-02-10 22:46:28', '1', '2024-05-11 02:12:56', b'1');
+INSERT INTO `system_menu` VALUES (2160, 'Cloud 开发文档', '', 1, 2, 0, 'https://cloud.iocoder.cn', 'ep:document-copy', NULL, NULL, 0, b'1', b'1', b'1', '1', '2023-02-10 22:47:07', '1', '2024-05-11 02:13:00', b'1');
+INSERT INTO `system_menu` VALUES (2161, '接入示例', '', 1, 99, 1117, 'demo', 'fa-solid:dragon', 'pay/demo/index', NULL, 0, b'1', b'1', b'1', '', '2023-02-11 14:21:42', '1', '2024-05-11 02:21:13', b'1');
+INSERT INTO `system_menu` VALUES (2162, '商品导出', 'product:spu:export', 3, 5, 2014, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2022-07-30 14:22:58', '', '2024-05-11 02:22:00', b'1');
+INSERT INTO `system_menu` VALUES (2164, '配送管理', '', 1, 3, 2072, 'delivery', 'ep:shopping-cart', '', '', 0, b'1', b'1', b'1', '1', '2023-05-18 09:18:02', '1', '2024-05-11 02:22:00', b'1');
+INSERT INTO `system_menu` VALUES (2165, '快递发货', '', 1, 0, 2164, 'express', 'ep:bicycle', '', '', 0, b'1', b'1', b'1', '1', '2023-05-18 09:22:06', '1', '2024-05-11 02:22:00', b'1');
+INSERT INTO `system_menu` VALUES (2166, '门店自提', '', 1, 1, 2164, 'pick-up-store', 'ep:add-location', '', '', 0, b'1', b'1', b'1', '1', '2023-05-18 09:23:14', '1', '2024-05-11 02:22:00', b'1');
+INSERT INTO `system_menu` VALUES (2167, '快递公司', '', 2, 0, 2165, 'express', 'ep:compass', 'mall/trade/delivery/express/index', 'Express', 0, b'1', b'1', b'1', '1', '2023-05-18 09:27:21', '1', '2024-05-11 02:27:12', b'1');
+INSERT INTO `system_menu` VALUES (2168, '快递公司查询', 'trade:delivery:express:query', 3, 1, 2167, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-05-18 09:37:53', '', '2024-05-11 02:24:37', b'1');
+INSERT INTO `system_menu` VALUES (2169, '快递公司创建', 'trade:delivery:express:create', 3, 2, 2167, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-05-18 09:37:53', '', '2024-05-11 02:24:37', b'1');
+INSERT INTO `system_menu` VALUES (2170, '快递公司更新', 'trade:delivery:express:update', 3, 3, 2167, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-05-18 09:37:53', '', '2024-05-11 02:24:37', b'1');
+INSERT INTO `system_menu` VALUES (2171, '快递公司删除', 'trade:delivery:express:delete', 3, 4, 2167, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-05-18 09:37:53', '', '2024-05-11 02:24:37', b'1');
+INSERT INTO `system_menu` VALUES (2172, '快递公司导出', 'trade:delivery:express:export', 3, 5, 2167, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-05-18 09:37:53', '', '2024-05-11 02:24:37', b'1');
+INSERT INTO `system_menu` VALUES (2173, '运费模版', 'trade:delivery:express-template:query', 2, 1, 2165, 'express-template', 'ep:coordinate', 'mall/trade/delivery/expressTemplate/index', 'ExpressTemplate', 0, b'1', b'1', b'1', '1', '2023-05-20 06:48:10', '1', '2024-05-11 02:28:36', b'1');
+INSERT INTO `system_menu` VALUES (2174, '快递运费模板查询', 'trade:delivery:express-template:query', 3, 1, 2173, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-05-20 06:49:53', '', '2024-05-11 02:25:05', b'1');
+INSERT INTO `system_menu` VALUES (2175, '快递运费模板创建', 'trade:delivery:express-template:create', 3, 2, 2173, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-05-20 06:49:53', '', '2024-05-11 02:25:05', b'1');
+INSERT INTO `system_menu` VALUES (2176, '快递运费模板更新', 'trade:delivery:express-template:update', 3, 3, 2173, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-05-20 06:49:53', '', '2024-05-11 02:25:05', b'1');
+INSERT INTO `system_menu` VALUES (2177, '快递运费模板删除', 'trade:delivery:express-template:delete', 3, 4, 2173, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-05-20 06:49:53', '', '2024-05-11 02:25:05', b'1');
+INSERT INTO `system_menu` VALUES (2178, '快递运费模板导出', 'trade:delivery:express-template:export', 3, 5, 2173, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-05-20 06:49:53', '', '2024-05-11 02:25:05', b'1');
+INSERT INTO `system_menu` VALUES (2179, '门店管理', '', 2, 1, 2166, 'pick-up-store', 'ep:basketball', 'mall/trade/delivery/pickUpStore/index', 'PickUpStore', 0, b'1', b'1', b'1', '1', '2023-05-25 10:50:00', '1', '2024-05-11 02:28:36', b'1');
+INSERT INTO `system_menu` VALUES (2180, '自提门店查询', 'trade:delivery:pick-up-store:query', 3, 1, 2179, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-05-25 10:53:29', '', '2024-05-11 02:25:52', b'1');
+INSERT INTO `system_menu` VALUES (2181, '自提门店创建', 'trade:delivery:pick-up-store:create', 3, 2, 2179, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-05-25 10:53:29', '', '2024-05-11 02:25:52', b'1');
+INSERT INTO `system_menu` VALUES (2182, '自提门店更新', 'trade:delivery:pick-up-store:update', 3, 3, 2179, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-05-25 10:53:29', '', '2024-05-11 02:25:52', b'1');
+INSERT INTO `system_menu` VALUES (2183, '自提门店删除', 'trade:delivery:pick-up-store:delete', 3, 4, 2179, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-05-25 10:53:29', '', '2024-05-11 02:25:52', b'1');
+INSERT INTO `system_menu` VALUES (2184, '自提门店导出', 'trade:delivery:pick-up-store:export', 3, 5, 2179, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-05-25 10:53:29', '', '2024-05-11 02:25:52', b'1');
+INSERT INTO `system_menu` VALUES (2209, '秒杀活动', '', 2, 3, 2030, 'seckill', 'ep:place', '', '', 0, b'1', b'1', b'1', '1', '2023-06-24 17:39:13', '1', '2024-05-11 02:22:00', b'1');
+INSERT INTO `system_menu` VALUES (2262, '会员中心', '', 1, 55, 0, '/member', 'ep:bicycle', NULL, NULL, 0, b'1', b'1', b'1', '1', '2023-06-10 00:42:03', '1', '2024-05-11 02:29:16', b'0');
+INSERT INTO `system_menu` VALUES (2275, '会员配置', '', 2, 0, 2262, 'config', 'fa:archive', 'member/config/index', 'MemberConfig', 0, b'1', b'1', b'1', '', '2023-06-10 02:07:44', '1', '2023-10-01 23:41:29', b'0');
+INSERT INTO `system_menu` VALUES (2276, '会员配置查询', 'member:config:query', 3, 1, 2275, '', '', '', '', 0, b'1', b'1', b'1', '', '2023-06-10 02:07:44', '1', '2024-04-24 19:48:58', b'0');
+INSERT INTO `system_menu` VALUES (2277, '会员配置保存', 'member:config:save', 3, 2, 2275, '', '', '', '', 0, b'1', b'1', b'1', '', '2023-06-10 02:07:44', '1', '2024-04-24 19:49:28', b'0');
+INSERT INTO `system_menu` VALUES (2281, '签到配置', '', 2, 2, 2300, 'config', 'ep:calendar', 'member/signin/config/index', 'SignInConfig', 0, b'1', b'1', b'1', '', '2023-06-10 03:26:12', '1', '2023-08-20 19:25:51', b'0');
+INSERT INTO `system_menu` VALUES (2282, '积分签到规则查询', 'point:sign-in-config:query', 3, 1, 2281, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-06-10 03:26:12', '', '2023-06-10 03:26:12', b'0');
+INSERT INTO `system_menu` VALUES (2283, '积分签到规则创建', 'point:sign-in-config:create', 3, 2, 2281, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-06-10 03:26:12', '', '2023-06-10 03:26:12', b'0');
+INSERT INTO `system_menu` VALUES (2284, '积分签到规则更新', 'point:sign-in-config:update', 3, 3, 2281, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-06-10 03:26:12', '', '2023-06-10 03:26:12', b'0');
+INSERT INTO `system_menu` VALUES (2285, '积分签到规则删除', 'point:sign-in-config:delete', 3, 4, 2281, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-06-10 03:26:12', '', '2023-06-10 03:26:12', b'0');
+INSERT INTO `system_menu` VALUES (2287, '会员积分', '', 2, 10, 2262, 'record', 'fa:asterisk', 'member/point/record/index', 'PointRecord', 0, b'1', b'1', b'1', '', '2023-06-10 04:18:50', '1', '2023-10-01 23:42:11', b'0');
+INSERT INTO `system_menu` VALUES (2288, '用户积分记录查询', 'point:record:query', 3, 1, 2287, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-06-10 04:18:50', '', '2023-06-10 04:18:50', b'0');
+INSERT INTO `system_menu` VALUES (2293, '签到记录', '', 2, 3, 2300, 'record', 'ep:chicken', 'member/signin/record/index', 'SignInRecord', 0, b'1', b'1', b'1', '', '2023-06-10 04:48:22', '1', '2023-08-20 19:26:02', b'0');
+INSERT INTO `system_menu` VALUES (2294, '用户签到积分查询', 'point:sign-in-record:query', 3, 1, 2293, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-06-10 04:48:22', '', '2023-06-10 04:48:22', b'0');
+INSERT INTO `system_menu` VALUES (2297, '用户签到积分删除', 'point:sign-in-record:delete', 3, 4, 2293, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-06-10 04:48:22', '', '2023-06-10 04:48:22', b'0');
+INSERT INTO `system_menu` VALUES (2300, '会员签到', '', 1, 11, 2262, 'signin', 'ep:alarm-clock', '', '', 0, b'1', b'1', b'1', '1', '2023-06-27 22:49:53', '1', '2023-08-20 09:23:48', b'0');
+INSERT INTO `system_menu` VALUES (2301, '回调通知', '', 2, 5, 1117, 'notify', 'ep:mute-notification', 'pay/notify/index', 'PayNotify', 0, b'1', b'1', b'1', '', '2023-07-20 04:41:32', '1', '2024-05-11 02:21:13', b'1');
+INSERT INTO `system_menu` VALUES (2302, '支付通知查询', 'pay:notify:query', 3, 1, 2301, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-07-20 04:41:32', '', '2024-05-11 02:21:13', b'1');
+INSERT INTO `system_menu` VALUES (2303, '拼团活动', '', 2, 3, 2030, 'combination', 'fa:group', '', '', 0, b'1', b'1', b'1', '1', '2023-08-12 17:19:54', '1', '2024-05-11 02:22:00', b'1');
+INSERT INTO `system_menu` VALUES (2304, '拼团商品', '', 2, 1, 2303, 'acitivity', 'ep:apple', 'mall/promotion/combination/activity/index', 'PromotionCombinationActivity', 0, b'1', b'1', b'1', '1', '2023-08-12 17:22:03', '1', '2024-05-11 02:22:00', b'1');
+INSERT INTO `system_menu` VALUES (2305, '拼团活动查询', 'promotion:combination-activity:query', 3, 1, 2304, '', '', '', '', 0, b'1', b'1', b'1', '1', '2023-08-12 17:54:32', '1', '2024-05-11 02:28:36', b'1');
+INSERT INTO `system_menu` VALUES (2306, '拼团活动创建', 'promotion:combination-activity:create', 3, 2, 2304, '', '', '', '', 0, b'1', b'1', b'1', '1', '2023-08-12 17:54:49', '1', '2024-05-11 02:28:36', b'1');
+INSERT INTO `system_menu` VALUES (2307, '拼团活动更新', 'promotion:combination-activity:update', 3, 3, 2304, '', '', '', '', 0, b'1', b'1', b'1', '1', '2023-08-12 17:55:04', '1', '2024-05-11 02:28:36', b'1');
+INSERT INTO `system_menu` VALUES (2308, '拼团活动删除', 'promotion:combination-activity:delete', 3, 4, 2304, '', '', '', '', 0, b'1', b'1', b'1', '1', '2023-08-12 17:55:23', '1', '2024-05-11 02:28:36', b'1');
+INSERT INTO `system_menu` VALUES (2309, '拼团活动关闭', 'promotion:combination-activity:close', 3, 5, 2304, '', '', '', '', 0, b'1', b'1', b'1', '1', '2023-08-12 17:55:37', '1', '2024-05-11 02:28:36', b'1');
+INSERT INTO `system_menu` VALUES (2310, '砍价活动', '', 2, 4, 2030, 'bargain', 'ep:box', '', '', 0, b'1', b'1', b'1', '1', '2023-08-13 00:27:25', '1', '2024-05-11 02:22:00', b'1');
+INSERT INTO `system_menu` VALUES (2311, '砍价商品', '', 2, 1, 2310, 'activity', 'ep:burger', 'mall/promotion/bargain/activity/index', 'PromotionBargainActivity', 0, b'1', b'1', b'1', '1', '2023-08-13 00:28:49', '1', '2024-05-11 02:22:00', b'1');
+INSERT INTO `system_menu` VALUES (2312, '砍价活动查询', 'promotion:bargain-activity:query', 3, 1, 2311, '', '', '', '', 0, b'1', b'1', b'1', '1', '2023-08-13 00:32:30', '1', '2024-05-11 02:28:36', b'1');
+INSERT INTO `system_menu` VALUES (2313, '砍价活动创建', 'promotion:bargain-activity:create', 3, 2, 2311, '', '', '', '', 0, b'1', b'1', b'1', '1', '2023-08-13 00:32:44', '1', '2024-05-11 02:28:36', b'1');
+INSERT INTO `system_menu` VALUES (2314, '砍价活动更新', 'promotion:bargain-activity:update', 3, 3, 2311, '', '', '', '', 0, b'1', b'1', b'1', '1', '2023-08-13 00:32:55', '1', '2024-05-11 02:28:36', b'1');
+INSERT INTO `system_menu` VALUES (2315, '砍价活动删除', 'promotion:bargain-activity:delete', 3, 4, 2311, '', '', '', '', 0, b'1', b'1', b'1', '1', '2023-08-13 00:34:50', '1', '2024-05-11 02:28:36', b'1');
+INSERT INTO `system_menu` VALUES (2316, '砍价活动关闭', 'promotion:bargain-activity:close', 3, 5, 2311, '', '', '', '', 0, b'1', b'1', b'1', '1', '2023-08-13 00:35:02', '1', '2024-05-11 02:28:36', b'1');
+INSERT INTO `system_menu` VALUES (2317, '会员管理', '', 2, 0, 2262, 'user', 'ep:avatar', 'member/user/index', 'MemberUser', 0, b'1', b'1', b'1', '', '2023-08-19 04:12:15', '1', '2023-08-24 00:50:55', b'0');
+INSERT INTO `system_menu` VALUES (2318, '会员用户查询', 'member:user:query', 3, 1, 2317, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-08-19 04:12:15', '', '2023-08-19 04:12:15', b'0');
+INSERT INTO `system_menu` VALUES (2319, '会员用户更新', 'member:user:update', 3, 3, 2317, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-08-19 04:12:15', '', '2023-08-19 04:12:15', b'0');
+INSERT INTO `system_menu` VALUES (2320, '会员标签', '', 2, 1, 2262, 'tag', 'ep:collection-tag', 'member/tag/index', 'MemberTag', 0, b'1', b'1', b'1', '', '2023-08-20 01:03:08', '1', '2023-08-20 09:23:19', b'0');
+INSERT INTO `system_menu` VALUES (2321, '会员标签查询', 'member:tag:query', 3, 1, 2320, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-08-20 01:03:08', '', '2023-08-20 01:03:08', b'0');
+INSERT INTO `system_menu` VALUES (2322, '会员标签创建', 'member:tag:create', 3, 2, 2320, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-08-20 01:03:08', '', '2023-08-20 01:03:08', b'0');
+INSERT INTO `system_menu` VALUES (2323, '会员标签更新', 'member:tag:update', 3, 3, 2320, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-08-20 01:03:08', '', '2023-08-20 01:03:08', b'0');
+INSERT INTO `system_menu` VALUES (2324, '会员标签删除', 'member:tag:delete', 3, 4, 2320, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-08-20 01:03:08', '', '2023-08-20 01:03:08', b'0');
+INSERT INTO `system_menu` VALUES (2325, '会员等级', '', 2, 2, 2262, 'level', 'fa:level-up', 'member/level/index', 'MemberLevel', 0, b'1', b'1', b'1', '', '2023-08-22 12:41:01', '1', '2023-08-22 21:47:00', b'0');
+INSERT INTO `system_menu` VALUES (2326, '会员等级查询', 'member:level:query', 3, 1, 2325, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-08-22 12:41:02', '', '2023-08-22 12:41:02', b'0');
+INSERT INTO `system_menu` VALUES (2327, '会员等级创建', 'member:level:create', 3, 2, 2325, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-08-22 12:41:02', '', '2023-08-22 12:41:02', b'0');
+INSERT INTO `system_menu` VALUES (2328, '会员等级更新', 'member:level:update', 3, 3, 2325, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-08-22 12:41:02', '', '2023-08-22 12:41:02', b'0');
+INSERT INTO `system_menu` VALUES (2329, '会员等级删除', 'member:level:delete', 3, 4, 2325, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-08-22 12:41:02', '', '2023-08-22 12:41:02', b'0');
+INSERT INTO `system_menu` VALUES (2330, '会员分组', '', 2, 3, 2262, 'group', 'fa:group', 'member/group/index', 'MemberGroup', 0, b'1', b'1', b'1', '', '2023-08-22 13:50:06', '1', '2023-10-01 23:42:01', b'0');
+INSERT INTO `system_menu` VALUES (2331, '用户分组查询', 'member:group:query', 3, 1, 2330, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-08-22 13:50:06', '', '2023-08-22 13:50:06', b'0');
+INSERT INTO `system_menu` VALUES (2332, '用户分组创建', 'member:group:create', 3, 2, 2330, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-08-22 13:50:06', '', '2023-08-22 13:50:06', b'0');
+INSERT INTO `system_menu` VALUES (2333, '用户分组更新', 'member:group:update', 3, 3, 2330, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-08-22 13:50:06', '', '2023-08-22 13:50:06', b'0');
+INSERT INTO `system_menu` VALUES (2334, '用户分组删除', 'member:group:delete', 3, 4, 2330, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-08-22 13:50:06', '', '2023-08-22 13:50:06', b'0');
+INSERT INTO `system_menu` VALUES (2335, '用户等级修改', 'member:user:update-level', 3, 5, 2317, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-08-23 16:49:05', '', '2023-08-23 16:50:48', b'0');
+INSERT INTO `system_menu` VALUES (2336, '商品评论', '', 2, 5, 2000, 'comment', 'ep:comment', 'mall/product/comment/index', 'ProductComment', 0, b'1', b'1', b'1', '1', '2023-08-26 11:03:00', '1', '2024-05-11 02:22:00', b'1');
+INSERT INTO `system_menu` VALUES (2337, '评论查询', 'product:comment:query', 3, 1, 2336, '', '', '', '', 0, b'1', b'1', b'1', '1', '2023-08-26 11:04:01', '1', '2024-05-11 02:22:00', b'1');
+INSERT INTO `system_menu` VALUES (2338, '添加自评', 'product:comment:create', 3, 2, 2336, '', '', '', '', 0, b'1', b'1', b'1', '1', '2023-08-26 11:04:23', '1', '2024-05-11 02:22:00', b'1');
+INSERT INTO `system_menu` VALUES (2339, '商家回复', 'product:comment:update', 3, 3, 2336, '', '', '', '', 0, b'1', b'1', b'1', '1', '2023-08-26 11:04:37', '1', '2024-05-11 02:22:00', b'1');
+INSERT INTO `system_menu` VALUES (2340, '显隐评论', 'product:comment:update', 3, 4, 2336, '', '', '', '', 0, b'1', b'1', b'1', '1', '2023-08-26 11:04:55', '1', '2024-05-11 02:22:00', b'1');
+INSERT INTO `system_menu` VALUES (2341, '优惠劵发送', 'promotion:coupon:send', 3, 2, 2038, '', '', '', '', 0, b'1', b'1', b'1', '1', '2023-09-02 00:03:14', '1', '2024-05-11 02:28:36', b'1');
+INSERT INTO `system_menu` VALUES (2342, '交易配置', '', 2, 0, 2072, 'config', 'ep:setting', 'mall/trade/config/index', 'TradeConfig', 0, b'1', b'1', b'1', '', '2023-09-28 02:46:22', '1', '2024-05-11 02:22:00', b'1');
+INSERT INTO `system_menu` VALUES (2343, '交易中心配置查询', 'trade:config:query', 3, 1, 2342, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-09-28 02:46:22', '', '2024-05-11 02:22:00', b'1');
+INSERT INTO `system_menu` VALUES (2344, '交易中心配置保存', 'trade:config:save', 3, 2, 2342, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-09-28 02:46:22', '', '2024-05-11 02:22:00', b'1');
+INSERT INTO `system_menu` VALUES (2345, '分销管理', '', 1, 4, 2072, 'brokerage', 'fa-solid:project-diagram', '', '', 0, b'1', b'1', b'1', '', '2023-09-28 02:46:22', '1', '2024-05-11 02:22:00', b'1');
+INSERT INTO `system_menu` VALUES (2346, '分销用户', '', 2, 0, 2345, 'brokerage-user', 'fa-solid:user-tie', 'mall/trade/brokerage/user/index', 'TradeBrokerageUser', 0, b'1', b'1', b'1', '', '2023-09-28 02:46:22', '1', '2024-05-11 02:22:00', b'1');
+INSERT INTO `system_menu` VALUES (2347, '分销用户查询', 'trade:brokerage-user:query', 3, 1, 2346, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-09-28 02:46:22', '', '2024-05-11 02:28:36', b'1');
+INSERT INTO `system_menu` VALUES (2348, '分销用户推广人查询', 'trade:brokerage-user:user-query', 3, 2, 2346, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-09-28 02:46:22', '', '2024-05-11 02:28:36', b'1');
+INSERT INTO `system_menu` VALUES (2349, '分销用户推广订单查询', 'trade:brokerage-user:order-query', 3, 3, 2346, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-09-28 02:46:22', '', '2024-05-11 02:28:36', b'1');
+INSERT INTO `system_menu` VALUES (2350, '分销用户修改推广资格', 'trade:brokerage-user:update-brokerage-enable', 3, 4, 2346, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-09-28 02:46:22', '', '2024-05-11 02:28:36', b'1');
+INSERT INTO `system_menu` VALUES (2351, '分销用户修改推广员', 'trade:brokerage-user:update-bind-user', 3, 5, 2346, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-09-28 02:46:22', '', '2024-05-11 02:28:36', b'1');
+INSERT INTO `system_menu` VALUES (2352, '分销用户清除推广员', 'trade:brokerage-user:clear-bind-user', 3, 6, 2346, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-09-28 02:46:22', '', '2024-05-11 02:28:36', b'1');
+INSERT INTO `system_menu` VALUES (2353, '佣金记录', '', 2, 1, 2345, 'brokerage-record', 'fa:money', 'mall/trade/brokerage/record/index', 'TradeBrokerageRecord', 0, b'1', b'1', b'1', '', '2023-09-28 02:46:22', '1', '2024-05-11 02:22:00', b'1');
+INSERT INTO `system_menu` VALUES (2354, '佣金记录查询', 'trade:brokerage-record:query', 3, 1, 2353, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-09-28 02:46:22', '', '2024-05-11 02:28:36', b'1');
+INSERT INTO `system_menu` VALUES (2355, '佣金提现', '', 2, 2, 2345, 'brokerage-withdraw', 'fa:credit-card', 'mall/trade/brokerage/withdraw/index', 'TradeBrokerageWithdraw', 0, b'1', b'1', b'1', '', '2023-09-28 02:46:22', '1', '2024-05-11 02:22:00', b'1');
+INSERT INTO `system_menu` VALUES (2356, '佣金提现查询', 'trade:brokerage-withdraw:query', 3, 1, 2355, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-09-28 02:46:22', '', '2024-05-11 02:28:36', b'1');
+INSERT INTO `system_menu` VALUES (2357, '佣金提现审核', 'trade:brokerage-withdraw:audit', 3, 2, 2355, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-09-28 02:46:22', '', '2024-05-11 02:28:36', b'1');
+INSERT INTO `system_menu` VALUES (2358, '统计中心', '', 1, 75, 2362, 'statistics', 'ep:data-line', '', '', 0, b'1', b'1', b'1', '', '2023-09-30 03:22:40', '1', '2024-05-11 02:22:00', b'1');
+INSERT INTO `system_menu` VALUES (2359, '交易统计', '', 2, 4, 2358, 'trade', 'fa-solid:credit-card', 'mall/statistics/trade/index', 'TradeStatistics', 0, b'1', b'1', b'1', '', '2023-09-30 03:22:40', '1', '2024-05-11 02:22:00', b'1');
+INSERT INTO `system_menu` VALUES (2360, '交易统计查询', 'statistics:trade:query', 3, 1, 2359, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-09-30 03:22:40', '', '2024-05-11 02:22:00', b'1');
+INSERT INTO `system_menu` VALUES (2361, '交易统计导出', 'statistics:trade:export', 3, 2, 2359, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-09-30 03:22:40', '', '2024-05-11 02:22:00', b'1');
+INSERT INTO `system_menu` VALUES (2362, '商城系统', '', 1, 59, 0, '/mall', 'ep:shop', '', '', 0, b'1', b'1', b'1', '1', '2023-09-30 11:52:02', '1', '2024-05-11 02:23:22', b'1');
+INSERT INTO `system_menu` VALUES (2363, '用户积分修改', 'member:user:update-point', 3, 6, 2317, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-10-01 14:39:43', '', '2023-10-01 14:39:43', b'0');
+INSERT INTO `system_menu` VALUES (2364, '用户余额修改', 'member:user:update-balance', 3, 7, 2317, '', '', '', '', 0, b'1', b'1', b'1', '', '2023-10-01 14:39:43', '1', '2023-10-01 22:42:31', b'0');
+INSERT INTO `system_menu` VALUES (2365, '优惠劵', '', 1, 2, 2030, 'coupon', 'fa-solid:disease', '', '', 0, b'1', b'1', b'1', '1', '2023-10-03 12:39:15', '1', '2024-05-11 02:22:00', b'1');
+INSERT INTO `system_menu` VALUES (2366, '砍价记录', '', 2, 2, 2310, 'record', 'ep:list', 'mall/promotion/bargain/record/index', 'PromotionBargainRecord', 0, b'1', b'1', b'1', '', '2023-10-05 02:49:06', '1', '2024-05-11 02:22:00', b'1');
+INSERT INTO `system_menu` VALUES (2367, '砍价记录查询', 'promotion:bargain-record:query', 3, 1, 2366, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-10-05 02:49:06', '', '2024-05-11 02:28:36', b'1');
+INSERT INTO `system_menu` VALUES (2368, '助力记录查询', 'promotion:bargain-help:query', 3, 2, 2366, '', '', '', '', 0, b'1', b'1', b'1', '1', '2023-10-05 12:27:49', '1', '2024-05-11 02:28:36', b'1');
+INSERT INTO `system_menu` VALUES (2369, '拼团记录', 'promotion:combination-record:query', 2, 2, 2303, 'record', 'ep:avatar', 'mall/promotion/combination/record/index.vue', 'PromotionCombinationRecord', 0, b'1', b'1', b'1', '1', '2023-10-08 07:10:22', '1', '2024-05-11 02:22:00', b'1');
+INSERT INTO `system_menu` VALUES (2374, '会员统计', '', 2, 2, 2358, 'member', 'ep:avatar', 'mall/statistics/member/index', 'MemberStatistics', 0, b'1', b'1', b'1', '', '2023-10-11 04:39:24', '1', '2024-05-11 02:22:00', b'1');
+INSERT INTO `system_menu` VALUES (2375, '会员统计查询', 'statistics:member:query', 3, 1, 2374, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-10-11 04:39:24', '', '2024-05-11 02:22:00', b'1');
+INSERT INTO `system_menu` VALUES (2376, '订单核销', 'trade:order:pick-up', 3, 10, 2076, '', '', '', '', 0, b'1', b'1', b'1', '1', '2023-10-14 17:11:58', '1', '2024-05-11 02:22:00', b'1');
+INSERT INTO `system_menu` VALUES (2377, '文章分类', '', 2, 0, 2387, 'article/category', 'fa:certificate', 'mall/promotion/article/category/index', 'ArticleCategory', 0, b'1', b'1', b'1', '', '2023-10-16 01:26:18', '1', '2024-05-11 02:22:00', b'1');
+INSERT INTO `system_menu` VALUES (2378, '分类查询', 'promotion:article-category:query', 3, 1, 2377, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-10-16 01:26:18', '', '2024-05-11 02:28:36', b'1');
+INSERT INTO `system_menu` VALUES (2379, '分类创建', 'promotion:article-category:create', 3, 2, 2377, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-10-16 01:26:18', '', '2024-05-11 02:28:36', b'1');
+INSERT INTO `system_menu` VALUES (2380, '分类更新', 'promotion:article-category:update', 3, 3, 2377, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-10-16 01:26:18', '', '2024-05-11 02:28:36', b'1');
+INSERT INTO `system_menu` VALUES (2381, '分类删除', 'promotion:article-category:delete', 3, 4, 2377, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-10-16 01:26:18', '', '2024-05-11 02:28:36', b'1');
+INSERT INTO `system_menu` VALUES (2382, '文章列表', '', 2, 2, 2387, 'article', 'ep:connection', 'mall/promotion/article/index', 'Article', 0, b'1', b'1', b'1', '', '2023-10-16 01:26:18', '1', '2024-05-11 02:22:00', b'1');
+INSERT INTO `system_menu` VALUES (2383, '文章管理查询', 'promotion:article:query', 3, 1, 2382, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-10-16 01:26:18', '', '2024-05-11 02:28:36', b'1');
+INSERT INTO `system_menu` VALUES (2384, '文章管理创建', 'promotion:article:create', 3, 2, 2382, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-10-16 01:26:18', '', '2024-05-11 02:28:36', b'1');
+INSERT INTO `system_menu` VALUES (2385, '文章管理更新', 'promotion:article:update', 3, 3, 2382, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-10-16 01:26:18', '', '2024-05-11 02:28:36', b'1');
+INSERT INTO `system_menu` VALUES (2386, '文章管理删除', 'promotion:article:delete', 3, 4, 2382, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-10-16 01:26:18', '', '2024-05-11 02:28:36', b'1');
+INSERT INTO `system_menu` VALUES (2387, '内容管理', '', 1, 1, 2030, 'content', 'ep:collection', '', '', 0, b'1', b'1', b'1', '1', '2023-10-16 09:37:31', '1', '2024-05-11 02:22:00', b'1');
+INSERT INTO `system_menu` VALUES (2388, '商城首页', '', 2, 1, 2362, 'home', 'ep:home-filled', 'mall/home/index', 'MallHome', 0, b'1', b'1', b'1', '', '2023-10-16 12:10:33', '', '2024-05-11 02:22:00', b'1');
+INSERT INTO `system_menu` VALUES (2389, '核销订单', '', 2, 2, 2166, 'pick-up-order', 'ep:list', 'mall/trade/delivery/pickUpOrder/index', 'PickUpOrder', 0, b'1', b'1', b'1', '', '2023-10-19 16:09:51', '', '2024-05-11 02:28:36', b'1');
+INSERT INTO `system_menu` VALUES (2390, '优惠活动', '', 1, 99, 2030, 'youhui', 'ep:aim', '', '', 0, b'1', b'1', b'1', '1', '2023-10-21 19:23:49', '1', '2024-05-11 02:22:00', b'1');
+INSERT INTO `system_menu` VALUES (2391, '客户管理', '', 2, 10, 2397, 'customer', 'fa:address-book-o', 'crm/customer/index', 'CrmCustomer', 0, b'1', b'1', b'1', '', '2023-10-29 09:04:21', '1', '2024-05-11 02:22:24', b'1');
+INSERT INTO `system_menu` VALUES (2392, '客户查询', 'crm:customer:query', 3, 1, 2391, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-10-29 09:04:21', '', '2024-05-11 02:22:24', b'1');
+INSERT INTO `system_menu` VALUES (2393, '客户创建', 'crm:customer:create', 3, 2, 2391, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-10-29 09:04:21', '', '2024-05-11 02:22:24', b'1');
+INSERT INTO `system_menu` VALUES (2394, '客户更新', 'crm:customer:update', 3, 3, 2391, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-10-29 09:04:21', '', '2024-05-11 02:22:24', b'1');
+INSERT INTO `system_menu` VALUES (2395, '客户删除', 'crm:customer:delete', 3, 4, 2391, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-10-29 09:04:21', '', '2024-05-11 02:22:24', b'1');
+INSERT INTO `system_menu` VALUES (2396, '客户导出', 'crm:customer:export', 3, 5, 2391, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-10-29 09:04:21', '', '2024-05-11 02:22:24', b'1');
+INSERT INTO `system_menu` VALUES (2397, 'CRM 系统', '', 1, 200, 0, '/crm', 'ep:avatar', '', '', 0, b'1', b'1', b'1', '1', '2023-10-29 17:08:30', '1', '2024-05-11 02:23:30', b'1');
+INSERT INTO `system_menu` VALUES (2398, '合同管理', '', 2, 50, 2397, 'contract', 'ep:notebook', 'crm/contract/index', 'CrmContract', 0, b'1', b'1', b'1', '', '2023-10-29 10:50:41', '1', '2024-05-11 02:22:24', b'1');
+INSERT INTO `system_menu` VALUES (2399, '合同查询', 'crm:contract:query', 3, 1, 2398, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-10-29 10:50:41', '', '2024-05-11 02:22:24', b'1');
+INSERT INTO `system_menu` VALUES (2400, '合同创建', 'crm:contract:create', 3, 2, 2398, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-10-29 10:50:41', '', '2024-05-11 02:22:24', b'1');
+INSERT INTO `system_menu` VALUES (2401, '合同更新', 'crm:contract:update', 3, 3, 2398, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-10-29 10:50:41', '', '2024-05-11 02:22:24', b'1');
+INSERT INTO `system_menu` VALUES (2402, '合同删除', 'crm:contract:delete', 3, 4, 2398, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-10-29 10:50:41', '', '2024-05-11 02:22:24', b'1');
+INSERT INTO `system_menu` VALUES (2403, '合同导出', 'crm:contract:export', 3, 5, 2398, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-10-29 10:50:41', '', '2024-05-11 02:22:24', b'1');
+INSERT INTO `system_menu` VALUES (2404, '线索管理', '', 2, 8, 2397, 'clue', 'fa:pagelines', 'crm/clue/index', 'CrmClue', 0, b'1', b'1', b'1', '', '2023-10-29 11:06:29', '1', '2024-05-11 02:22:24', b'1');
+INSERT INTO `system_menu` VALUES (2405, '线索查询', 'crm:clue:query', 3, 1, 2404, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-10-29 11:06:29', '', '2024-05-11 02:22:24', b'1');
+INSERT INTO `system_menu` VALUES (2406, '线索创建', 'crm:clue:create', 3, 2, 2404, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-10-29 11:06:29', '', '2024-05-11 02:22:24', b'1');
+INSERT INTO `system_menu` VALUES (2407, '线索更新', 'crm:clue:update', 3, 3, 2404, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-10-29 11:06:29', '', '2024-05-11 02:22:24', b'1');
+INSERT INTO `system_menu` VALUES (2408, '线索删除', 'crm:clue:delete', 3, 4, 2404, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-10-29 11:06:29', '', '2024-05-11 02:22:24', b'1');
+INSERT INTO `system_menu` VALUES (2409, '线索导出', 'crm:clue:export', 3, 5, 2404, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-10-29 11:06:29', '', '2024-05-11 02:22:24', b'1');
+INSERT INTO `system_menu` VALUES (2410, '商机管理', '', 2, 40, 2397, 'business', 'fa:bus', 'crm/business/index', 'CrmBusiness', 0, b'1', b'1', b'1', '', '2023-10-29 11:12:35', '1', '2024-05-11 02:22:24', b'1');
+INSERT INTO `system_menu` VALUES (2411, '商机查询', 'crm:business:query', 3, 1, 2410, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-10-29 11:12:35', '', '2024-05-11 02:22:24', b'1');
+INSERT INTO `system_menu` VALUES (2412, '商机创建', 'crm:business:create', 3, 2, 2410, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-10-29 11:12:35', '', '2024-05-11 02:22:24', b'1');
+INSERT INTO `system_menu` VALUES (2413, '商机更新', 'crm:business:update', 3, 3, 2410, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-10-29 11:12:35', '', '2024-05-11 02:22:24', b'1');
+INSERT INTO `system_menu` VALUES (2414, '商机删除', 'crm:business:delete', 3, 4, 2410, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-10-29 11:12:35', '', '2024-05-11 02:22:24', b'1');
+INSERT INTO `system_menu` VALUES (2415, '商机导出', 'crm:business:export', 3, 5, 2410, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-10-29 11:12:35', '', '2024-05-11 02:22:24', b'1');
+INSERT INTO `system_menu` VALUES (2416, '联系人管理', '', 2, 20, 2397, 'contact', 'fa:address-book-o', 'crm/contact/index', 'CrmContact', 0, b'1', b'1', b'1', '', '2023-10-29 11:14:56', '1', '2024-05-11 02:22:25', b'1');
+INSERT INTO `system_menu` VALUES (2417, '联系人查询', 'crm:contact:query', 3, 1, 2416, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-10-29 11:14:56', '', '2024-05-11 02:22:25', b'1');
+INSERT INTO `system_menu` VALUES (2418, '联系人创建', 'crm:contact:create', 3, 2, 2416, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-10-29 11:14:56', '', '2024-05-11 02:22:25', b'1');
+INSERT INTO `system_menu` VALUES (2419, '联系人更新', 'crm:contact:update', 3, 3, 2416, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-10-29 11:14:56', '', '2024-05-11 02:22:25', b'1');
+INSERT INTO `system_menu` VALUES (2420, '联系人删除', 'crm:contact:delete', 3, 4, 2416, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-10-29 11:14:56', '', '2024-05-11 02:22:25', b'1');
+INSERT INTO `system_menu` VALUES (2421, '联系人导出', 'crm:contact:export', 3, 5, 2416, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-10-29 11:14:56', '', '2024-05-11 02:22:25', b'1');
+INSERT INTO `system_menu` VALUES (2422, '回款管理', '', 2, 60, 2397, 'receivable', 'ep:money', 'crm/receivable/index', 'CrmReceivable', 0, b'1', b'1', b'1', '', '2023-10-29 11:18:09', '1', '2024-05-11 02:22:25', b'1');
+INSERT INTO `system_menu` VALUES (2423, '回款管理查询', 'crm:receivable:query', 3, 1, 2422, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-10-29 11:18:09', '', '2024-05-11 02:22:25', b'1');
+INSERT INTO `system_menu` VALUES (2424, '回款管理创建', 'crm:receivable:create', 3, 2, 2422, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-10-29 11:18:09', '', '2024-05-11 02:22:25', b'1');
+INSERT INTO `system_menu` VALUES (2425, '回款管理更新', 'crm:receivable:update', 3, 3, 2422, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-10-29 11:18:09', '', '2024-05-11 02:22:25', b'1');
+INSERT INTO `system_menu` VALUES (2426, '回款管理删除', 'crm:receivable:delete', 3, 4, 2422, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-10-29 11:18:09', '', '2024-05-11 02:22:25', b'1');
+INSERT INTO `system_menu` VALUES (2427, '回款管理导出', 'crm:receivable:export', 3, 5, 2422, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-10-29 11:18:09', '', '2024-05-11 02:22:25', b'1');
+INSERT INTO `system_menu` VALUES (2428, '回款计划', '', 2, 61, 2397, 'receivable-plan', 'fa:money', 'crm/receivable/plan/index', 'CrmReceivablePlan', 0, b'1', b'1', b'1', '', '2023-10-29 11:18:09', '1', '2024-05-11 02:22:25', b'1');
+INSERT INTO `system_menu` VALUES (2429, '回款计划查询', 'crm:receivable-plan:query', 3, 1, 2428, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-10-29 11:18:09', '', '2024-05-11 02:22:25', b'1');
+INSERT INTO `system_menu` VALUES (2430, '回款计划创建', 'crm:receivable-plan:create', 3, 2, 2428, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-10-29 11:18:09', '', '2024-05-11 02:22:25', b'1');
+INSERT INTO `system_menu` VALUES (2431, '回款计划更新', 'crm:receivable-plan:update', 3, 3, 2428, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-10-29 11:18:09', '', '2024-05-11 02:22:25', b'1');
+INSERT INTO `system_menu` VALUES (2432, '回款计划删除', 'crm:receivable-plan:delete', 3, 4, 2428, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-10-29 11:18:09', '', '2024-05-11 02:22:25', b'1');
+INSERT INTO `system_menu` VALUES (2433, '回款计划导出', 'crm:receivable-plan:export', 3, 5, 2428, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-10-29 11:18:09', '', '2024-05-11 02:22:25', b'1');
+INSERT INTO `system_menu` VALUES (2435, '商城装修', '', 2, 20, 2030, 'diy-template', 'fa6-solid:brush', 'mall/promotion/diy/template/index', 'DiyTemplate', 0, b'1', b'1', b'1', '', '2023-10-29 14:19:25', '', '2024-05-11 02:22:00', b'1');
+INSERT INTO `system_menu` VALUES (2436, '装修模板', '', 2, 1, 2435, 'diy-template', 'fa6-solid:brush', 'mall/promotion/diy/template/index', 'DiyTemplate', 0, b'1', b'1', b'1', '', '2023-10-29 14:19:25', '', '2024-05-11 02:22:00', b'1');
+INSERT INTO `system_menu` VALUES (2437, '装修模板查询', 'promotion:diy-template:query', 3, 1, 2436, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-10-29 14:19:25', '', '2024-05-11 02:28:36', b'1');
+INSERT INTO `system_menu` VALUES (2438, '装修模板创建', 'promotion:diy-template:create', 3, 2, 2436, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-10-29 14:19:25', '', '2024-05-11 02:28:36', b'1');
+INSERT INTO `system_menu` VALUES (2439, '装修模板更新', 'promotion:diy-template:update', 3, 3, 2436, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-10-29 14:19:25', '', '2024-05-11 02:28:36', b'1');
+INSERT INTO `system_menu` VALUES (2440, '装修模板删除', 'promotion:diy-template:delete', 3, 4, 2436, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-10-29 14:19:25', '', '2024-05-11 02:28:37', b'1');
+INSERT INTO `system_menu` VALUES (2441, '装修模板使用', 'promotion:diy-template:use', 3, 5, 2436, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-10-29 14:19:25', '', '2024-05-11 02:28:37', b'1');
+INSERT INTO `system_menu` VALUES (2442, '装修页面', '', 2, 2, 2435, 'diy-page', 'foundation:page-edit', 'mall/promotion/diy/page/index', 'DiyPage', 0, b'1', b'1', b'1', '', '2023-10-29 14:19:25', '', '2024-05-11 02:22:00', b'1');
+INSERT INTO `system_menu` VALUES (2443, '装修页面查询', 'promotion:diy-page:query', 3, 1, 2442, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-10-29 14:19:25', '', '2024-05-11 02:28:37', b'1');
+INSERT INTO `system_menu` VALUES (2444, '装修页面创建', 'promotion:diy-page:create', 3, 2, 2442, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-10-29 14:19:26', '', '2024-05-11 02:28:37', b'1');
+INSERT INTO `system_menu` VALUES (2445, '装修页面更新', 'promotion:diy-page:update', 3, 3, 2442, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-10-29 14:19:26', '', '2024-05-11 02:28:37', b'1');
+INSERT INTO `system_menu` VALUES (2446, '装修页面删除', 'promotion:diy-page:delete', 3, 4, 2442, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-10-29 14:19:26', '', '2024-05-11 02:28:37', b'1');
+INSERT INTO `system_menu` VALUES (2447, '三方登录', '', 1, 10, 1, 'social', 'fa:rocket', '', '', 0, b'1', b'1', b'1', '1', '2023-11-04 12:12:01', '1', '2024-02-29 01:14:05', b'0');
+INSERT INTO `system_menu` VALUES (2448, '三方应用', '', 2, 1, 2447, 'client', 'ep:set-up', 'views/system/social/client/index.vue', 'SocialClient', 0, b'1', b'1', b'1', '1', '2023-11-04 12:17:19', '1', '2023-11-04 12:17:19', b'0');
+INSERT INTO `system_menu` VALUES (2449, '三方应用查询', 'system:social-client:query', 3, 1, 2448, '', '', '', '', 0, b'1', b'1', b'1', '1', '2023-11-04 12:43:12', '1', '2023-11-04 12:43:33', b'0');
+INSERT INTO `system_menu` VALUES (2450, '三方应用创建', 'system:social-client:create', 3, 2, 2448, '', '', '', '', 0, b'1', b'1', b'1', '1', '2023-11-04 12:43:58', '1', '2023-11-04 12:43:58', b'0');
+INSERT INTO `system_menu` VALUES (2451, '三方应用更新', 'system:social-client:update', 3, 3, 2448, '', '', '', '', 0, b'1', b'1', b'1', '1', '2023-11-04 12:44:27', '1', '2023-11-04 12:44:27', b'0');
+INSERT INTO `system_menu` VALUES (2452, '三方应用删除', 'system:social-client:delete', 3, 4, 2448, '', '', '', '', 0, b'1', b'1', b'1', '1', '2023-11-04 12:44:43', '1', '2023-11-04 12:44:43', b'0');
+INSERT INTO `system_menu` VALUES (2453, '三方用户', 'system:social-user:query', 2, 2, 2447, 'user', 'ep:avatar', 'system/social/user/index.vue', 'SocialUser', 0, b'1', b'1', b'1', '1', '2023-11-04 14:01:05', '1', '2023-11-04 14:01:05', b'0');
+INSERT INTO `system_menu` VALUES (2472, '主子表（内嵌）', '', 2, 12, 1070, 'demo03-inner', 'fa:power-off', 'infra/demo/demo03/inner/index', 'Demo03StudentInner', 0, b'1', b'1', b'1', '', '2023-11-13 04:39:51', '1', '2023-11-16 23:53:46', b'0');
+INSERT INTO `system_menu` VALUES (2478, '单表（增删改查）', '', 2, 1, 1070, 'demo01-contact', 'ep:bicycle', 'infra/demo/demo01/index', 'Demo01Contact', 0, b'1', b'1', b'1', '', '2023-11-15 14:42:30', '1', '2023-11-16 20:34:40', b'0');
+INSERT INTO `system_menu` VALUES (2479, '示例联系人查询', 'infra:demo01-contact:query', 3, 1, 2478, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-11-15 14:42:30', '', '2023-11-15 14:42:30', b'0');
+INSERT INTO `system_menu` VALUES (2480, '示例联系人创建', 'infra:demo01-contact:create', 3, 2, 2478, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-11-15 14:42:30', '', '2023-11-15 14:42:30', b'0');
+INSERT INTO `system_menu` VALUES (2481, '示例联系人更新', 'infra:demo01-contact:update', 3, 3, 2478, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-11-15 14:42:30', '', '2023-11-15 14:42:30', b'0');
+INSERT INTO `system_menu` VALUES (2482, '示例联系人删除', 'infra:demo01-contact:delete', 3, 4, 2478, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-11-15 14:42:30', '', '2023-11-15 14:42:30', b'0');
+INSERT INTO `system_menu` VALUES (2483, '示例联系人导出', 'infra:demo01-contact:export', 3, 5, 2478, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-11-15 14:42:30', '', '2023-11-15 14:42:30', b'0');
+INSERT INTO `system_menu` VALUES (2484, '树表（增删改查）', '', 2, 2, 1070, 'demo02-category', 'fa:tree', 'infra/demo/demo02/index', 'Demo02Category', 0, b'1', b'1', b'1', '', '2023-11-16 12:18:27', '1', '2023-11-16 20:35:01', b'0');
+INSERT INTO `system_menu` VALUES (2485, '示例分类查询', 'infra:demo02-category:query', 3, 1, 2484, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-11-16 12:18:27', '', '2023-11-16 12:18:27', b'0');
+INSERT INTO `system_menu` VALUES (2486, '示例分类创建', 'infra:demo02-category:create', 3, 2, 2484, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-11-16 12:18:27', '', '2023-11-16 12:18:27', b'0');
+INSERT INTO `system_menu` VALUES (2487, '示例分类更新', 'infra:demo02-category:update', 3, 3, 2484, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-11-16 12:18:27', '', '2023-11-16 12:18:27', b'0');
+INSERT INTO `system_menu` VALUES (2488, '示例分类删除', 'infra:demo02-category:delete', 3, 4, 2484, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-11-16 12:18:27', '', '2023-11-16 12:18:27', b'0');
+INSERT INTO `system_menu` VALUES (2489, '示例分类导出', 'infra:demo02-category:export', 3, 5, 2484, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-11-16 12:18:27', '', '2023-11-16 12:18:27', b'0');
+INSERT INTO `system_menu` VALUES (2490, '主子表（标准）', '', 2, 10, 1070, 'demo03-normal', 'fa:battery-3', 'infra/demo/demo03/normal/index', 'Demo03StudentNormal', 0, b'1', b'1', b'1', '', '2023-11-16 12:53:37', '1', '2023-11-16 23:10:03', b'0');
+INSERT INTO `system_menu` VALUES (2491, '学生查询', 'infra:demo03-student:query', 3, 1, 2490, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-11-16 12:53:37', '', '2023-11-16 12:53:37', b'0');
+INSERT INTO `system_menu` VALUES (2492, '学生创建', 'infra:demo03-student:create', 3, 2, 2490, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-11-16 12:53:37', '', '2023-11-16 12:53:37', b'0');
+INSERT INTO `system_menu` VALUES (2493, '学生更新', 'infra:demo03-student:update', 3, 3, 2490, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-11-16 12:53:37', '', '2023-11-16 12:53:37', b'0');
+INSERT INTO `system_menu` VALUES (2494, '学生删除', 'infra:demo03-student:delete', 3, 4, 2490, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-11-16 12:53:37', '', '2023-11-16 12:53:37', b'0');
+INSERT INTO `system_menu` VALUES (2495, '学生导出', 'infra:demo03-student:export', 3, 5, 2490, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-11-16 12:53:37', '', '2023-11-16 12:53:37', b'0');
+INSERT INTO `system_menu` VALUES (2497, '主子表（ERP）', '', 2, 11, 1070, 'demo03-erp', 'ep:calendar', 'infra/demo/demo03/erp/index', 'Demo03StudentERP', 0, b'1', b'1', b'1', '', '2023-11-16 15:50:59', '1', '2023-11-17 13:19:56', b'0');
+INSERT INTO `system_menu` VALUES (2516, '客户公海配置', '', 2, 0, 2524, 'customer-pool-config', 'ep:data-analysis', 'crm/customer/poolConfig/index', 'CrmCustomerPoolConfig', 0, b'1', b'1', b'1', '', '2023-11-18 13:33:31', '1', '2024-05-11 02:22:25', b'1');
+INSERT INTO `system_menu` VALUES (2517, '客户公海配置保存', 'crm:customer-pool-config:update', 3, 1, 2516, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-11-18 13:33:31', '', '2024-05-11 02:22:25', b'1');
+INSERT INTO `system_menu` VALUES (2518, '客户限制配置', '', 2, 1, 2524, 'customer-limit-config', 'ep:avatar', 'crm/customer/limitConfig/index', 'CrmCustomerLimitConfig', 0, b'1', b'1', b'1', '', '2023-11-18 13:33:53', '1', '2024-05-11 02:22:25', b'1');
+INSERT INTO `system_menu` VALUES (2519, '客户限制配置查询', 'crm:customer-limit-config:query', 3, 1, 2518, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-11-18 13:33:53', '', '2024-05-11 02:22:25', b'1');
+INSERT INTO `system_menu` VALUES (2520, '客户限制配置创建', 'crm:customer-limit-config:create', 3, 2, 2518, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-11-18 13:33:53', '', '2024-05-11 02:22:25', b'1');
+INSERT INTO `system_menu` VALUES (2521, '客户限制配置更新', 'crm:customer-limit-config:update', 3, 3, 2518, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-11-18 13:33:53', '', '2024-05-11 02:22:25', b'1');
+INSERT INTO `system_menu` VALUES (2522, '客户限制配置删除', 'crm:customer-limit-config:delete', 3, 4, 2518, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-11-18 13:33:53', '', '2024-05-11 02:22:25', b'1');
+INSERT INTO `system_menu` VALUES (2523, '客户限制配置导出', 'crm:customer-limit-config:export', 3, 5, 2518, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-11-18 13:33:53', '', '2024-05-11 02:22:25', b'1');
+INSERT INTO `system_menu` VALUES (2524, '系统配置', '', 1, 999, 2397, 'config', 'ep:connection', '', '', 0, b'1', b'1', b'1', '1', '2023-11-18 21:58:00', '1', '2024-05-11 02:22:25', b'1');
+INSERT INTO `system_menu` VALUES (2525, 'WebSocket', '', 2, 5, 2, 'websocket', 'ep:connection', 'infra/webSocket/index', 'InfraWebSocket', 0, b'1', b'1', b'1', '1', '2023-11-23 19:41:55', '1', '2024-05-11 02:13:52', b'1');
+INSERT INTO `system_menu` VALUES (2526, '产品管理', '', 2, 80, 2397, 'product', 'fa:product-hunt', 'crm/product/index', 'CrmProduct', 0, b'1', b'1', b'1', '1', '2023-12-05 22:45:26', '1', '2024-05-11 02:22:25', b'1');
+INSERT INTO `system_menu` VALUES (2527, '产品查询', 'crm:product:query', 3, 1, 2526, '', '', '', '', 0, b'1', b'1', b'1', '1', '2023-12-05 22:47:16', '1', '2024-05-11 02:22:25', b'1');
+INSERT INTO `system_menu` VALUES (2528, '产品创建', 'crm:product:create', 3, 2, 2526, '', '', '', '', 0, b'1', b'1', b'1', '1', '2023-12-05 22:47:41', '1', '2024-05-11 02:22:25', b'1');
+INSERT INTO `system_menu` VALUES (2529, '产品更新', 'crm:product:update', 3, 3, 2526, '', '', '', '', 0, b'1', b'1', b'1', '1', '2023-12-05 22:48:03', '1', '2024-05-11 02:22:25', b'1');
+INSERT INTO `system_menu` VALUES (2530, '产品删除', 'crm:product:delete', 3, 4, 2526, '', '', '', '', 0, b'1', b'1', b'1', '1', '2023-12-05 22:48:17', '1', '2024-05-11 02:22:25', b'1');
+INSERT INTO `system_menu` VALUES (2531, '产品导出', 'crm:product:export', 3, 5, 2526, '', '', '', '', 0, b'1', b'1', b'1', '1', '2023-12-05 22:48:29', '1', '2024-05-11 02:22:25', b'1');
+INSERT INTO `system_menu` VALUES (2532, '产品分类配置', '', 2, 3, 2524, 'product/category', 'fa-solid:window-restore', 'crm/product/category/index', 'CrmProductCategory', 0, b'1', b'1', b'1', '1', '2023-12-06 12:52:36', '1', '2024-05-11 02:22:25', b'1');
+INSERT INTO `system_menu` VALUES (2533, '产品分类查询', 'crm:product-category:query', 3, 1, 2532, '', '', '', '', 0, b'1', b'1', b'1', '1', '2023-12-06 12:53:23', '1', '2024-05-11 02:22:25', b'1');
+INSERT INTO `system_menu` VALUES (2534, '产品分类创建', 'crm:product-category:create', 3, 2, 2532, '', '', '', '', 0, b'1', b'1', b'1', '1', '2023-12-06 12:53:41', '1', '2024-05-11 02:22:25', b'1');
+INSERT INTO `system_menu` VALUES (2535, '产品分类更新', 'crm:product-category:update', 3, 3, 2532, '', '', '', '', 0, b'1', b'1', b'1', '1', '2023-12-06 12:53:59', '1', '2024-05-11 02:22:25', b'1');
+INSERT INTO `system_menu` VALUES (2536, '产品分类删除', 'crm:product-category:delete', 3, 4, 2532, '', '', '', '', 0, b'1', b'1', b'1', '1', '2023-12-06 12:54:14', '1', '2024-05-11 02:22:25', b'1');
+INSERT INTO `system_menu` VALUES (2543, '关联商机', 'crm:contact:create-business', 3, 10, 2416, '', '', '', '', 0, b'1', b'1', b'1', '1', '2024-01-02 17:28:25', '1', '2024-05-11 02:22:25', b'1');
+INSERT INTO `system_menu` VALUES (2544, '取关商机', 'crm:contact:delete-business', 3, 11, 2416, '', '', '', '', 0, b'1', b'1', b'1', '1', '2024-01-02 17:28:43', '1', '2024-05-11 02:22:25', b'1');
+INSERT INTO `system_menu` VALUES (2545, '商品统计', '', 2, 3, 2358, 'product', 'fa:product-hunt', 'mall/statistics/product/index', 'ProductStatistics', 0, b'1', b'1', b'1', '', '2023-12-15 18:54:28', '1', '2024-05-11 02:22:00', b'1');
+INSERT INTO `system_menu` VALUES (2546, '客户公海', '', 2, 30, 2397, 'customer/pool', 'fa-solid:swimming-pool', 'crm/customer/pool/index', 'CrmCustomerPool', 0, b'1', b'1', b'1', '1', '2024-01-15 21:29:34', '1', '2024-05-11 02:22:25', b'1');
+INSERT INTO `system_menu` VALUES (2547, '订单查询', 'trade:order:query', 3, 1, 2076, '', '', '', '', 0, b'1', b'1', b'1', '1', '2024-01-16 08:52:00', '1', '2024-05-11 02:22:00', b'1');
+INSERT INTO `system_menu` VALUES (2548, '订单更新', 'trade:order:update', 3, 2, 2076, '', '', '', '', 0, b'1', b'1', b'1', '1', '2024-01-16 08:52:21', '1', '2024-05-11 02:22:00', b'1');
+INSERT INTO `system_menu` VALUES (2549, '支付&退款案例', '', 2, 1, 2161, 'order', 'fa:paypal', 'pay/demo/order/index', '', 0, b'1', b'1', b'1', '1', '2024-01-18 23:45:00', '1', '2024-05-11 02:21:13', b'1');
+INSERT INTO `system_menu` VALUES (2550, '转账案例', '', 2, 2, 2161, 'transfer', 'fa:transgender-alt', 'pay/demo/transfer/index', '', 0, b'1', b'1', b'1', '1', '2024-01-18 23:51:16', '1', '2024-05-11 02:21:13', b'1');
+INSERT INTO `system_menu` VALUES (2551, '钱包管理', '', 1, 4, 1117, 'wallet', 'ep:wallet', '', '', 0, b'1', b'1', b'1', '', '2023-12-29 02:32:54', '1', '2024-05-11 02:21:13', b'1');
+INSERT INTO `system_menu` VALUES (2552, '充值套餐', '', 2, 2, 2551, 'wallet-recharge-package', 'fa:leaf', 'pay/wallet/rechargePackage/index', 'WalletRechargePackage', 0, b'1', b'1', b'1', '', '2023-12-29 02:32:54', '', '2024-05-11 02:21:13', b'1');
+INSERT INTO `system_menu` VALUES (2553, '钱包充值套餐查询', 'pay:wallet-recharge-package:query', 3, 1, 2552, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-12-29 02:32:54', '', '2024-05-11 02:21:13', b'1');
+INSERT INTO `system_menu` VALUES (2554, '钱包充值套餐创建', 'pay:wallet-recharge-package:create', 3, 2, 2552, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-12-29 02:32:54', '', '2024-05-11 02:21:13', b'1');
+INSERT INTO `system_menu` VALUES (2555, '钱包充值套餐更新', 'pay:wallet-recharge-package:update', 3, 3, 2552, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-12-29 02:32:54', '', '2024-05-11 02:21:13', b'1');
+INSERT INTO `system_menu` VALUES (2556, '钱包充值套餐删除', 'pay:wallet-recharge-package:delete', 3, 4, 2552, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-12-29 02:32:54', '', '2024-05-11 02:21:13', b'1');
+INSERT INTO `system_menu` VALUES (2557, '钱包余额', '', 2, 1, 2551, 'wallet-balance', 'fa:leaf', 'pay/wallet/balance/index', 'WalletBalance', 0, b'1', b'1', b'1', '', '2023-12-29 02:32:54', '', '2024-05-11 02:21:13', b'1');
+INSERT INTO `system_menu` VALUES (2558, '钱包余额查询', 'pay:wallet:query', 3, 1, 2557, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2023-12-29 02:32:54', '', '2024-05-11 02:21:13', b'1');
+INSERT INTO `system_menu` VALUES (2559, '转账订单', '', 2, 3, 1117, 'transfer', 'ep:credit-card', 'pay/transfer/index', 'PayTransfer', 0, b'1', b'1', b'1', '', '2023-12-29 02:32:54', '', '2024-05-11 02:21:13', b'1');
+INSERT INTO `system_menu` VALUES (2560, '数据统计', '', 1, 200, 2397, 'statistics', 'ep:data-line', '', '', 0, b'1', b'1', b'1', '1', '2024-01-26 22:50:35', '1', '2024-05-11 02:22:25', b'1');
+INSERT INTO `system_menu` VALUES (2561, '排行榜', 'crm:statistics-rank:query', 2, 1, 2560, 'ranking', 'fa:area-chart', 'crm/statistics/rank/index', 'CrmStatisticsRank', 0, b'1', b'1', b'1', '1', '2024-01-26 22:52:09', '1', '2024-05-11 02:22:25', b'1');
+INSERT INTO `system_menu` VALUES (2562, '客户导入', 'crm:customer:import', 3, 6, 2391, '', '', '', '', 0, b'1', b'1', b'1', '1', '2024-02-01 13:09:00', '1', '2024-05-11 02:22:25', b'1');
+INSERT INTO `system_menu` VALUES (2563, 'ERP 系统', '', 1, 300, 0, '/erp', 'fa-solid:store', '', '', 0, b'1', b'1', b'1', '1', '2024-02-04 15:37:25', '1', '2024-05-11 02:23:34', b'1');
+INSERT INTO `system_menu` VALUES (2564, '产品管理', '', 1, 40, 2563, 'product', 'fa:product-hunt', '', '', 0, b'1', b'1', b'1', '1', '2024-02-04 15:38:43', '1', '2024-05-11 02:22:38', b'1');
+INSERT INTO `system_menu` VALUES (2565, '产品信息', '', 2, 0, 2564, 'product', 'fa-solid:apple-alt', 'erp/product/product/index', 'ErpProduct', 0, b'1', b'1', b'1', '', '2024-02-04 07:52:15', '1', '2024-05-11 02:22:38', b'1');
+INSERT INTO `system_menu` VALUES (2566, '产品查询', 'erp:product:query', 3, 1, 2565, '', '', '', '', 0, b'1', b'1', b'1', '', '2024-02-04 07:52:15', '1', '2024-05-11 02:22:38', b'1');
+INSERT INTO `system_menu` VALUES (2567, '产品创建', 'erp:product:create', 3, 2, 2565, '', '', '', '', 0, b'1', b'1', b'1', '', '2024-02-04 07:52:15', '1', '2024-05-11 02:22:38', b'1');
+INSERT INTO `system_menu` VALUES (2568, '产品更新', 'erp:product:update', 3, 3, 2565, '', '', '', '', 0, b'1', b'1', b'1', '', '2024-02-04 07:52:15', '1', '2024-05-11 02:22:38', b'1');
+INSERT INTO `system_menu` VALUES (2569, '产品删除', 'erp:product:delete', 3, 4, 2565, '', '', '', '', 0, b'1', b'1', b'1', '', '2024-02-04 07:52:15', '1', '2024-05-11 02:22:38', b'1');
+INSERT INTO `system_menu` VALUES (2570, '产品导出', 'erp:product:export', 3, 5, 2565, '', '', '', '', 0, b'1', b'1', b'1', '', '2024-02-04 07:52:15', '1', '2024-05-11 02:22:38', b'1');
+INSERT INTO `system_menu` VALUES (2571, '产品分类', '', 2, 1, 2564, 'product-category', 'fa:certificate', 'erp/product/category/index', 'ErpProductCategory', 0, b'1', b'1', b'1', '', '2024-02-04 09:21:04', '1', '2024-05-11 02:22:38', b'1');
+INSERT INTO `system_menu` VALUES (2572, '分类查询', 'erp:product-category:query', 3, 1, 2571, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2024-02-04 09:21:04', '', '2024-05-11 02:22:38', b'1');
+INSERT INTO `system_menu` VALUES (2573, '分类创建', 'erp:product-category:create', 3, 2, 2571, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2024-02-04 09:21:04', '', '2024-05-11 02:22:38', b'1');
+INSERT INTO `system_menu` VALUES (2574, '分类更新', 'erp:product-category:update', 3, 3, 2571, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2024-02-04 09:21:04', '', '2024-05-11 02:22:38', b'1');
+INSERT INTO `system_menu` VALUES (2575, '分类删除', 'erp:product-category:delete', 3, 4, 2571, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2024-02-04 09:21:04', '', '2024-05-11 02:22:38', b'1');
+INSERT INTO `system_menu` VALUES (2576, '分类导出', 'erp:product-category:export', 3, 5, 2571, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2024-02-04 09:21:04', '', '2024-05-11 02:22:38', b'1');
+INSERT INTO `system_menu` VALUES (2577, '产品单位', '', 2, 2, 2564, 'unit', 'ep:opportunity', 'erp/product/unit/index', 'ErpProductUnit', 0, b'1', b'1', b'1', '', '2024-02-04 11:54:08', '1', '2024-05-11 02:22:38', b'1');
+INSERT INTO `system_menu` VALUES (2578, '单位查询', 'erp:product-unit:query', 3, 1, 2577, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2024-02-04 11:54:08', '', '2024-05-11 02:22:38', b'1');
+INSERT INTO `system_menu` VALUES (2579, '单位创建', 'erp:product-unit:create', 3, 2, 2577, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2024-02-04 11:54:08', '', '2024-05-11 02:22:38', b'1');
+INSERT INTO `system_menu` VALUES (2580, '单位更新', 'erp:product-unit:update', 3, 3, 2577, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2024-02-04 11:54:08', '', '2024-05-11 02:22:38', b'1');
+INSERT INTO `system_menu` VALUES (2581, '单位删除', 'erp:product-unit:delete', 3, 4, 2577, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2024-02-04 11:54:08', '', '2024-05-11 02:22:38', b'1');
+INSERT INTO `system_menu` VALUES (2582, '单位导出', 'erp:product-unit:export', 3, 5, 2577, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2024-02-04 11:54:08', '', '2024-05-11 02:22:38', b'1');
+INSERT INTO `system_menu` VALUES (2583, '库存管理', '', 1, 30, 2563, 'stock', 'fa:window-restore', '', '', 0, b'1', b'1', b'1', '1', '2024-02-05 00:29:37', '1', '2024-05-11 02:22:38', b'1');
+INSERT INTO `system_menu` VALUES (2584, '仓库信息', '', 2, 0, 2583, 'warehouse', 'ep:house', 'erp/stock/warehouse/index', 'ErpWarehouse', 0, b'1', b'1', b'1', '', '2024-02-04 17:12:09', '1', '2024-05-11 02:22:38', b'1');
+INSERT INTO `system_menu` VALUES (2585, '仓库查询', 'erp:warehouse:query', 3, 1, 2584, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2024-02-04 17:12:09', '', '2024-05-11 02:22:38', b'1');
+INSERT INTO `system_menu` VALUES (2586, '仓库创建', 'erp:warehouse:create', 3, 2, 2584, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2024-02-04 17:12:09', '', '2024-05-11 02:22:38', b'1');
+INSERT INTO `system_menu` VALUES (2587, '仓库更新', 'erp:warehouse:update', 3, 3, 2584, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2024-02-04 17:12:09', '', '2024-05-11 02:22:38', b'1');
+INSERT INTO `system_menu` VALUES (2588, '仓库删除', 'erp:warehouse:delete', 3, 4, 2584, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2024-02-04 17:12:09', '', '2024-05-11 02:22:38', b'1');
+INSERT INTO `system_menu` VALUES (2589, '仓库导出', 'erp:warehouse:export', 3, 5, 2584, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2024-02-04 17:12:09', '', '2024-05-11 02:22:38', b'1');
+INSERT INTO `system_menu` VALUES (2590, '产品库存', '', 2, 1, 2583, 'stock', 'ep:coffee', 'erp/stock/stock/index', 'ErpStock', 0, b'1', b'1', b'1', '', '2024-02-05 06:40:50', '1', '2024-05-11 02:22:38', b'1');
+INSERT INTO `system_menu` VALUES (2591, '库存查询', 'erp:stock:query', 3, 1, 2590, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2024-02-05 06:40:50', '', '2024-05-11 02:22:38', b'1');
+INSERT INTO `system_menu` VALUES (2592, '库存导出', 'erp:stock:export', 3, 5, 2590, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2024-02-05 06:40:50', '', '2024-05-11 02:22:38', b'1');
+INSERT INTO `system_menu` VALUES (2593, '出入库明细', '', 2, 2, 2583, 'record', 'fa-solid:blog', 'erp/stock/record/index', 'ErpStockRecord', 0, b'1', b'1', b'1', '', '2024-02-05 10:27:21', '1', '2024-05-11 02:22:38', b'1');
+INSERT INTO `system_menu` VALUES (2594, '库存明细查询', 'erp:stock-record:query', 3, 1, 2593, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2024-02-05 10:27:21', '', '2024-05-11 02:22:38', b'1');
+INSERT INTO `system_menu` VALUES (2595, '库存明细导出', 'erp:stock-record:export', 3, 5, 2593, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2024-02-05 10:27:21', '', '2024-05-11 02:22:38', b'1');
+INSERT INTO `system_menu` VALUES (2596, '其它入库', '', 2, 3, 2583, 'in', 'ep:zoom-in', 'erp/stock/in/index', 'ErpStockIn', 0, b'1', b'1', b'1', '', '2024-02-05 16:08:56', '1', '2024-05-11 02:22:38', b'1');
+INSERT INTO `system_menu` VALUES (2597, '其它入库单查询', 'erp:stock-in:query', 3, 1, 2596, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2024-02-05 16:08:56', '', '2024-05-11 02:22:38', b'1');
+INSERT INTO `system_menu` VALUES (2598, '其它入库单创建', 'erp:stock-in:create', 3, 2, 2596, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2024-02-05 16:08:56', '', '2024-05-11 02:22:38', b'1');
+INSERT INTO `system_menu` VALUES (2599, '其它入库单更新', 'erp:stock-in:update', 3, 3, 2596, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2024-02-05 16:08:56', '', '2024-05-11 02:22:38', b'1');
+INSERT INTO `system_menu` VALUES (2600, '其它入库单删除', 'erp:stock-in:delete', 3, 4, 2596, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2024-02-05 16:08:56', '', '2024-05-11 02:22:38', b'1');
+INSERT INTO `system_menu` VALUES (2601, '其它入库单导出', 'erp:stock-in:export', 3, 5, 2596, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2024-02-05 16:08:56', '', '2024-05-11 02:22:38', b'1');
+INSERT INTO `system_menu` VALUES (2602, '采购管理', '', 1, 10, 2563, 'purchase', 'fa:buysellads', '', '', 0, b'1', b'1', b'1', '1', '2024-02-06 16:01:01', '1', '2024-05-11 02:22:38', b'1');
+INSERT INTO `system_menu` VALUES (2603, '供应商信息', '', 2, 4, 2602, 'supplier', 'fa:superpowers', 'erp/purchase/supplier/index', 'ErpSupplier', 0, b'1', b'1', b'1', '', '2024-02-06 08:21:55', '1', '2024-05-11 02:22:38', b'1');
+INSERT INTO `system_menu` VALUES (2604, '供应商查询', 'erp:supplier:query', 3, 1, 2603, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2024-02-06 08:21:55', '', '2024-05-11 02:22:38', b'1');
+INSERT INTO `system_menu` VALUES (2605, '供应商创建', 'erp:supplier:create', 3, 2, 2603, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2024-02-06 08:21:55', '', '2024-05-11 02:22:38', b'1');
+INSERT INTO `system_menu` VALUES (2606, '供应商更新', 'erp:supplier:update', 3, 3, 2603, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2024-02-06 08:21:55', '', '2024-05-11 02:22:38', b'1');
+INSERT INTO `system_menu` VALUES (2607, '供应商删除', 'erp:supplier:delete', 3, 4, 2603, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2024-02-06 08:21:55', '', '2024-05-11 02:22:38', b'1');
+INSERT INTO `system_menu` VALUES (2608, '供应商导出', 'erp:supplier:export', 3, 5, 2603, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2024-02-06 08:21:55', '', '2024-05-11 02:22:38', b'1');
+INSERT INTO `system_menu` VALUES (2609, '其它入库单审批', 'erp:stock-in:update-status', 3, 6, 2596, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2024-02-05 16:08:56', '', '2024-05-11 02:22:38', b'1');
+INSERT INTO `system_menu` VALUES (2610, '其它出库', '', 2, 4, 2583, 'out', 'ep:zoom-out', 'erp/stock/out/index', 'ErpStockOut', 0, b'1', b'1', b'1', '', '2024-02-05 16:08:56', '1', '2024-05-11 02:22:38', b'1');
+INSERT INTO `system_menu` VALUES (2611, '其它出库单查询', 'erp:stock-out:query', 3, 1, 2610, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2024-02-05 16:08:56', '', '2024-05-11 02:22:38', b'1');
+INSERT INTO `system_menu` VALUES (2612, '其它出库单创建', 'erp:stock-out:create', 3, 2, 2610, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2024-02-05 16:08:56', '', '2024-05-11 02:22:38', b'1');
+INSERT INTO `system_menu` VALUES (2613, '其它出库单更新', 'erp:stock-out:update', 3, 3, 2610, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2024-02-05 16:08:56', '', '2024-05-11 02:22:38', b'1');
+INSERT INTO `system_menu` VALUES (2614, '其它出库单删除', 'erp:stock-out:delete', 3, 4, 2610, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2024-02-05 16:08:56', '', '2024-05-11 02:22:38', b'1');
+INSERT INTO `system_menu` VALUES (2615, '其它出库单导出', 'erp:stock-out:export', 3, 5, 2610, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2024-02-05 16:08:56', '', '2024-05-11 02:22:38', b'1');
+INSERT INTO `system_menu` VALUES (2616, '其它出库单审批', 'erp:stock-out:update-status', 3, 6, 2610, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2024-02-05 16:08:56', '', '2024-05-11 02:22:38', b'1');
+INSERT INTO `system_menu` VALUES (2617, '销售管理', '', 1, 20, 2563, 'sale', 'fa:sellsy', '', '', 0, b'1', b'1', b'1', '1', '2024-02-07 15:12:32', '1', '2024-05-11 02:22:38', b'1');
+INSERT INTO `system_menu` VALUES (2618, '客户信息', '', 2, 4, 2617, 'customer', 'ep:avatar', 'erp/sale/customer/index', 'ErpCustomer', 0, b'1', b'1', b'1', '', '2024-02-07 07:21:45', '1', '2024-05-11 02:22:38', b'1');
+INSERT INTO `system_menu` VALUES (2619, '客户查询', 'erp:customer:query', 3, 1, 2618, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2024-02-07 07:21:45', '', '2024-05-11 02:22:38', b'1');
+INSERT INTO `system_menu` VALUES (2620, '客户创建', 'erp:customer:create', 3, 2, 2618, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2024-02-07 07:21:45', '', '2024-05-11 02:22:38', b'1');
+INSERT INTO `system_menu` VALUES (2621, '客户更新', 'erp:customer:update', 3, 3, 2618, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2024-02-07 07:21:45', '', '2024-05-11 02:22:38', b'1');
+INSERT INTO `system_menu` VALUES (2622, '客户删除', 'erp:customer:delete', 3, 4, 2618, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2024-02-07 07:21:45', '', '2024-05-11 02:22:39', b'1');
+INSERT INTO `system_menu` VALUES (2623, '客户导出', 'erp:customer:export', 3, 5, 2618, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2024-02-07 07:21:45', '', '2024-05-11 02:22:39', b'1');
+INSERT INTO `system_menu` VALUES (2624, '库存调拨', '', 2, 5, 2583, 'move', 'ep:folder-remove', 'erp/stock/move/index', 'ErpStockMove', 0, b'1', b'1', b'1', '', '2024-02-05 16:08:56', '1', '2024-05-11 02:22:39', b'1');
+INSERT INTO `system_menu` VALUES (2625, '库存调度单查询', 'erp:stock-move:query', 3, 1, 2624, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2024-02-05 16:08:56', '', '2024-05-11 02:22:39', b'1');
+INSERT INTO `system_menu` VALUES (2626, '库存调度单创建', 'erp:stock-move:create', 3, 2, 2624, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2024-02-05 16:08:56', '', '2024-05-11 02:22:39', b'1');
+INSERT INTO `system_menu` VALUES (2627, '库存调度单更新', 'erp:stock-move:update', 3, 3, 2624, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2024-02-05 16:08:56', '', '2024-05-11 02:22:39', b'1');
+INSERT INTO `system_menu` VALUES (2628, '库存调度单删除', 'erp:stock-move:delete', 3, 4, 2624, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2024-02-05 16:08:56', '', '2024-05-11 02:22:39', b'1');
+INSERT INTO `system_menu` VALUES (2629, '库存调度单导出', 'erp:stock-move:export', 3, 5, 2624, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2024-02-05 16:08:56', '', '2024-05-11 02:22:39', b'1');
+INSERT INTO `system_menu` VALUES (2630, '库存调度单审批', 'erp:stock-move:update-status', 3, 6, 2624, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2024-02-05 16:08:56', '', '2024-05-11 02:22:39', b'1');
+INSERT INTO `system_menu` VALUES (2631, '库存盘点', '', 2, 6, 2583, 'check', 'ep:circle-check-filled', 'erp/stock/check/index', 'ErpStockCheck', 0, b'1', b'1', b'1', '', '2024-02-05 16:08:56', '1', '2024-05-11 02:22:39', b'1');
+INSERT INTO `system_menu` VALUES (2632, '库存盘点单查询', 'erp:stock-check:query', 3, 1, 2631, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2024-02-05 16:08:56', '', '2024-05-11 02:22:39', b'1');
+INSERT INTO `system_menu` VALUES (2633, '库存盘点单创建', 'erp:stock-check:create', 3, 2, 2631, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2024-02-05 16:08:56', '', '2024-05-11 02:22:39', b'1');
+INSERT INTO `system_menu` VALUES (2634, '库存盘点单更新', 'erp:stock-check:update', 3, 3, 2631, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2024-02-05 16:08:56', '', '2024-05-11 02:22:39', b'1');
+INSERT INTO `system_menu` VALUES (2635, '库存盘点单删除', 'erp:stock-check:delete', 3, 4, 2631, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2024-02-05 16:08:56', '', '2024-05-11 02:22:39', b'1');
+INSERT INTO `system_menu` VALUES (2636, '库存盘点单导出', 'erp:stock-check:export', 3, 5, 2631, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2024-02-05 16:08:56', '', '2024-05-11 02:22:39', b'1');
+INSERT INTO `system_menu` VALUES (2637, '库存盘点单审批', 'erp:stock-check:update-status', 3, 6, 2631, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2024-02-05 16:08:56', '', '2024-05-11 02:22:39', b'1');
+INSERT INTO `system_menu` VALUES (2638, '销售订单', '', 2, 1, 2617, 'order', 'fa:first-order', 'erp/sale/order/index', 'ErpSaleOrder', 0, b'1', b'1', b'1', '', '2024-02-05 16:08:56', '1', '2024-05-11 02:22:39', b'1');
+INSERT INTO `system_menu` VALUES (2639, '销售订单查询', 'erp:sale-order:query', 3, 1, 2638, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2024-02-05 16:08:56', '', '2024-05-11 02:22:39', b'1');
+INSERT INTO `system_menu` VALUES (2640, '销售订单创建', 'erp:sale-order:create', 3, 2, 2638, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2024-02-05 16:08:56', '', '2024-05-11 02:22:39', b'1');
+INSERT INTO `system_menu` VALUES (2641, '销售订单更新', 'erp:sale-order:update', 3, 3, 2638, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2024-02-05 16:08:56', '', '2024-05-11 02:22:39', b'1');
+INSERT INTO `system_menu` VALUES (2642, '销售订单删除', 'erp:sale-order:delete', 3, 4, 2638, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2024-02-05 16:08:56', '', '2024-05-11 02:22:39', b'1');
+INSERT INTO `system_menu` VALUES (2643, '销售订单导出', 'erp:sale-order:export', 3, 5, 2638, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2024-02-05 16:08:56', '', '2024-05-11 02:22:39', b'1');
+INSERT INTO `system_menu` VALUES (2644, '销售订单审批', 'erp:sale-order:update-status', 3, 6, 2638, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2024-02-05 16:08:56', '', '2024-05-11 02:22:39', b'1');
+INSERT INTO `system_menu` VALUES (2645, '财务管理', '', 1, 50, 2563, 'finance', 'ep:money', '', '', 0, b'1', b'1', b'1', '1', '2024-02-10 08:05:58', '1', '2024-05-11 02:22:39', b'1');
+INSERT INTO `system_menu` VALUES (2646, '结算账户', '', 2, 10, 2645, 'account', 'fa:universal-access', 'erp/finance/account/index', 'ErpAccount', 0, b'1', b'1', b'1', '', '2024-02-10 00:15:07', '1', '2024-05-11 02:22:39', b'1');
+INSERT INTO `system_menu` VALUES (2647, '结算账户查询', 'erp:account:query', 3, 1, 2646, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2024-02-10 00:15:07', '', '2024-05-11 02:22:39', b'1');
+INSERT INTO `system_menu` VALUES (2648, '结算账户创建', 'erp:account:create', 3, 2, 2646, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2024-02-10 00:15:07', '', '2024-05-11 02:22:39', b'1');
+INSERT INTO `system_menu` VALUES (2649, '结算账户更新', 'erp:account:update', 3, 3, 2646, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2024-02-10 00:15:07', '', '2024-05-11 02:22:39', b'1');
+INSERT INTO `system_menu` VALUES (2650, '结算账户删除', 'erp:account:delete', 3, 4, 2646, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2024-02-10 00:15:07', '', '2024-05-11 02:22:39', b'1');
+INSERT INTO `system_menu` VALUES (2651, '结算账户导出', 'erp:account:export', 3, 5, 2646, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2024-02-10 00:15:07', '', '2024-05-11 02:22:39', b'1');
+INSERT INTO `system_menu` VALUES (2652, '销售出库', '', 2, 2, 2617, 'out', 'ep:sold-out', 'erp/sale/out/index', 'ErpSaleOut', 0, b'1', b'1', b'1', '', '2024-02-05 16:08:56', '1', '2024-05-11 02:22:39', b'1');
+INSERT INTO `system_menu` VALUES (2653, '销售出库查询', 'erp:sale-out:query', 3, 1, 2652, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2024-02-05 16:08:56', '', '2024-05-11 02:22:39', b'1');
+INSERT INTO `system_menu` VALUES (2654, '销售出库创建', 'erp:sale-out:create', 3, 2, 2652, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2024-02-05 16:08:56', '', '2024-05-11 02:22:39', b'1');
+INSERT INTO `system_menu` VALUES (2655, '销售出库更新', 'erp:sale-out:update', 3, 3, 2652, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2024-02-05 16:08:56', '', '2024-05-11 02:22:39', b'1');
+INSERT INTO `system_menu` VALUES (2656, '销售出库删除', 'erp:sale-out:delete', 3, 4, 2652, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2024-02-05 16:08:56', '', '2024-05-11 02:22:39', b'1');
+INSERT INTO `system_menu` VALUES (2657, '销售出库导出', 'erp:sale-out:export', 3, 5, 2652, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2024-02-05 16:08:56', '', '2024-05-11 02:22:39', b'1');
+INSERT INTO `system_menu` VALUES (2658, '销售出库审批', 'erp:sale-out:update-status', 3, 6, 2652, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2024-02-05 16:08:56', '', '2024-05-11 02:22:39', b'1');
+INSERT INTO `system_menu` VALUES (2659, '销售退货', '', 2, 3, 2617, 'return', 'fa-solid:bone', 'erp/sale/return/index', 'ErpSaleReturn', 0, b'1', b'1', b'1', '', '2024-02-05 16:08:56', '1', '2024-05-11 02:22:39', b'1');
+INSERT INTO `system_menu` VALUES (2660, '销售退货查询', 'erp:sale-return:query', 3, 1, 2659, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2024-02-05 16:08:56', '', '2024-05-11 02:22:39', b'1');
+INSERT INTO `system_menu` VALUES (2661, '销售退货创建', 'erp:sale-return:create', 3, 2, 2659, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2024-02-05 16:08:56', '', '2024-05-11 02:22:39', b'1');
+INSERT INTO `system_menu` VALUES (2662, '销售退货更新', 'erp:sale-return:update', 3, 3, 2659, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2024-02-05 16:08:56', '', '2024-05-11 02:22:39', b'1');
+INSERT INTO `system_menu` VALUES (2663, '销售退货删除', 'erp:sale-return:delete', 3, 4, 2659, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2024-02-05 16:08:56', '', '2024-05-11 02:22:39', b'1');
+INSERT INTO `system_menu` VALUES (2664, '销售退货导出', 'erp:sale-return:export', 3, 5, 2659, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2024-02-05 16:08:56', '', '2024-05-11 02:22:39', b'1');
+INSERT INTO `system_menu` VALUES (2665, '销售退货审批', 'erp:sale-return:update-status', 3, 6, 2659, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2024-02-05 16:08:56', '', '2024-05-11 02:22:39', b'1');
+INSERT INTO `system_menu` VALUES (2666, '采购订单', '', 2, 1, 2602, 'order', 'fa-solid:border-all', 'erp/purchase/order/index', 'ErpPurchaseOrder', 0, b'1', b'1', b'1', '', '2024-02-05 16:08:56', '1', '2024-05-11 02:22:39', b'1');
+INSERT INTO `system_menu` VALUES (2667, '采购订单查询', 'erp:purchase-order:query', 3, 1, 2666, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2024-02-05 16:08:56', '', '2024-05-11 02:22:39', b'1');
+INSERT INTO `system_menu` VALUES (2668, '采购订单创建', 'erp:purchase-order:create', 3, 2, 2666, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2024-02-05 16:08:56', '', '2024-05-11 02:22:39', b'1');
+INSERT INTO `system_menu` VALUES (2669, '采购订单更新', 'erp:purchase-order:update', 3, 3, 2666, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2024-02-05 16:08:56', '', '2024-05-11 02:22:39', b'1');
+INSERT INTO `system_menu` VALUES (2670, '采购订单删除', 'erp:purchase-order:delete', 3, 4, 2666, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2024-02-05 16:08:56', '', '2024-05-11 02:22:39', b'1');
+INSERT INTO `system_menu` VALUES (2671, '采购订单导出', 'erp:purchase-order:export', 3, 5, 2666, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2024-02-05 16:08:56', '', '2024-05-11 02:22:39', b'1');
+INSERT INTO `system_menu` VALUES (2672, '采购订单审批', 'erp:purchase-order:update-status', 3, 6, 2666, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2024-02-05 16:08:56', '', '2024-05-11 02:22:39', b'1');
+INSERT INTO `system_menu` VALUES (2673, '采购入库', '', 2, 2, 2602, 'in', 'fa-solid:gopuram', 'erp/purchase/in/index', 'ErpPurchaseIn', 0, b'1', b'1', b'1', '', '2024-02-05 16:08:56', '1', '2024-05-11 02:22:39', b'1');
+INSERT INTO `system_menu` VALUES (2674, '采购入库查询', 'erp:purchase-in:query', 3, 1, 2673, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2024-02-05 16:08:56', '', '2024-05-11 02:22:39', b'1');
+INSERT INTO `system_menu` VALUES (2675, '采购入库创建', 'erp:purchase-in:create', 3, 2, 2673, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2024-02-05 16:08:56', '', '2024-05-11 02:22:39', b'1');
+INSERT INTO `system_menu` VALUES (2676, '采购入库更新', 'erp:purchase-in:update', 3, 3, 2673, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2024-02-05 16:08:56', '', '2024-05-11 02:22:39', b'1');
+INSERT INTO `system_menu` VALUES (2677, '采购入库删除', 'erp:purchase-in:delete', 3, 4, 2673, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2024-02-05 16:08:56', '', '2024-05-11 02:22:39', b'1');
+INSERT INTO `system_menu` VALUES (2678, '采购入库导出', 'erp:purchase-in:export', 3, 5, 2673, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2024-02-05 16:08:56', '', '2024-05-11 02:22:39', b'1');
+INSERT INTO `system_menu` VALUES (2679, '采购入库审批', 'erp:purchase-in:update-status', 3, 6, 2673, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2024-02-05 16:08:56', '', '2024-05-11 02:22:39', b'1');
+INSERT INTO `system_menu` VALUES (2680, '采购退货', '', 2, 3, 2602, 'return', 'ep:minus', 'erp/purchase/return/index', 'ErpPurchaseReturn', 0, b'1', b'1', b'1', '', '2024-02-05 16:08:56', '1', '2024-05-11 02:22:39', b'1');
+INSERT INTO `system_menu` VALUES (2681, '采购退货查询', 'erp:purchase-return:query', 3, 1, 2680, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2024-02-05 16:08:56', '', '2024-05-11 02:22:39', b'1');
+INSERT INTO `system_menu` VALUES (2682, '采购退货创建', 'erp:purchase-return:create', 3, 2, 2680, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2024-02-05 16:08:56', '', '2024-05-11 02:22:39', b'1');
+INSERT INTO `system_menu` VALUES (2683, '采购退货更新', 'erp:purchase-return:update', 3, 3, 2680, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2024-02-05 16:08:56', '', '2024-05-11 02:22:39', b'1');
+INSERT INTO `system_menu` VALUES (2684, '采购退货删除', 'erp:purchase-return:delete', 3, 4, 2680, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2024-02-05 16:08:56', '', '2024-05-11 02:22:39', b'1');
+INSERT INTO `system_menu` VALUES (2685, '采购退货导出', 'erp:purchase-return:export', 3, 5, 2680, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2024-02-05 16:08:56', '', '2024-05-11 02:22:39', b'1');
+INSERT INTO `system_menu` VALUES (2686, '采购退货审批', 'erp:purchase-return:update-status', 3, 6, 2680, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2024-02-05 16:08:56', '', '2024-05-11 02:22:39', b'1');
+INSERT INTO `system_menu` VALUES (2687, '付款单', '', 2, 1, 2645, 'payment', 'ep:caret-right', 'erp/finance/payment/index', 'ErpFinancePayment', 0, b'1', b'1', b'1', '', '2024-02-05 16:08:56', '1', '2024-05-11 02:22:39', b'1');
+INSERT INTO `system_menu` VALUES (2688, '付款单查询', 'erp:finance-payment:query', 3, 1, 2687, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2024-02-05 16:08:56', '', '2024-05-11 02:22:39', b'1');
+INSERT INTO `system_menu` VALUES (2689, '付款单创建', 'erp:finance-payment:create', 3, 2, 2687, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2024-02-05 16:08:56', '', '2024-05-11 02:22:39', b'1');
+INSERT INTO `system_menu` VALUES (2690, '付款单更新', 'erp:finance-payment:update', 3, 3, 2687, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2024-02-05 16:08:56', '', '2024-05-11 02:22:39', b'1');
+INSERT INTO `system_menu` VALUES (2691, '付款单删除', 'erp:finance-payment:delete', 3, 4, 2687, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2024-02-05 16:08:56', '', '2024-05-11 02:22:39', b'1');
+INSERT INTO `system_menu` VALUES (2692, '付款单导出', 'erp:finance-payment:export', 3, 5, 2687, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2024-02-05 16:08:56', '', '2024-05-11 02:22:39', b'1');
+INSERT INTO `system_menu` VALUES (2693, '付款单审批', 'erp:finance-payment:update-status', 3, 6, 2687, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2024-02-05 16:08:56', '', '2024-05-11 02:22:39', b'1');
+INSERT INTO `system_menu` VALUES (2694, '收款单', '', 2, 2, 2645, 'receipt', 'ep:expand', 'erp/finance/receipt/index', 'ErpFinanceReceipt', 0, b'1', b'1', b'1', '', '2024-02-05 16:08:56', '1', '2024-05-11 02:22:39', b'1');
+INSERT INTO `system_menu` VALUES (2695, '收款单查询', 'erp:finance-receipt:query', 3, 1, 2694, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2024-02-05 16:08:56', '', '2024-05-11 02:22:39', b'1');
+INSERT INTO `system_menu` VALUES (2696, '收款单创建', 'erp:finance-receipt:create', 3, 2, 2694, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2024-02-05 16:08:56', '', '2024-05-11 02:22:39', b'1');
+INSERT INTO `system_menu` VALUES (2697, '收款单更新', 'erp:finance-receipt:update', 3, 3, 2694, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2024-02-05 16:08:56', '', '2024-05-11 02:22:39', b'1');
+INSERT INTO `system_menu` VALUES (2698, '收款单删除', 'erp:finance-receipt:delete', 3, 4, 2694, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2024-02-05 16:08:56', '', '2024-05-11 02:22:39', b'1');
+INSERT INTO `system_menu` VALUES (2699, '收款单导出', 'erp:finance-receipt:export', 3, 5, 2694, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2024-02-05 16:08:56', '', '2024-05-11 02:22:39', b'1');
+INSERT INTO `system_menu` VALUES (2700, '收款单审批', 'erp:finance-receipt:update-status', 3, 6, 2694, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2024-02-05 16:08:56', '', '2024-05-11 02:22:39', b'1');
+INSERT INTO `system_menu` VALUES (2701, '待办事项', '', 2, 0, 2397, 'backlog', 'fa-solid:tasks', 'crm/backlog/index', 'CrmBacklog', 0, b'1', b'1', b'1', '1', '2024-02-17 17:17:11', '1', '2024-05-11 02:22:25', b'1');
+INSERT INTO `system_menu` VALUES (2702, 'ERP 首页', 'erp:statistics:query', 2, 0, 2563, 'home', 'ep:home-filled', 'erp/home/index.vue', 'ErpHome', 0, b'1', b'1', b'1', '1', '2024-02-18 16:49:40', '1', '2024-05-11 02:22:39', b'1');
+INSERT INTO `system_menu` VALUES (2703, '商机状态配置', '', 2, 4, 2524, 'business-status', 'fa-solid:charging-station', 'crm/business/status/index', 'CrmBusinessStatus', 0, b'1', b'1', b'1', '1', '2024-02-21 20:15:17', '1', '2024-05-11 02:22:25', b'1');
+INSERT INTO `system_menu` VALUES (2704, '商机状态查询', 'crm:business-status:query', 3, 1, 2703, '', '', '', '', 0, b'1', b'1', b'1', '1', '2024-02-21 20:35:36', '1', '2024-05-11 02:22:25', b'1');
+INSERT INTO `system_menu` VALUES (2705, '商机状态创建', 'crm:business-status:create', 3, 2, 2703, '', '', '', '', 0, b'1', b'1', b'1', '1', '2024-02-21 20:35:57', '1', '2024-05-11 02:22:25', b'1');
+INSERT INTO `system_menu` VALUES (2706, '商机状态更新', 'crm:business-status:update', 3, 3, 2703, '', '', '', '', 0, b'1', b'1', b'1', '1', '2024-02-21 20:36:21', '1', '2024-05-11 02:22:25', b'1');
+INSERT INTO `system_menu` VALUES (2707, '商机状态删除', 'crm:business-status:delete', 3, 4, 2703, '', '', '', '', 0, b'1', b'1', b'1', '1', '2024-02-21 20:36:36', '1', '2024-05-11 02:22:25', b'1');
+INSERT INTO `system_menu` VALUES (2708, '合同配置', '', 2, 5, 2524, 'contract-config', 'ep:connection', 'crm/contract/config/index', 'CrmContractConfig', 0, b'1', b'1', b'1', '1', '2024-02-24 16:44:40', '1', '2024-05-11 02:22:25', b'1');
+INSERT INTO `system_menu` VALUES (2709, '客户公海配置查询', 'crm:customer-pool-config:query', 3, 2, 2516, '', '', '', '', 0, b'1', b'1', b'1', '1', '2024-02-24 16:45:19', '1', '2024-05-11 02:22:25', b'1');
+INSERT INTO `system_menu` VALUES (2710, '合同配置更新', 'crm:contract-config:update', 3, 1, 2708, '', '', '', '', 0, b'1', b'1', b'1', '1', '2024-02-24 16:45:56', '1', '2024-05-11 02:22:25', b'1');
+INSERT INTO `system_menu` VALUES (2711, '合同配置查询', 'crm:contract-config:query', 3, 2, 2708, '', '', '', '', 0, b'1', b'1', b'1', '1', '2024-02-24 16:46:16', '1', '2024-05-11 02:22:25', b'1');
+INSERT INTO `system_menu` VALUES (2712, '客户分析', 'crm:statistics-customer:query', 2, 0, 2560, 'customer', 'ep:avatar', 'views/crm/statistics/customer/index.vue', 'CrmStatisticsCustomer', 0, b'1', b'1', b'1', '1', '2024-03-09 16:43:56', '1', '2024-05-11 02:22:25', b'1');
+INSERT INTO `system_menu` VALUES (2713, '抄送我的', 'bpm:process-instance-cc:query', 2, 30, 1200, 'copy', 'ep:copy-document', 'bpm/task/copy/index', 'BpmProcessInstanceCopy', 0, b'1', b'1', b'1', '1', '2024-03-17 21:50:23', '1', '2024-05-11 02:21:49', b'1');
+INSERT INTO `system_menu` VALUES (2714, '流程分类', '', 2, 3, 1186, 'category', 'fa:object-ungroup', 'bpm/category/index', 'BpmCategory', 0, b'1', b'1', b'1', '', '2024-03-08 02:00:51', '1', '2024-05-11 02:21:49', b'1');
+INSERT INTO `system_menu` VALUES (2715, '分类查询', 'bpm:category:query', 3, 1, 2714, '', '', '', '', 0, b'1', b'1', b'1', '', '2024-03-08 02:00:51', '1', '2024-05-11 02:21:49', b'1');
+INSERT INTO `system_menu` VALUES (2716, '分类创建', 'bpm:category:create', 3, 2, 2714, '', '', '', '', 0, b'1', b'1', b'1', '', '2024-03-08 02:00:51', '1', '2024-05-11 02:21:49', b'1');
+INSERT INTO `system_menu` VALUES (2717, '分类更新', 'bpm:category:update', 3, 3, 2714, '', '', '', '', 0, b'1', b'1', b'1', '', '2024-03-08 02:00:51', '1', '2024-05-11 02:21:49', b'1');
+INSERT INTO `system_menu` VALUES (2718, '分类删除', 'bpm:category:delete', 3, 4, 2714, '', '', '', '', 0, b'1', b'1', b'1', '', '2024-03-08 02:00:51', '1', '2024-05-11 02:21:49', b'1');
+INSERT INTO `system_menu` VALUES (2720, '发起流程', '', 2, 0, 1200, 'create', 'fa-solid:grin-stars', 'bpm/processInstance/create/index', 'BpmProcessInstanceCreate', 0, b'1', b'0', b'1', '1', '2024-03-19 19:46:05', '1', '2024-05-11 02:21:49', b'1');
+INSERT INTO `system_menu` VALUES (2721, '流程实例', '', 2, 10, 1186, 'process-instance/manager', 'fa:square', 'bpm/processInstance/manager/index', 'BpmProcessInstanceManager', 0, b'1', b'1', b'1', '1', '2024-03-21 23:57:30', '1', '2024-05-11 02:21:49', b'1');
+INSERT INTO `system_menu` VALUES (2722, '流程实例的查询（管理员）', 'bpm:process-instance:manager-query', 3, 1, 2721, '', '', '', '', 0, b'1', b'1', b'1', '1', '2024-03-22 08:18:27', '1', '2024-05-11 02:21:49', b'1');
+INSERT INTO `system_menu` VALUES (2723, '流程实例的取消（管理员）', 'bpm:process-instance:cancel-by-admin', 3, 2, 2721, '', '', '', '', 0, b'1', b'1', b'1', '1', '2024-03-22 08:19:25', '1', '2024-05-11 02:21:49', b'1');
+INSERT INTO `system_menu` VALUES (2724, '流程任务', '', 2, 11, 1186, 'process-tasnk', 'ep:collection-tag', 'bpm/task/manager/index', 'BpmManagerTask', 0, b'1', b'1', b'1', '1', '2024-03-22 08:43:22', '1', '2024-05-11 02:21:49', b'1');
+INSERT INTO `system_menu` VALUES (2725, '流程任务的查询（管理员）', 'bpm:task:mananger-query', 3, 1, 2724, '', '', '', '', 0, b'1', b'1', b'1', '1', '2024-03-22 08:43:49', '1', '2024-05-11 02:21:49', b'1');
+INSERT INTO `system_menu` VALUES (2726, '流程监听器', '', 2, 5, 1186, 'process-listener', 'fa:assistive-listening-systems', 'bpm/processListener/index', 'BpmProcessListener', 0, b'1', b'1', b'1', '', '2024-03-09 16:05:34', '1', '2024-05-11 02:21:49', b'1');
+INSERT INTO `system_menu` VALUES (2727, '流程监听器查询', 'bpm:process-listener:query', 3, 1, 2726, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2024-03-09 16:05:34', '', '2024-05-11 02:21:49', b'1');
+INSERT INTO `system_menu` VALUES (2728, '流程监听器创建', 'bpm:process-listener:create', 3, 2, 2726, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2024-03-09 16:05:34', '', '2024-05-11 02:21:49', b'1');
+INSERT INTO `system_menu` VALUES (2729, '流程监听器更新', 'bpm:process-listener:update', 3, 3, 2726, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2024-03-09 16:05:34', '', '2024-05-11 02:21:49', b'1');
+INSERT INTO `system_menu` VALUES (2730, '流程监听器删除', 'bpm:process-listener:delete', 3, 4, 2726, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2024-03-09 16:05:34', '', '2024-05-11 02:21:49', b'1');
+INSERT INTO `system_menu` VALUES (2731, '流程表达式', '', 2, 6, 1186, 'process-expression', 'fa:wpexplorer', 'bpm/processExpression/index', 'BpmProcessExpression', 0, b'1', b'1', b'1', '', '2024-03-09 22:35:08', '1', '2024-05-11 02:21:49', b'1');
+INSERT INTO `system_menu` VALUES (2732, '流程表达式查询', 'bpm:process-expression:query', 3, 1, 2731, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2024-03-09 22:35:08', '', '2024-05-11 02:21:49', b'1');
+INSERT INTO `system_menu` VALUES (2733, '流程表达式创建', 'bpm:process-expression:create', 3, 2, 2731, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2024-03-09 22:35:08', '', '2024-05-11 02:21:49', b'1');
+INSERT INTO `system_menu` VALUES (2734, '流程表达式更新', 'bpm:process-expression:update', 3, 3, 2731, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2024-03-09 22:35:08', '', '2024-05-11 02:21:49', b'1');
+INSERT INTO `system_menu` VALUES (2735, '流程表达式删除', 'bpm:process-expression:delete', 3, 4, 2731, '', '', '', NULL, 0, b'1', b'1', b'1', '', '2024-03-09 22:35:08', '', '2024-05-11 02:21:49', b'1');
+INSERT INTO `system_menu` VALUES (2736, '员工业绩', 'crm:statistics-performance:query', 2, 3, 2560, 'performance', 'ep:dish-dot', 'crm/statistics/performance/index', 'CrmStatisticsPerformance', 0, b'1', b'1', b'1', '1', '2024-04-05 13:49:20', '1', '2024-05-11 02:22:25', b'1');
+INSERT INTO `system_menu` VALUES (2737, '客户画像', 'crm:statistics-portrait:query', 2, 4, 2560, 'portrait', 'ep:picture', 'crm/statistics/portrait/index', 'CrmStatisticsPortrait', 0, b'1', b'1', b'1', '1', '2024-04-05 13:57:40', '1', '2024-05-11 02:22:25', b'1');
+INSERT INTO `system_menu` VALUES (2738, '销售漏斗', 'crm:statistics-funnel:query', 2, 5, 2560, 'funnel', 'ep:grape', 'crm/statistics/funnel/index', 'CrmStatisticsFunnel', 0, b'1', b'1', b'1', '1', '2024-04-13 10:53:26', '1', '2024-05-11 02:22:25', b'1');
+INSERT INTO `system_menu` VALUES (2739, '消息中心', '', 1, 7, 1, 'messages', 'ep:chat-dot-round', '', '', 0, b'1', b'1', b'1', '1', '2024-04-22 23:54:30', '1', '2024-04-23 09:36:35', b'0');
+INSERT INTO `system_menu` VALUES (2740, '监控中心', '', 1, 10, 2, 'monitors', 'ep:monitor', '', '', 0, b'1', b'1', b'1', '1', '2024-04-23 00:04:44', '1', '2024-04-23 00:04:44', b'0');
+INSERT INTO `system_menu` VALUES (2741, '领取公海客户', 'crm:customer:receive', 3, 1, 2546, '', '', '', '', 0, b'1', b'1', b'1', '1', '2024-04-24 19:47:45', '1', '2024-05-11 02:22:25', b'1');
+INSERT INTO `system_menu` VALUES (2742, '分配公海客户', 'crm:customer:distribute', 3, 2, 2546, '', '', '', '', 0, b'1', b'1', b'1', '1', '2024-04-24 19:48:05', '1', '2024-05-11 02:22:25', b'1');
+INSERT INTO `system_menu` VALUES (2743, '商品统计查询', 'statistics:product:query', 3, 1, 2545, '', '', '', '', 0, b'1', b'1', b'1', '1', '2024-04-24 19:50:05', '1', '2024-05-11 02:22:00', b'1');
+INSERT INTO `system_menu` VALUES (2744, '商品统计导出', 'statistics:product:export', 3, 2, 2545, '', '', '', '', 0, b'1', b'1', b'1', '1', '2024-04-24 19:50:26', '1', '2024-05-11 02:22:01', b'1');
+INSERT INTO `system_menu` VALUES (2745, '支付渠道查询', 'pay:channel:query', 3, 10, 1126, '', '', '', '', 0, b'1', b'1', b'1', '1', '2024-04-24 19:53:01', '1', '2024-05-11 02:21:13', b'1');
+INSERT INTO `system_menu` VALUES (2746, '支付渠道创建', 'pay:channel:create', 3, 11, 1126, '', '', '', '', 0, b'1', b'1', b'1', '1', '2024-04-24 19:53:18', '1', '2024-05-11 02:21:13', b'1');
+INSERT INTO `system_menu` VALUES (2747, '支付渠道更新', 'pay:channel:update', 3, 12, 1126, '', '', '', '', 0, b'1', b'1', b'1', '1', '2024-04-24 19:53:32', '1', '2024-05-11 02:21:13', b'1');
+INSERT INTO `system_menu` VALUES (2748, '支付渠道删除', 'pay:channel:delete', 3, 13, 1126, '', '', '', '', 0, b'1', b'1', b'1', '1', '2024-04-24 19:54:34', '1', '2024-05-11 02:21:13', b'1');
+INSERT INTO `system_menu` VALUES (2749, '商品收藏查询', 'product:favorite:query', 3, 10, 2014, '', '', '', '', 0, b'1', b'1', b'1', '1', '2024-04-24 19:55:47', '1', '2024-05-11 02:22:01', b'1');
+INSERT INTO `system_menu` VALUES (2750, '商品浏览查询', 'product:browse-history:query', 3, 20, 2014, '', '', '', '', 0, b'1', b'1', b'1', '1', '2024-04-24 19:57:43', '1', '2024-05-11 02:22:01', b'1');
+INSERT INTO `system_menu` VALUES (2751, '售后同意', 'trade:after-sale:agree', 3, 2, 2073, '', '', '', '', 0, b'1', b'1', b'1', '1', '2024-04-24 19:58:40', '1', '2024-05-11 02:22:01', b'1');
+INSERT INTO `system_menu` VALUES (2752, '售后不同意', 'trade:after-sale:disagree', 3, 3, 2073, '', '', '', '', 0, b'1', b'1', b'1', '1', '2024-04-24 19:59:03', '1', '2024-05-11 02:22:01', b'1');
+INSERT INTO `system_menu` VALUES (2753, '售后确认退货', 'trade:after-sale:receive', 3, 4, 2073, '', '', '', '', 0, b'1', b'1', b'1', '1', '2024-04-24 20:00:07', '1', '2024-05-11 02:22:01', b'1');
+INSERT INTO `system_menu` VALUES (2754, '售后确认退款', 'trade:after-sale:refund', 3, 5, 2073, '', '', '', '', 0, b'1', b'1', b'1', '1', '2024-04-24 20:00:24', '1', '2024-05-11 02:22:01', b'1');
+INSERT INTO `system_menu` VALUES (2755, '删除项目', 'report:go-view-project:delete', 3, 2, 2153, '', '', '', '', 0, b'1', b'1', b'1', '1', '2024-04-24 20:01:37', '1', '2024-05-11 02:21:39', b'1');
+INSERT INTO `system_menu` VALUES (2756, '会员等级记录查询', 'member:level-record:query', 3, 10, 2325, '', '', '', '', 0, b'1', b'1', b'1', '1', '2024-04-24 20:02:32', '1', '2024-04-24 20:02:32', b'0');
+INSERT INTO `system_menu` VALUES (2757, '会员经验记录查询', 'member:experience-record:query', 3, 11, 2325, '', '', '', '', 0, b'1', b'1', b'1', '1', '2024-04-24 20:02:51', '1', '2024-04-24 20:02:51', b'0');
+
+-- ----------------------------
+-- Table structure for system_notice
+-- ----------------------------
+DROP TABLE IF EXISTS `system_notice`;
+CREATE TABLE `system_notice`  (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '公告ID',
+  `title` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '公告标题',
+  `content` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '公告内容',
+  `type` tinyint NOT NULL COMMENT '公告类型（1通知 2公告）',
+  `status` tinyint NOT NULL DEFAULT 0 COMMENT '公告状态（0正常 1关闭）',
+  `creator` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '创建者',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `updater` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '更新者',
+  `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `deleted` bit(1) NOT NULL DEFAULT b'0' COMMENT '是否删除',
+  `tenant_id` bigint NOT NULL DEFAULT 0 COMMENT '租户编号',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 5 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '通知公告表' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of system_notice
+-- ----------------------------
+INSERT INTO `system_notice` VALUES (1, '芋道的公众', '<p>新版本内容133</p>', 1, 0, 'admin', '2021-01-05 17:03:48', '1', '2022-05-04 21:00:20', b'0', 1);
+INSERT INTO `system_notice` VALUES (2, '维护通知：2018-07-01 系统凌晨维护', '<p><img src=\"http://test.yudao.iocoder.cn/b7cb3cf49b4b3258bf7309a09dd2f4e5.jpg\" alt=\"\" data-href=\"\" style=\"\"/>11112222</p>', 2, 1, 'admin', '2021-01-05 17:03:48', '1', '2023-12-02 20:07:26', b'0', 1);
+INSERT INTO `system_notice` VALUES (4, '我是测试标题', '<p>哈哈哈哈123</p>', 1, 0, '110', '2022-02-22 01:01:25', '110', '2022-02-22 01:01:46', b'0', 121);
+
+-- ----------------------------
+-- Table structure for system_notify_message
+-- ----------------------------
+DROP TABLE IF EXISTS `system_notify_message`;
+CREATE TABLE `system_notify_message`  (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '用户ID',
+  `user_id` bigint NOT NULL COMMENT '用户id',
+  `user_type` tinyint NOT NULL COMMENT '用户类型',
+  `template_id` bigint NOT NULL COMMENT '模版编号',
+  `template_code` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '模板编码',
+  `template_nickname` varchar(63) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '模版发送人名称',
+  `template_content` varchar(1024) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '模版内容',
+  `template_type` int NOT NULL COMMENT '模版类型',
+  `template_params` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '模版参数',
+  `read_status` bit(1) NOT NULL COMMENT '是否已读',
+  `read_time` datetime NULL DEFAULT NULL COMMENT '阅读时间',
+  `creator` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '创建者',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `updater` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '更新者',
+  `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `deleted` bit(1) NOT NULL DEFAULT b'0' COMMENT '是否删除',
+  `tenant_id` bigint NOT NULL DEFAULT 0 COMMENT '租户编号',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 11 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '站内信消息表' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of system_notify_message
+-- ----------------------------
+INSERT INTO `system_notify_message` VALUES (2, 1, 2, 1, 'test', '123', '我是 1，我开始 2 了', 1, '{\"name\":\"1\",\"what\":\"2\"}', b'1', '2023-02-10 00:47:04', '1', '2023-01-28 11:44:08', '1', '2023-02-10 00:47:04', b'0', 1);
+INSERT INTO `system_notify_message` VALUES (3, 1, 2, 1, 'test', '123', '我是 1，我开始 2 了', 1, '{\"name\":\"1\",\"what\":\"2\"}', b'1', '2023-02-10 00:47:04', '1', '2023-01-28 11:45:04', '1', '2023-02-10 00:47:04', b'0', 1);
+INSERT INTO `system_notify_message` VALUES (4, 103, 2, 2, 'register', '系统消息', '你好，欢迎 哈哈 加入大家庭！', 2, '{\"name\":\"哈哈\"}', b'0', NULL, '1', '2023-01-28 21:02:20', '1', '2023-01-28 21:02:20', b'0', 1);
+INSERT INTO `system_notify_message` VALUES (5, 1, 2, 1, 'test', '123', '我是 芋艿，我开始 写代码 了', 1, '{\"name\":\"芋艿\",\"what\":\"写代码\"}', b'1', '2023-02-10 00:47:04', '1', '2023-01-28 22:21:42', '1', '2023-02-10 00:47:04', b'0', 1);
+INSERT INTO `system_notify_message` VALUES (6, 1, 2, 1, 'test', '123', '我是 芋艿，我开始 写代码 了', 1, '{\"name\":\"芋艿\",\"what\":\"写代码\"}', b'1', '2023-01-29 10:52:06', '1', '2023-01-28 22:22:07', '1', '2023-01-29 10:52:06', b'0', 1);
+INSERT INTO `system_notify_message` VALUES (7, 1, 2, 1, 'test', '123', '我是 2，我开始 3 了', 1, '{\"name\":\"2\",\"what\":\"3\"}', b'1', '2023-01-29 10:52:06', '1', '2023-01-28 23:45:21', '1', '2023-01-29 10:52:06', b'0', 1);
+INSERT INTO `system_notify_message` VALUES (8, 1, 2, 2, 'register', '系统消息', '你好，欢迎 123 加入大家庭！', 2, '{\"name\":\"123\"}', b'1', '2023-01-29 10:52:06', '1', '2023-01-28 23:50:21', '1', '2023-01-29 10:52:06', b'0', 1);
+INSERT INTO `system_notify_message` VALUES (9, 247, 1, 4, 'brokerage_withdraw_audit_approve', 'system', '您在2023-09-28 08:35:46提现￥0.09元的申请已通过审核', 2, '{\"reason\":null,\"createTime\":\"2023-09-28 08:35:46\",\"price\":\"0.09\"}', b'0', NULL, '1', '2023-09-28 16:36:22', '1', '2023-09-28 16:36:22', b'0', 1);
+INSERT INTO `system_notify_message` VALUES (10, 247, 1, 4, 'brokerage_withdraw_audit_approve', 'system', '您在2023-09-30 20:59:40提现￥1.00元的申请已通过审核', 2, '{\"reason\":null,\"createTime\":\"2023-09-30 20:59:40\",\"price\":\"1.00\"}', b'0', NULL, '1', '2023-10-03 12:11:34', '1', '2023-10-03 12:11:34', b'0', 1);
+
+-- ----------------------------
+-- Table structure for system_notify_template
+-- ----------------------------
+DROP TABLE IF EXISTS `system_notify_template`;
+CREATE TABLE `system_notify_template`  (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `name` varchar(63) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '模板名称',
+  `code` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '模版编码',
+  `nickname` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '发送人名称',
+  `content` varchar(1024) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '模版内容',
+  `type` tinyint NOT NULL COMMENT '类型',
+  `params` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '参数数组',
+  `status` tinyint NOT NULL COMMENT '状态',
+  `remark` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '备注',
+  `creator` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '创建者',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `updater` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '更新者',
+  `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `deleted` bit(1) NOT NULL DEFAULT b'0' COMMENT '是否删除',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 6 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '站内信模板表' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of system_notify_template
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for system_oauth2_access_token
+-- ----------------------------
+DROP TABLE IF EXISTS `system_oauth2_access_token`;
+CREATE TABLE `system_oauth2_access_token`  (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '编号',
+  `user_id` bigint NOT NULL COMMENT '用户编号',
+  `user_type` tinyint NOT NULL COMMENT '用户类型',
+  `user_info` varchar(512) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '用户信息',
+  `access_token` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '访问令牌',
+  `refresh_token` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '刷新令牌',
+  `client_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '客户端编号',
+  `scopes` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '授权范围',
+  `expires_time` datetime NOT NULL COMMENT '过期时间',
+  `creator` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '创建者',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `updater` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '更新者',
+  `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `deleted` bit(1) NOT NULL DEFAULT b'0' COMMENT '是否删除',
+  `tenant_id` bigint NOT NULL DEFAULT 0 COMMENT '租户编号',
+  PRIMARY KEY (`id`) USING BTREE,
+  INDEX `idx_access_token`(`access_token` ASC) USING BTREE,
+  INDEX `idx_refresh_token`(`refresh_token` ASC) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 6628 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = 'OAuth2 访问令牌' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of system_oauth2_access_token
+-- ----------------------------
+INSERT INTO `system_oauth2_access_token` VALUES (6620, 1, 2, '{\"nickname\":\"芋道源码\",\"deptId\":\"103\"}', '38504251761643848921f82869bdf1d5', 'b0f68e786e1540588b866fdd33268b92', 'default', NULL, '2024-05-11 10:41:28', NULL, '2024-05-11 10:11:28', NULL, '2024-05-11 02:50:16', b'1', 1);
+INSERT INTO `system_oauth2_access_token` VALUES (6621, 1, 2, '{\"nickname\":\"芋道源码\",\"deptId\":\"103\"}', '78cae17ff0e240fcb936c47cf92c9a97', 'b0f68e786e1540588b866fdd33268b92', 'default', NULL, '2024-05-11 11:20:16', NULL, '2024-05-11 10:50:16', NULL, '2024-05-11 05:36:05', b'1', 1);
+INSERT INTO `system_oauth2_access_token` VALUES (6622, 1, 2, '{\"nickname\":\"芋道源码\",\"deptId\":\"103\"}', 'a481f5609cc64e73b8c9304b0a265c43', 'b0f68e786e1540588b866fdd33268b92', 'default', NULL, '2024-05-11 14:06:06', NULL, '2024-05-11 13:36:06', NULL, '2024-05-11 06:06:17', b'1', 0);
+INSERT INTO `system_oauth2_access_token` VALUES (6623, 1, 2, '{\"nickname\":\"芋道源码\",\"deptId\":\"103\"}', 'a0620a6dd44b429d8e8173d65944a065', 'b0f68e786e1540588b866fdd33268b92', 'default', NULL, '2024-05-11 14:36:17', NULL, '2024-05-11 14:06:17', NULL, '2024-05-11 06:07:07', b'1', 0);
+INSERT INTO `system_oauth2_access_token` VALUES (6624, 1, 2, '{\"nickname\":\"芋道源码\",\"deptId\":\"103\"}', '5ca6de6c0bc947c0b009546f60913270', '12c0e0ae4d0e4fc2b5baaf96ffee18b3', 'default', NULL, '2024-05-11 14:42:24', NULL, '2024-05-11 14:12:24', NULL, '2024-05-11 06:12:53', b'1', 0);
+INSERT INTO `system_oauth2_access_token` VALUES (6625, 1, 2, '{\"nickname\":\"芋道源码\",\"deptId\":\"103\"}', '2a98538ac8fd4dfda8bd47b050b21d3e', '26b8458ca6f84823851087f32b47d654', 'default', NULL, '2024-05-11 14:46:49', NULL, '2024-05-11 14:16:49', NULL, '2024-05-11 06:17:05', b'1', 0);
+INSERT INTO `system_oauth2_access_token` VALUES (6626, 1, 2, '{\"nickname\":\"芋道源码\",\"deptId\":\"103\"}', 'd69b2fa5305543d09b2a863b1d46bbee', '335493c9294f408390aa24c6f4faaf92', 'default', NULL, '2024-05-11 14:47:10', NULL, '2024-05-11 14:17:10', NULL, '2024-05-11 06:48:46', b'1', 0);
+INSERT INTO `system_oauth2_access_token` VALUES (6627, 1, 2, '{\"nickname\":\"芋道源码\",\"deptId\":\"100\"}', '6ab60b62333b4dec80f45b5374bc13bd', '335493c9294f408390aa24c6f4faaf92', 'default', NULL, '2024-05-11 15:18:46', NULL, '2024-05-11 14:48:46', NULL, '2024-05-11 14:48:46', b'0', 0);
+
+-- ----------------------------
+-- Table structure for system_oauth2_approve
+-- ----------------------------
+DROP TABLE IF EXISTS `system_oauth2_approve`;
+CREATE TABLE `system_oauth2_approve`  (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '编号',
+  `user_id` bigint NOT NULL COMMENT '用户编号',
+  `user_type` tinyint NOT NULL COMMENT '用户类型',
+  `client_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '客户端编号',
+  `scope` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT '授权范围',
+  `approved` bit(1) NOT NULL DEFAULT b'0' COMMENT '是否接受',
+  `expires_time` datetime NOT NULL COMMENT '过期时间',
+  `creator` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '创建者',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `updater` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '更新者',
+  `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `deleted` bit(1) NOT NULL DEFAULT b'0' COMMENT '是否删除',
+  `tenant_id` bigint NOT NULL DEFAULT 0 COMMENT '租户编号',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 82 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = 'OAuth2 批准表' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of system_oauth2_approve
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for system_oauth2_client
+-- ----------------------------
+DROP TABLE IF EXISTS `system_oauth2_client`;
+CREATE TABLE `system_oauth2_client`  (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '编号',
+  `client_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '客户端编号',
+  `secret` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '客户端密钥',
+  `name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '应用名',
+  `logo` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '应用图标',
+  `description` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '应用描述',
+  `status` tinyint NOT NULL COMMENT '状态',
+  `access_token_validity_seconds` int NOT NULL COMMENT '访问令牌的有效期',
+  `refresh_token_validity_seconds` int NOT NULL COMMENT '刷新令牌的有效期',
+  `redirect_uris` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '可重定向的 URI 地址',
+  `authorized_grant_types` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '授权类型',
+  `scopes` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '授权范围',
+  `auto_approve_scopes` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '自动通过的授权范围',
+  `authorities` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '权限',
+  `resource_ids` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '资源',
+  `additional_information` varchar(4096) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '附加信息',
+  `creator` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '创建者',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `updater` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '更新者',
+  `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `deleted` bit(1) NOT NULL DEFAULT b'0' COMMENT '是否删除',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 43 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = 'OAuth2 客户端表' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of system_oauth2_client
+-- ----------------------------
+INSERT INTO `system_oauth2_client` VALUES (1, 'default', 'admin123', '芋道源码', 'http://test.yudao.iocoder.cn/a5e2e244368878a366b516805a4aabf1.png', '我是描述', 0, 1800, 2592000, '[\"https://www.iocoder.cn\",\"https://doc.iocoder.cn\"]', '[\"password\",\"authorization_code\",\"implicit\",\"refresh_token\"]', '[\"user.read\",\"user.write\"]', '[]', '[\"user.read\",\"user.write\"]', '[]', '{}', '1', '2022-05-11 21:47:12', '1', '2024-02-22 16:31:52', b'0');
+INSERT INTO `system_oauth2_client` VALUES (40, 'test', 'test2', 'biubiu', 'http://test.yudao.iocoder.cn/277a899d573723f1fcdfb57340f00379.png', '啦啦啦啦', 0, 1800, 43200, '[\"https://www.iocoder.cn\"]', '[\"password\",\"authorization_code\",\"implicit\"]', '[\"user_info\",\"projects\"]', '[\"user_info\"]', '[]', '[]', '{}', '1', '2022-05-12 00:28:20', '1', '2023-12-02 21:01:01', b'0');
+INSERT INTO `system_oauth2_client` VALUES (41, 'yudao-sso-demo-by-code', 'test', '基于授权码模式，如何实现 SSO 单点登录？', 'http://test.yudao.iocoder.cn/fe4ed36596adad5120036ef61a6d0153654544d44af8dd4ad3ffe8f759933d6f.png', NULL, 0, 1800, 43200, '[\"http://127.0.0.1:18080\"]', '[\"authorization_code\",\"refresh_token\"]', '[\"user.read\",\"user.write\"]', '[]', '[]', '[]', NULL, '1', '2022-09-29 13:28:31', '1', '2022-09-29 13:28:31', b'0');
+INSERT INTO `system_oauth2_client` VALUES (42, 'yudao-sso-demo-by-password', 'test', '基于密码模式，如何实现 SSO 单点登录？', 'http://test.yudao.iocoder.cn/604bdc695e13b3b22745be704d1f2aa8ee05c5f26f9fead6d1ca49005afbc857.jpeg', NULL, 0, 1800, 43200, '[\"http://127.0.0.1:18080\"]', '[\"password\",\"refresh_token\"]', '[\"user.read\",\"user.write\"]', '[]', '[]', '[]', NULL, '1', '2022-10-04 17:40:16', '1', '2022-10-04 20:31:21', b'0');
+
+-- ----------------------------
+-- Table structure for system_oauth2_code
+-- ----------------------------
+DROP TABLE IF EXISTS `system_oauth2_code`;
+CREATE TABLE `system_oauth2_code`  (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '编号',
+  `user_id` bigint NOT NULL COMMENT '用户编号',
+  `user_type` tinyint NOT NULL COMMENT '用户类型',
+  `code` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '授权码',
+  `client_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '客户端编号',
+  `scopes` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '授权范围',
+  `expires_time` datetime NOT NULL COMMENT '过期时间',
+  `redirect_uri` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '可重定向的 URI 地址',
+  `state` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT '状态',
+  `creator` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '创建者',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `updater` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '更新者',
+  `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `deleted` bit(1) NOT NULL DEFAULT b'0' COMMENT '是否删除',
+  `tenant_id` bigint NOT NULL DEFAULT 0 COMMENT '租户编号',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 147 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = 'OAuth2 授权码表' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of system_oauth2_code
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for system_oauth2_refresh_token
+-- ----------------------------
+DROP TABLE IF EXISTS `system_oauth2_refresh_token`;
+CREATE TABLE `system_oauth2_refresh_token`  (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '编号',
+  `user_id` bigint NOT NULL COMMENT '用户编号',
+  `refresh_token` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '刷新令牌',
+  `user_type` tinyint NOT NULL COMMENT '用户类型',
+  `client_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '客户端编号',
+  `scopes` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '授权范围',
+  `expires_time` datetime NOT NULL COMMENT '过期时间',
+  `creator` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '创建者',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `updater` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '更新者',
+  `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `deleted` bit(1) NOT NULL DEFAULT b'0' COMMENT '是否删除',
+  `tenant_id` bigint NOT NULL DEFAULT 0 COMMENT '租户编号',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 1487 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = 'OAuth2 刷新令牌' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of system_oauth2_refresh_token
+-- ----------------------------
+INSERT INTO `system_oauth2_refresh_token` VALUES (1483, 1, 'b0f68e786e1540588b866fdd33268b92', 2, 'default', NULL, '2024-06-10 10:11:27', NULL, '2024-05-11 10:11:27', NULL, '2024-05-11 06:07:07', b'1', 1);
+INSERT INTO `system_oauth2_refresh_token` VALUES (1484, 1, '12c0e0ae4d0e4fc2b5baaf96ffee18b3', 2, 'default', NULL, '2024-06-10 14:12:24', NULL, '2024-05-11 14:12:24', NULL, '2024-05-11 06:12:53', b'1', 0);
+INSERT INTO `system_oauth2_refresh_token` VALUES (1485, 1, '26b8458ca6f84823851087f32b47d654', 2, 'default', NULL, '2024-06-10 14:16:49', NULL, '2024-05-11 14:16:49', NULL, '2024-05-11 06:17:05', b'1', 0);
+INSERT INTO `system_oauth2_refresh_token` VALUES (1486, 1, '335493c9294f408390aa24c6f4faaf92', 2, 'default', NULL, '2024-06-10 14:17:10', NULL, '2024-05-11 14:17:10', NULL, '2024-05-11 14:17:10', b'0', 0);
+
+-- ----------------------------
+-- Table structure for system_operate_log
+-- ----------------------------
+DROP TABLE IF EXISTS `system_operate_log`;
+CREATE TABLE `system_operate_log`  (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '日志主键',
+  `trace_id` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT '链路追踪编号',
+  `user_id` bigint NOT NULL COMMENT '用户编号',
+  `user_type` tinyint NOT NULL DEFAULT 0 COMMENT '用户类型',
+  `type` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '操作模块类型',
+  `sub_type` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '操作名',
+  `biz_id` bigint NOT NULL COMMENT '操作数据模块编号',
+  `action` varchar(2000) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT '操作内容',
+  `extra` varchar(2000) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT '拓展字段',
+  `request_method` varchar(16) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '请求方法名',
+  `request_url` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '请求地址',
+  `user_ip` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '用户 IP',
+  `user_agent` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '浏览器 UA',
+  `creator` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '创建者',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `updater` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '更新者',
+  `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `deleted` bit(1) NOT NULL DEFAULT b'0' COMMENT '是否删除',
+  `tenant_id` bigint NOT NULL DEFAULT 0 COMMENT '租户编号',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 9059 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '操作日志记录 V2 版本' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of system_operate_log
+-- ----------------------------
+INSERT INTO `system_operate_log` VALUES (9038, '', 1, 2, 'SYSTEM 用户', '删除用户', 100, '删除了用户【芋道】', '', 'DELETE', '/admin-api/system/user/delete', '0:0:0:0:0:0:0:1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36 Edg/124.0.0.0', NULL, '2024-05-11 14:28:13', NULL, '2024-05-11 14:28:13', b'0', 0);
+INSERT INTO `system_operate_log` VALUES (9039, '', 1, 2, 'SYSTEM 用户', '删除用户', 103, '删除了用户【源码】', '', 'DELETE', '/admin-api/system/user/delete', '0:0:0:0:0:0:0:1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36 Edg/124.0.0.0', NULL, '2024-05-11 14:28:17', NULL, '2024-05-11 14:28:17', b'0', 0);
+INSERT INTO `system_operate_log` VALUES (9040, '', 1, 2, 'SYSTEM 用户', '删除用户', 131, '删除了用户【呵呵】', '', 'DELETE', '/admin-api/system/user/delete', '0:0:0:0:0:0:0:1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36 Edg/124.0.0.0', NULL, '2024-05-11 14:28:45', NULL, '2024-05-11 14:28:45', b'0', 0);
+INSERT INTO `system_operate_log` VALUES (9041, '', 1, 2, 'SYSTEM 用户', '删除用户', 118, '删除了用户【狗蛋】', '', 'DELETE', '/admin-api/system/user/delete', '0:0:0:0:0:0:0:1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36 Edg/124.0.0.0', NULL, '2024-05-11 14:28:48', NULL, '2024-05-11 14:28:48', b'0', 0);
+INSERT INTO `system_operate_log` VALUES (9042, '', 1, 2, 'SYSTEM 用户', '删除用户', 117, '删除了用户【测试号】', '', 'DELETE', '/admin-api/system/user/delete', '0:0:0:0:0:0:0:1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36 Edg/124.0.0.0', NULL, '2024-05-11 14:28:50', NULL, '2024-05-11 14:28:50', b'0', 0);
+INSERT INTO `system_operate_log` VALUES (9043, '', 1, 2, 'SYSTEM 用户', '删除用户', 115, '删除了用户【阿呆】', '', 'DELETE', '/admin-api/system/user/delete', '0:0:0:0:0:0:0:1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36 Edg/124.0.0.0', NULL, '2024-05-11 14:28:53', NULL, '2024-05-11 14:28:53', b'0', 0);
+INSERT INTO `system_operate_log` VALUES (9044, '', 1, 2, 'SYSTEM 用户', '删除用户', 114, '删除了用户【hr 小姐姐】', '', 'DELETE', '/admin-api/system/user/delete', '0:0:0:0:0:0:0:1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36 Edg/124.0.0.0', NULL, '2024-05-11 14:28:55', NULL, '2024-05-11 14:28:55', b'0', 0);
+INSERT INTO `system_operate_log` VALUES (9045, '', 1, 2, 'SYSTEM 用户', '删除用户', 113, '删除了用户【芋道】', '', 'DELETE', '/admin-api/system/user/delete', '0:0:0:0:0:0:0:1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36 Edg/124.0.0.0', NULL, '2024-05-11 14:28:59', NULL, '2024-05-11 14:28:59', b'0', 0);
+INSERT INTO `system_operate_log` VALUES (9046, '', 1, 2, 'SYSTEM 用户', '删除用户', 112, '删除了用户【新对象】', '', 'DELETE', '/admin-api/system/user/delete', '0:0:0:0:0:0:0:1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36 Edg/124.0.0.0', NULL, '2024-05-11 14:29:02', NULL, '2024-05-11 14:29:02', b'0', 0);
+INSERT INTO `system_operate_log` VALUES (9047, '', 1, 2, 'SYSTEM 用户', '删除用户', 111, '删除了用户【测试用户】', '', 'DELETE', '/admin-api/system/user/delete', '0:0:0:0:0:0:0:1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36 Edg/124.0.0.0', NULL, '2024-05-11 14:29:04', NULL, '2024-05-11 14:29:04', b'0', 0);
+INSERT INTO `system_operate_log` VALUES (9048, '', 1, 2, 'SYSTEM 用户', '删除用户', 110, '删除了用户【小王】', '', 'DELETE', '/admin-api/system/user/delete', '0:0:0:0:0:0:0:1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36 Edg/124.0.0.0', NULL, '2024-05-11 14:29:07', NULL, '2024-05-11 14:29:07', b'0', 0);
+INSERT INTO `system_operate_log` VALUES (9049, '', 1, 2, 'SYSTEM 用户', '删除用户', 109, '删除了用户【芋艿】', '', 'DELETE', '/admin-api/system/user/delete', '0:0:0:0:0:0:0:1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36 Edg/124.0.0.0', NULL, '2024-05-11 14:29:10', NULL, '2024-05-11 14:29:10', b'0', 0);
+INSERT INTO `system_operate_log` VALUES (9050, '', 1, 2, 'SYSTEM 用户', '删除用户', 108, '删除了用户【芋艿】', '', 'DELETE', '/admin-api/system/user/delete', '0:0:0:0:0:0:0:1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36 Edg/124.0.0.0', NULL, '2024-05-11 14:29:14', NULL, '2024-05-11 14:29:14', b'0', 0);
+INSERT INTO `system_operate_log` VALUES (9051, '', 1, 2, 'SYSTEM 用户', '删除用户', 107, '删除了用户【芋艿】', '', 'DELETE', '/admin-api/system/user/delete', '0:0:0:0:0:0:0:1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36 Edg/124.0.0.0', NULL, '2024-05-11 14:29:17', NULL, '2024-05-11 14:29:17', b'0', 0);
+INSERT INTO `system_operate_log` VALUES (9052, '', 1, 2, 'SYSTEM 角色', '删除角色', 101, '删除了角色【测试账号】', '', 'DELETE', '/admin-api/system/role/delete', '0:0:0:0:0:0:0:1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36 Edg/124.0.0.0', NULL, '2024-05-11 14:29:57', NULL, '2024-05-11 14:29:57', b'0', 0);
+INSERT INTO `system_operate_log` VALUES (9053, '', 1, 2, 'SYSTEM 角色', '删除角色', 109, '删除了角色【租户管理员】', '', 'DELETE', '/admin-api/system/role/delete', '0:0:0:0:0:0:0:1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36 Edg/124.0.0.0', NULL, '2024-05-11 14:30:37', NULL, '2024-05-11 14:30:37', b'0', 0);
+INSERT INTO `system_operate_log` VALUES (9054, '', 1, 2, 'SYSTEM 角色', '删除角色', 111, '删除了角色【租户管理员】', '', 'DELETE', '/admin-api/system/role/delete', '0:0:0:0:0:0:0:1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36 Edg/124.0.0.0', NULL, '2024-05-11 14:30:40', NULL, '2024-05-11 14:30:40', b'0', 0);
+INSERT INTO `system_operate_log` VALUES (9055, '', 1, 2, 'SYSTEM 角色', '删除角色', 3, '删除了角色【CRM 管理员】', '', 'DELETE', '/admin-api/system/role/delete', '0:0:0:0:0:0:0:1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36 Edg/124.0.0.0', NULL, '2024-05-11 14:30:44', NULL, '2024-05-11 14:30:44', b'0', 0);
+INSERT INTO `system_operate_log` VALUES (9056, '', 1, 2, 'SYSTEM 用户', '更新用户', 1, '更新了用户【芋道源码】: 【部门】从【研发部门】修改为【顶级部门】', '', 'PUT', '/admin-api/system/user/update', '0:0:0:0:0:0:0:1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36 Edg/124.0.0.0', NULL, '2024-05-11 14:31:51', NULL, '2024-05-11 14:31:51', b'0', 0);
+INSERT INTO `system_operate_log` VALUES (9057, '', 1, 2, 'SYSTEM 用户', '更新用户', 104, '更新了用户【测试号】: 删除了【用户头像】：【】；【部门】从【运维部门】修改为【芋道源码】', '', 'PUT', '/admin-api/system/user/update', '0:0:0:0:0:0:0:1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36 Edg/124.0.0.0', NULL, '2024-05-11 14:31:59', NULL, '2024-05-11 14:31:59', b'0', 0);
+INSERT INTO `system_operate_log` VALUES (9058, '', 1, 2, 'SYSTEM 用户', '更新用户', 1, '更新了用户【芋道源码】: 【部门】从【顶级部门】修改为【芋道源码】', '', 'PUT', '/admin-api/system/user/update', '0:0:0:0:0:0:0:1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36 Edg/124.0.0.0', NULL, '2024-05-11 14:32:05', NULL, '2024-05-11 14:32:05', b'0', 0);
+
+-- ----------------------------
+-- Table structure for system_post
+-- ----------------------------
+DROP TABLE IF EXISTS `system_post`;
+CREATE TABLE `system_post`  (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '岗位ID',
+  `code` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '岗位编码',
+  `name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '岗位名称',
+  `sort` int NOT NULL COMMENT '显示顺序',
+  `status` tinyint NOT NULL COMMENT '状态（0正常 1停用）',
+  `remark` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '备注',
+  `creator` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '创建者',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `updater` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '更新者',
+  `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `deleted` bit(1) NOT NULL DEFAULT b'0' COMMENT '是否删除',
+  `tenant_id` bigint NOT NULL DEFAULT 0 COMMENT '租户编号',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 6 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '岗位信息表' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of system_post
+-- ----------------------------
+INSERT INTO `system_post` VALUES (1, 'ceo', '董事长', 1, 0, '', 'admin', '2021-01-06 17:03:48', '1', '2023-02-11 15:19:04', b'0', 1);
+INSERT INTO `system_post` VALUES (2, 'se', '项目经理', 2, 0, '', 'admin', '2021-01-05 17:03:48', '1', '2023-11-15 09:18:20', b'0', 1);
+INSERT INTO `system_post` VALUES (4, 'user', '普通员工', 4, 0, '111', 'admin', '2021-01-05 17:03:48', '1', '2023-12-02 10:04:37', b'0', 1);
+INSERT INTO `system_post` VALUES (5, 'HR', '人力资源', 5, 0, '', '1', '2024-03-24 20:45:40', '1', '2024-03-24 20:45:40', b'0', 1);
+
+-- ----------------------------
+-- Table structure for system_role
+-- ----------------------------
+DROP TABLE IF EXISTS `system_role`;
+CREATE TABLE `system_role`  (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '角色ID',
+  `name` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '角色名称',
+  `code` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '角色权限字符串',
+  `sort` int NOT NULL COMMENT '显示顺序',
+  `data_scope` tinyint NOT NULL DEFAULT 1 COMMENT '数据范围（1：全部数据权限 2：自定数据权限 3：本部门数据权限 4：本部门及以下数据权限）',
+  `data_scope_dept_ids` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT '数据范围(指定部门数组)',
+  `status` tinyint NOT NULL COMMENT '角色状态（0正常 1停用）',
+  `type` tinyint NOT NULL COMMENT '角色类型',
+  `remark` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '备注',
+  `creator` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '创建者',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `updater` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '更新者',
+  `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `deleted` bit(1) NOT NULL DEFAULT b'0' COMMENT '是否删除',
+  `tenant_id` bigint NOT NULL DEFAULT 0 COMMENT '租户编号',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 153 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '角色信息表' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of system_role
+-- ----------------------------
+INSERT INTO `system_role` VALUES (1, '超级管理员', 'super_admin', 1, 1, '', 0, 1, '超级管理员', 'admin', '2021-01-05 17:03:48', '', '2022-02-22 05:08:21', b'0', 1);
+INSERT INTO `system_role` VALUES (2, '普通角色', 'common', 2, 2, '', 0, 1, '普通角色', 'admin', '2021-01-05 17:03:48', '', '2024-05-11 06:30:25', b'0', 1);
+INSERT INTO `system_role` VALUES (3, 'CRM 管理员', 'crm_admin', 2, 1, '', 0, 2, 'CRM 专属角色', '1', '2024-02-24 10:51:13', '1', '2024-05-11 06:30:43', b'1', 1);
+INSERT INTO `system_role` VALUES (101, '测试账号', 'test', 0, 1, '[]', 0, 2, '我想测试', '', '2021-01-06 13:49:35', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role` VALUES (109, '租户管理员', 'tenant_admin', 0, 1, '', 0, 2, '系统自动生成', '1', '2022-02-22 00:56:14', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role` VALUES (111, '租户管理员', 'tenant_admin', 0, 1, '', 0, 2, '系统自动生成', '1', '2022-03-07 21:37:58', '1', '2024-05-11 06:30:40', b'1', 122);
+
+-- ----------------------------
+-- Table structure for system_role_menu
+-- ----------------------------
+DROP TABLE IF EXISTS `system_role_menu`;
+CREATE TABLE `system_role_menu`  (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '自增编号',
+  `role_id` bigint NOT NULL COMMENT '角色ID',
+  `menu_id` bigint NOT NULL COMMENT '菜单ID',
+  `creator` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '创建者',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `updater` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '更新者',
+  `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `deleted` bit(1) NOT NULL DEFAULT b'0' COMMENT '是否删除',
+  `tenant_id` bigint NOT NULL DEFAULT 0 COMMENT '租户编号',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 6001 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '角色和菜单关联表' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of system_role_menu
+-- ----------------------------
+INSERT INTO `system_role_menu` VALUES (263, 109, 1, '1', '2022-02-22 00:56:14', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (434, 2, 1, '1', '2022-02-22 13:09:12', '1', '2022-02-22 13:09:12', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (454, 2, 1093, '1', '2022-02-22 13:09:12', '1', '2022-02-22 13:09:12', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (455, 2, 1094, '1', '2022-02-22 13:09:12', '1', '2022-02-22 13:09:12', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (460, 2, 1100, '1', '2022-02-22 13:09:12', '1', '2022-02-22 13:09:12', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (467, 2, 1107, '1', '2022-02-22 13:09:12', '1', '2022-02-22 13:09:12', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (476, 2, 1117, '1', '2022-02-22 13:09:12', '1', '2024-05-11 02:23:07', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (477, 2, 100, '1', '2022-02-22 13:09:12', '1', '2022-02-22 13:09:12', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (478, 2, 101, '1', '2022-02-22 13:09:12', '1', '2022-02-22 13:09:12', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (479, 2, 102, '1', '2022-02-22 13:09:12', '1', '2022-02-22 13:09:12', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (480, 2, 1126, '1', '2022-02-22 13:09:12', '1', '2022-02-22 13:09:12', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (481, 2, 103, '1', '2022-02-22 13:09:12', '1', '2022-02-22 13:09:12', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (483, 2, 104, '1', '2022-02-22 13:09:12', '1', '2022-02-22 13:09:12', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (485, 2, 105, '1', '2022-02-22 13:09:12', '1', '2022-02-22 13:09:12', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (488, 2, 107, '1', '2022-02-22 13:09:12', '1', '2022-02-22 13:09:12', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (490, 2, 108, '1', '2022-02-22 13:09:12', '1', '2022-02-22 13:09:12', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (492, 2, 109, '1', '2022-02-22 13:09:12', '1', '2022-02-22 13:09:12', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (498, 2, 1138, '1', '2022-02-22 13:09:12', '1', '2022-02-22 13:09:12', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (523, 2, 1224, '1', '2022-02-22 13:09:12', '1', '2022-02-22 13:09:12', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (524, 2, 1225, '1', '2022-02-22 13:09:12', '1', '2022-02-22 13:09:12', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (541, 2, 500, '1', '2022-02-22 13:09:12', '1', '2022-02-22 13:09:12', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (543, 2, 501, '1', '2022-02-22 13:09:12', '1', '2022-02-22 13:09:12', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (675, 2, 2, '1', '2022-02-22 13:16:57', '1', '2022-02-22 13:16:57', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (689, 2, 1077, '1', '2022-02-22 13:16:57', '1', '2022-02-22 13:16:57', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (690, 2, 1078, '1', '2022-02-22 13:16:57', '1', '2022-02-22 13:16:57', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (692, 2, 1083, '1', '2022-02-22 13:16:57', '1', '2022-02-22 13:16:57', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (693, 2, 1084, '1', '2022-02-22 13:16:57', '1', '2022-02-22 13:16:57', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (699, 2, 1090, '1', '2022-02-22 13:16:57', '1', '2022-02-22 13:16:57', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (703, 2, 106, '1', '2022-02-22 13:16:57', '1', '2022-02-22 13:16:57', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (704, 2, 110, '1', '2022-02-22 13:16:57', '1', '2022-02-22 13:16:57', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (705, 2, 111, '1', '2022-02-22 13:16:57', '1', '2022-02-22 13:16:57', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (706, 2, 112, '1', '2022-02-22 13:16:57', '1', '2022-02-22 13:16:57', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (707, 2, 113, '1', '2022-02-22 13:16:57', '1', '2022-02-22 13:16:57', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (1296, 110, 1, '110', '2022-02-23 00:23:55', '110', '2022-02-23 00:23:55', b'0', 121);
+INSERT INTO `system_role_menu` VALUES (1578, 111, 1, '1', '2022-03-07 21:37:58', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (1604, 101, 1216, '1', '2022-03-19 21:45:52', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (1605, 101, 1217, '1', '2022-03-19 21:45:52', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (1606, 101, 1218, '1', '2022-03-19 21:45:52', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (1607, 101, 1219, '1', '2022-03-19 21:45:52', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (1608, 101, 1220, '1', '2022-03-19 21:45:52', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (1609, 101, 1221, '1', '2022-03-19 21:45:52', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (1610, 101, 5, '1', '2022-03-19 21:45:52', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (1611, 101, 1222, '1', '2022-03-19 21:45:52', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (1612, 101, 1118, '1', '2022-03-19 21:45:52', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (1613, 101, 1119, '1', '2022-03-19 21:45:52', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (1614, 101, 1120, '1', '2022-03-19 21:45:52', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (1615, 101, 1185, '1', '2022-03-19 21:45:52', '1', '2024-05-11 02:23:16', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (1616, 101, 1186, '1', '2022-03-19 21:45:52', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (1617, 101, 1187, '1', '2022-03-19 21:45:52', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (1618, 101, 1188, '1', '2022-03-19 21:45:52', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (1619, 101, 1189, '1', '2022-03-19 21:45:52', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (1620, 101, 1190, '1', '2022-03-19 21:45:52', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (1621, 101, 1191, '1', '2022-03-19 21:45:52', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (1622, 101, 1192, '1', '2022-03-19 21:45:52', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (1623, 101, 1193, '1', '2022-03-19 21:45:52', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (1624, 101, 1194, '1', '2022-03-19 21:45:52', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (1625, 101, 1195, '1', '2022-03-19 21:45:52', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (1626, 101, 1196, '1', '2022-03-19 21:45:52', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (1627, 101, 1197, '1', '2022-03-19 21:45:52', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (1628, 101, 1198, '1', '2022-03-19 21:45:52', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (1629, 101, 1199, '1', '2022-03-19 21:45:52', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (1630, 101, 1200, '1', '2022-03-19 21:45:52', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (1631, 101, 1201, '1', '2022-03-19 21:45:52', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (1632, 101, 1202, '1', '2022-03-19 21:45:52', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (1633, 101, 1207, '1', '2022-03-19 21:45:52', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (1634, 101, 1208, '1', '2022-03-19 21:45:52', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (1635, 101, 1209, '1', '2022-03-19 21:45:52', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (1636, 101, 1210, '1', '2022-03-19 21:45:52', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (1637, 101, 1211, '1', '2022-03-19 21:45:52', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (1638, 101, 1212, '1', '2022-03-19 21:45:52', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (1639, 101, 1213, '1', '2022-03-19 21:45:52', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (1640, 101, 1215, '1', '2022-03-19 21:45:52', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (1641, 101, 2, '1', '2022-04-01 22:21:24', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (1642, 101, 1031, '1', '2022-04-01 22:21:37', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (1643, 101, 1032, '1', '2022-04-01 22:21:37', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (1644, 101, 1033, '1', '2022-04-01 22:21:37', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (1645, 101, 1034, '1', '2022-04-01 22:21:37', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (1646, 101, 1035, '1', '2022-04-01 22:21:37', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (1647, 101, 1050, '1', '2022-04-01 22:21:37', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (1648, 101, 1051, '1', '2022-04-01 22:21:37', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (1649, 101, 1052, '1', '2022-04-01 22:21:37', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (1650, 101, 1053, '1', '2022-04-01 22:21:37', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (1651, 101, 1054, '1', '2022-04-01 22:21:37', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (1652, 101, 1056, '1', '2022-04-01 22:21:37', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (1653, 101, 1057, '1', '2022-04-01 22:21:37', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (1654, 101, 1058, '1', '2022-04-01 22:21:37', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (1655, 101, 1059, '1', '2022-04-01 22:21:37', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (1656, 101, 1060, '1', '2022-04-01 22:21:37', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (1657, 101, 1066, '1', '2022-04-01 22:21:37', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (1658, 101, 1067, '1', '2022-04-01 22:21:37', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (1659, 101, 1070, '1', '2022-04-01 22:21:37', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (1664, 101, 1075, '1', '2022-04-01 22:21:37', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (1666, 101, 1077, '1', '2022-04-01 22:21:37', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (1667, 101, 1078, '1', '2022-04-01 22:21:37', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (1668, 101, 1082, '1', '2022-04-01 22:21:37', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (1669, 101, 1083, '1', '2022-04-01 22:21:37', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (1670, 101, 1084, '1', '2022-04-01 22:21:37', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (1671, 101, 1085, '1', '2022-04-01 22:21:37', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (1672, 101, 1086, '1', '2022-04-01 22:21:37', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (1673, 101, 1087, '1', '2022-04-01 22:21:37', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (1674, 101, 1088, '1', '2022-04-01 22:21:37', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (1675, 101, 1089, '1', '2022-04-01 22:21:37', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (1679, 101, 1237, '1', '2022-04-01 22:21:37', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (1680, 101, 1238, '1', '2022-04-01 22:21:37', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (1681, 101, 1239, '1', '2022-04-01 22:21:37', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (1682, 101, 1240, '1', '2022-04-01 22:21:37', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (1683, 101, 1241, '1', '2022-04-01 22:21:37', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (1684, 101, 1242, '1', '2022-04-01 22:21:37', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (1685, 101, 1243, '1', '2022-04-01 22:21:37', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (1687, 101, 106, '1', '2022-04-01 22:21:37', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (1688, 101, 110, '1', '2022-04-01 22:21:37', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (1689, 101, 111, '1', '2022-04-01 22:21:37', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (1690, 101, 112, '1', '2022-04-01 22:21:37', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (1691, 101, 113, '1', '2022-04-01 22:21:37', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (1692, 101, 114, '1', '2022-04-01 22:21:37', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (1693, 101, 115, '1', '2022-04-01 22:21:37', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (1694, 101, 116, '1', '2022-04-01 22:21:37', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (1729, 109, 100, '1', '2022-09-21 22:08:51', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (1730, 109, 101, '1', '2022-09-21 22:08:51', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (1731, 109, 1063, '1', '2022-09-21 22:08:51', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (1732, 109, 1064, '1', '2022-09-21 22:08:51', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (1733, 109, 1001, '1', '2022-09-21 22:08:51', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (1734, 109, 1065, '1', '2022-09-21 22:08:51', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (1735, 109, 1002, '1', '2022-09-21 22:08:51', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (1736, 109, 1003, '1', '2022-09-21 22:08:51', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (1737, 109, 1004, '1', '2022-09-21 22:08:51', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (1738, 109, 1005, '1', '2022-09-21 22:08:51', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (1739, 109, 1006, '1', '2022-09-21 22:08:51', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (1740, 109, 1007, '1', '2022-09-21 22:08:51', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (1741, 109, 1008, '1', '2022-09-21 22:08:51', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (1742, 109, 1009, '1', '2022-09-21 22:08:51', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (1743, 109, 1010, '1', '2022-09-21 22:08:51', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (1744, 109, 1011, '1', '2022-09-21 22:08:51', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (1745, 109, 1012, '1', '2022-09-21 22:08:51', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (1746, 111, 100, '1', '2022-09-21 22:08:52', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (1747, 111, 101, '1', '2022-09-21 22:08:52', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (1748, 111, 1063, '1', '2022-09-21 22:08:52', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (1749, 111, 1064, '1', '2022-09-21 22:08:52', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (1750, 111, 1001, '1', '2022-09-21 22:08:52', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (1751, 111, 1065, '1', '2022-09-21 22:08:52', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (1752, 111, 1002, '1', '2022-09-21 22:08:52', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (1753, 111, 1003, '1', '2022-09-21 22:08:52', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (1754, 111, 1004, '1', '2022-09-21 22:08:52', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (1755, 111, 1005, '1', '2022-09-21 22:08:52', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (1756, 111, 1006, '1', '2022-09-21 22:08:52', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (1757, 111, 1007, '1', '2022-09-21 22:08:52', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (1758, 111, 1008, '1', '2022-09-21 22:08:52', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (1759, 111, 1009, '1', '2022-09-21 22:08:52', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (1760, 111, 1010, '1', '2022-09-21 22:08:52', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (1761, 111, 1011, '1', '2022-09-21 22:08:52', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (1762, 111, 1012, '1', '2022-09-21 22:08:52', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (1763, 109, 100, '1', '2022-09-21 22:08:53', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (1764, 109, 101, '1', '2022-09-21 22:08:53', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (1765, 109, 1063, '1', '2022-09-21 22:08:53', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (1766, 109, 1064, '1', '2022-09-21 22:08:53', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (1767, 109, 1001, '1', '2022-09-21 22:08:53', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (1768, 109, 1065, '1', '2022-09-21 22:08:53', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (1769, 109, 1002, '1', '2022-09-21 22:08:53', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (1770, 109, 1003, '1', '2022-09-21 22:08:53', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (1771, 109, 1004, '1', '2022-09-21 22:08:53', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (1772, 109, 1005, '1', '2022-09-21 22:08:53', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (1773, 109, 1006, '1', '2022-09-21 22:08:53', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (1774, 109, 1007, '1', '2022-09-21 22:08:53', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (1775, 109, 1008, '1', '2022-09-21 22:08:53', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (1776, 109, 1009, '1', '2022-09-21 22:08:53', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (1777, 109, 1010, '1', '2022-09-21 22:08:53', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (1778, 109, 1011, '1', '2022-09-21 22:08:53', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (1779, 109, 1012, '1', '2022-09-21 22:08:53', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (1780, 111, 100, '1', '2022-09-21 22:08:54', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (1781, 111, 101, '1', '2022-09-21 22:08:54', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (1782, 111, 1063, '1', '2022-09-21 22:08:54', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (1783, 111, 1064, '1', '2022-09-21 22:08:54', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (1784, 111, 1001, '1', '2022-09-21 22:08:54', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (1785, 111, 1065, '1', '2022-09-21 22:08:54', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (1786, 111, 1002, '1', '2022-09-21 22:08:54', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (1787, 111, 1003, '1', '2022-09-21 22:08:54', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (1788, 111, 1004, '1', '2022-09-21 22:08:54', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (1789, 111, 1005, '1', '2022-09-21 22:08:54', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (1790, 111, 1006, '1', '2022-09-21 22:08:54', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (1791, 111, 1007, '1', '2022-09-21 22:08:54', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (1792, 111, 1008, '1', '2022-09-21 22:08:54', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (1793, 111, 1009, '1', '2022-09-21 22:08:54', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (1794, 111, 1010, '1', '2022-09-21 22:08:54', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (1795, 111, 1011, '1', '2022-09-21 22:08:54', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (1796, 111, 1012, '1', '2022-09-21 22:08:54', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (1797, 109, 100, '1', '2022-09-21 22:08:55', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (1798, 109, 101, '1', '2022-09-21 22:08:55', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (1799, 109, 1063, '1', '2022-09-21 22:08:55', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (1800, 109, 1064, '1', '2022-09-21 22:08:55', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (1801, 109, 1001, '1', '2022-09-21 22:08:55', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (1802, 109, 1065, '1', '2022-09-21 22:08:55', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (1803, 109, 1002, '1', '2022-09-21 22:08:55', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (1804, 109, 1003, '1', '2022-09-21 22:08:55', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (1805, 109, 1004, '1', '2022-09-21 22:08:55', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (1806, 109, 1005, '1', '2022-09-21 22:08:55', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (1807, 109, 1006, '1', '2022-09-21 22:08:55', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (1808, 109, 1007, '1', '2022-09-21 22:08:55', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (1809, 109, 1008, '1', '2022-09-21 22:08:55', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (1810, 109, 1009, '1', '2022-09-21 22:08:55', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (1811, 109, 1010, '1', '2022-09-21 22:08:55', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (1812, 109, 1011, '1', '2022-09-21 22:08:55', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (1813, 109, 1012, '1', '2022-09-21 22:08:55', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (1814, 111, 100, '1', '2022-09-21 22:08:56', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (1815, 111, 101, '1', '2022-09-21 22:08:56', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (1816, 111, 1063, '1', '2022-09-21 22:08:56', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (1817, 111, 1064, '1', '2022-09-21 22:08:56', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (1818, 111, 1001, '1', '2022-09-21 22:08:56', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (1819, 111, 1065, '1', '2022-09-21 22:08:56', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (1820, 111, 1002, '1', '2022-09-21 22:08:56', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (1821, 111, 1003, '1', '2022-09-21 22:08:56', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (1822, 111, 1004, '1', '2022-09-21 22:08:56', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (1823, 111, 1005, '1', '2022-09-21 22:08:56', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (1824, 111, 1006, '1', '2022-09-21 22:08:56', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (1825, 111, 1007, '1', '2022-09-21 22:08:56', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (1826, 111, 1008, '1', '2022-09-21 22:08:56', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (1827, 111, 1009, '1', '2022-09-21 22:08:56', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (1828, 111, 1010, '1', '2022-09-21 22:08:56', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (1829, 111, 1011, '1', '2022-09-21 22:08:56', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (1830, 111, 1012, '1', '2022-09-21 22:08:56', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (1831, 109, 103, '1', '2022-09-21 22:43:23', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (1832, 109, 1017, '1', '2022-09-21 22:43:23', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (1833, 109, 1018, '1', '2022-09-21 22:43:23', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (1834, 109, 1019, '1', '2022-09-21 22:43:23', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (1835, 109, 1020, '1', '2022-09-21 22:43:23', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (1836, 111, 103, '1', '2022-09-21 22:43:24', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (1837, 111, 1017, '1', '2022-09-21 22:43:24', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (1838, 111, 1018, '1', '2022-09-21 22:43:24', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (1839, 111, 1019, '1', '2022-09-21 22:43:24', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (1840, 111, 1020, '1', '2022-09-21 22:43:24', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (1841, 109, 1036, '1', '2022-09-21 22:48:13', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (1842, 109, 1037, '1', '2022-09-21 22:48:13', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (1843, 109, 1038, '1', '2022-09-21 22:48:13', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (1844, 109, 1039, '1', '2022-09-21 22:48:13', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (1845, 109, 107, '1', '2022-09-21 22:48:13', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (1846, 111, 1036, '1', '2022-09-21 22:48:13', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (1847, 111, 1037, '1', '2022-09-21 22:48:13', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (1848, 111, 1038, '1', '2022-09-21 22:48:13', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (1849, 111, 1039, '1', '2022-09-21 22:48:13', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (1850, 111, 107, '1', '2022-09-21 22:48:13', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (1991, 2, 1024, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (1992, 2, 1025, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (1993, 2, 1026, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (1994, 2, 1027, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (1995, 2, 1028, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (1996, 2, 1029, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (1997, 2, 1030, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (1998, 2, 1031, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (1999, 2, 1032, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2000, 2, 1033, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2001, 2, 1034, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2002, 2, 1035, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2003, 2, 1036, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2004, 2, 1037, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2005, 2, 1038, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2006, 2, 1039, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2007, 2, 1040, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2008, 2, 1042, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2009, 2, 1043, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2010, 2, 1045, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2011, 2, 1046, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2012, 2, 1048, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2013, 2, 1050, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2014, 2, 1051, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2015, 2, 1052, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2016, 2, 1053, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2017, 2, 1054, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2018, 2, 1056, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2019, 2, 1057, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2020, 2, 1058, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2021, 2, 2083, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2022, 2, 1059, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2023, 2, 1060, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2024, 2, 1063, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2025, 2, 1064, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2026, 2, 1065, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2027, 2, 1066, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2028, 2, 1067, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2029, 2, 1070, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2034, 2, 1075, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2036, 2, 1082, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2037, 2, 1085, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2038, 2, 1086, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2039, 2, 1087, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2040, 2, 1088, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2041, 2, 1089, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2042, 2, 1091, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2043, 2, 1092, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2044, 2, 1095, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2045, 2, 1096, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2046, 2, 1097, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2047, 2, 1098, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2048, 2, 1101, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2049, 2, 1102, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2050, 2, 1103, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2051, 2, 1104, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2052, 2, 1105, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2053, 2, 1106, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2054, 2, 1108, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2055, 2, 1109, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2061, 2, 1127, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2062, 2, 1128, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2063, 2, 1129, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2064, 2, 1130, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2066, 2, 1132, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2067, 2, 1133, '1', '2023-01-25 08:42:52', '1', '2024-05-11 02:27:16', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (2068, 2, 1134, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2069, 2, 1135, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2070, 2, 1136, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2071, 2, 1137, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2072, 2, 114, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2073, 2, 1139, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2074, 2, 115, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2075, 2, 1140, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2076, 2, 116, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2077, 2, 1141, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2078, 2, 1142, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2079, 2, 1143, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2080, 2, 1150, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2081, 2, 1161, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2082, 2, 1162, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2083, 2, 1163, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2084, 2, 1164, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2085, 2, 1165, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2086, 2, 1166, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2087, 2, 1173, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2088, 2, 1174, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2089, 2, 1175, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2090, 2, 1176, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2091, 2, 1177, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2092, 2, 1178, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2099, 2, 1226, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2100, 2, 1227, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2101, 2, 1228, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2102, 2, 1229, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2103, 2, 1237, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2104, 2, 1238, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2105, 2, 1239, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2106, 2, 1240, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2107, 2, 1241, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2108, 2, 1242, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2109, 2, 1243, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2116, 2, 1254, '1', '2023-01-25 08:42:52', '1', '2024-05-11 02:12:53', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (2117, 2, 1255, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2118, 2, 1256, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2119, 2, 1257, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2120, 2, 1258, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2121, 2, 1259, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2122, 2, 1260, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2123, 2, 1261, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2124, 2, 1263, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2125, 2, 1264, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2126, 2, 1265, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2127, 2, 1266, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2128, 2, 1267, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2129, 2, 1001, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2130, 2, 1002, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2131, 2, 1003, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2132, 2, 1004, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2133, 2, 1005, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2134, 2, 1006, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2135, 2, 1007, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2136, 2, 1008, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2137, 2, 1009, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2138, 2, 1010, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2139, 2, 1011, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2140, 2, 1012, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2141, 2, 1013, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2142, 2, 1014, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2143, 2, 1015, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2144, 2, 1016, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2145, 2, 1017, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2146, 2, 1018, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2147, 2, 1019, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2148, 2, 1020, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2149, 2, 1021, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2150, 2, 1022, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2151, 2, 1023, '1', '2023-01-25 08:42:52', '1', '2023-01-25 08:42:52', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2152, 2, 1281, '1', '2023-01-25 08:42:58', '1', '2024-05-11 02:23:12', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (2153, 2, 1282, '1', '2023-01-25 08:42:58', '1', '2023-01-25 08:42:58', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2154, 2, 2000, '1', '2023-01-25 08:42:58', '1', '2023-01-25 08:42:58', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2155, 2, 2002, '1', '2023-01-25 08:42:58', '1', '2023-01-25 08:42:58', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2156, 2, 2003, '1', '2023-01-25 08:42:58', '1', '2023-01-25 08:42:58', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2157, 2, 2004, '1', '2023-01-25 08:42:58', '1', '2023-01-25 08:42:58', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2158, 2, 2005, '1', '2023-01-25 08:42:58', '1', '2023-01-25 08:42:58', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2159, 2, 2006, '1', '2023-01-25 08:42:58', '1', '2023-01-25 08:42:58', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2160, 2, 2008, '1', '2023-01-25 08:42:58', '1', '2023-01-25 08:42:58', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2161, 2, 2009, '1', '2023-01-25 08:42:58', '1', '2023-01-25 08:42:58', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2162, 2, 2010, '1', '2023-01-25 08:42:58', '1', '2023-01-25 08:42:58', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2163, 2, 2011, '1', '2023-01-25 08:42:58', '1', '2023-01-25 08:42:58', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2164, 2, 2012, '1', '2023-01-25 08:42:58', '1', '2023-01-25 08:42:58', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2170, 2, 2019, '1', '2023-01-25 08:42:58', '1', '2023-01-25 08:42:58', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2171, 2, 2020, '1', '2023-01-25 08:42:58', '1', '2023-01-25 08:42:58', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2172, 2, 2021, '1', '2023-01-25 08:42:58', '1', '2023-01-25 08:42:58', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2173, 2, 2022, '1', '2023-01-25 08:42:58', '1', '2023-01-25 08:42:58', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2174, 2, 2023, '1', '2023-01-25 08:42:58', '1', '2023-01-25 08:42:58', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2175, 2, 2025, '1', '2023-01-25 08:42:58', '1', '2023-01-25 08:42:58', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2177, 2, 2027, '1', '2023-01-25 08:42:58', '1', '2023-01-25 08:42:58', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2178, 2, 2028, '1', '2023-01-25 08:42:58', '1', '2023-01-25 08:42:58', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2179, 2, 2029, '1', '2023-01-25 08:42:58', '1', '2023-01-25 08:42:58', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2180, 2, 2014, '1', '2023-01-25 08:43:12', '1', '2023-01-25 08:43:12', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2181, 2, 2015, '1', '2023-01-25 08:43:12', '1', '2023-01-25 08:43:12', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2182, 2, 2016, '1', '2023-01-25 08:43:12', '1', '2023-01-25 08:43:12', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2183, 2, 2017, '1', '2023-01-25 08:43:12', '1', '2023-01-25 08:43:12', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2184, 2, 2018, '1', '2023-01-25 08:43:12', '1', '2023-01-25 08:43:12', b'0', 1);
+INSERT INTO `system_role_menu` VALUES (2188, 101, 1024, '1', '2023-02-09 23:49:46', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (2189, 101, 1, '1', '2023-02-09 23:49:46', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (2190, 101, 1025, '1', '2023-02-09 23:49:46', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (2191, 101, 1026, '1', '2023-02-09 23:49:46', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (2192, 101, 1027, '1', '2023-02-09 23:49:46', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (2193, 101, 1028, '1', '2023-02-09 23:49:46', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (2194, 101, 1029, '1', '2023-02-09 23:49:46', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (2195, 101, 1030, '1', '2023-02-09 23:49:46', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (2196, 101, 1036, '1', '2023-02-09 23:49:46', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (2197, 101, 1037, '1', '2023-02-09 23:49:46', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (2198, 101, 1038, '1', '2023-02-09 23:49:46', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (2199, 101, 1039, '1', '2023-02-09 23:49:46', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (2200, 101, 1040, '1', '2023-02-09 23:49:46', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (2201, 101, 1042, '1', '2023-02-09 23:49:46', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (2202, 101, 1043, '1', '2023-02-09 23:49:46', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (2203, 101, 1045, '1', '2023-02-09 23:49:46', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (2204, 101, 1046, '1', '2023-02-09 23:49:46', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (2205, 101, 1048, '1', '2023-02-09 23:49:46', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (2206, 101, 2083, '1', '2023-02-09 23:49:46', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (2207, 101, 1063, '1', '2023-02-09 23:49:46', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (2208, 101, 1064, '1', '2023-02-09 23:49:46', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (2209, 101, 1065, '1', '2023-02-09 23:49:46', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (2210, 101, 1093, '1', '2023-02-09 23:49:46', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (2211, 101, 1094, '1', '2023-02-09 23:49:46', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (2212, 101, 1095, '1', '2023-02-09 23:49:46', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (2213, 101, 1096, '1', '2023-02-09 23:49:46', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (2214, 101, 1097, '1', '2023-02-09 23:49:46', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (2215, 101, 1098, '1', '2023-02-09 23:49:46', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (2216, 101, 1100, '1', '2023-02-09 23:49:46', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (2217, 101, 1101, '1', '2023-02-09 23:49:46', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (2218, 101, 1102, '1', '2023-02-09 23:49:46', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (2219, 101, 1103, '1', '2023-02-09 23:49:46', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (2220, 101, 1104, '1', '2023-02-09 23:49:46', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (2221, 101, 1105, '1', '2023-02-09 23:49:46', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (2222, 101, 1106, '1', '2023-02-09 23:49:46', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (2223, 101, 2130, '1', '2023-02-09 23:49:46', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (2224, 101, 1107, '1', '2023-02-09 23:49:46', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (2225, 101, 2131, '1', '2023-02-09 23:49:46', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (2226, 101, 1108, '1', '2023-02-09 23:49:46', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (2227, 101, 2132, '1', '2023-02-09 23:49:46', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (2228, 101, 1109, '1', '2023-02-09 23:49:46', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (2229, 101, 2133, '1', '2023-02-09 23:49:46', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (2230, 101, 2134, '1', '2023-02-09 23:49:46', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (2232, 101, 2135, '1', '2023-02-09 23:49:46', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (2234, 101, 2136, '1', '2023-02-09 23:49:46', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (2236, 101, 2137, '1', '2023-02-09 23:49:46', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (2238, 101, 2138, '1', '2023-02-09 23:49:46', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (2240, 101, 2139, '1', '2023-02-09 23:49:46', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (2242, 101, 2140, '1', '2023-02-09 23:49:46', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (2243, 101, 2141, '1', '2023-02-09 23:49:46', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (2244, 101, 2142, '1', '2023-02-09 23:49:46', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (2245, 101, 2143, '1', '2023-02-09 23:49:46', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (2246, 101, 2144, '1', '2023-02-09 23:49:46', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (2247, 101, 2145, '1', '2023-02-09 23:49:46', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (2248, 101, 2146, '1', '2023-02-09 23:49:46', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (2249, 101, 2147, '1', '2023-02-09 23:49:46', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (2250, 101, 100, '1', '2023-02-09 23:49:46', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (2251, 101, 2148, '1', '2023-02-09 23:49:46', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (2252, 101, 101, '1', '2023-02-09 23:49:46', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (2253, 101, 2149, '1', '2023-02-09 23:49:46', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (2254, 101, 102, '1', '2023-02-09 23:49:46', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (2255, 101, 2150, '1', '2023-02-09 23:49:46', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (2256, 101, 103, '1', '2023-02-09 23:49:46', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (2257, 101, 2151, '1', '2023-02-09 23:49:46', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (2258, 101, 104, '1', '2023-02-09 23:49:46', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (2259, 101, 2152, '1', '2023-02-09 23:49:46', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (2260, 101, 105, '1', '2023-02-09 23:49:46', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (2261, 101, 107, '1', '2023-02-09 23:49:46', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (2262, 101, 108, '1', '2023-02-09 23:49:46', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (2263, 101, 109, '1', '2023-02-09 23:49:46', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (2264, 101, 1138, '1', '2023-02-09 23:49:46', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (2265, 101, 1139, '1', '2023-02-09 23:49:46', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (2266, 101, 1140, '1', '2023-02-09 23:49:46', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (2267, 101, 1141, '1', '2023-02-09 23:49:46', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (2268, 101, 1142, '1', '2023-02-09 23:49:46', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (2269, 101, 1143, '1', '2023-02-09 23:49:46', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (2270, 101, 1224, '1', '2023-02-09 23:49:46', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (2271, 101, 1225, '1', '2023-02-09 23:49:46', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (2272, 101, 1226, '1', '2023-02-09 23:49:46', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (2273, 101, 1227, '1', '2023-02-09 23:49:46', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (2274, 101, 1228, '1', '2023-02-09 23:49:46', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (2275, 101, 1229, '1', '2023-02-09 23:49:46', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (2282, 101, 1261, '1', '2023-02-09 23:49:46', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (2283, 101, 1263, '1', '2023-02-09 23:49:46', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (2284, 101, 1264, '1', '2023-02-09 23:49:46', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (2285, 101, 1265, '1', '2023-02-09 23:49:46', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (2286, 101, 1266, '1', '2023-02-09 23:49:46', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (2287, 101, 1267, '1', '2023-02-09 23:49:46', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (2288, 101, 1001, '1', '2023-02-09 23:49:46', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (2289, 101, 1002, '1', '2023-02-09 23:49:46', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (2290, 101, 1003, '1', '2023-02-09 23:49:46', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (2291, 101, 1004, '1', '2023-02-09 23:49:46', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (2292, 101, 1005, '1', '2023-02-09 23:49:46', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (2293, 101, 1006, '1', '2023-02-09 23:49:46', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (2294, 101, 1007, '1', '2023-02-09 23:49:46', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (2295, 101, 1008, '1', '2023-02-09 23:49:46', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (2296, 101, 1009, '1', '2023-02-09 23:49:46', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (2297, 101, 1010, '1', '2023-02-09 23:49:46', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (2298, 101, 1011, '1', '2023-02-09 23:49:46', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (2299, 101, 1012, '1', '2023-02-09 23:49:46', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (2300, 101, 500, '1', '2023-02-09 23:49:46', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (2301, 101, 1013, '1', '2023-02-09 23:49:46', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (2302, 101, 501, '1', '2023-02-09 23:49:46', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (2303, 101, 1014, '1', '2023-02-09 23:49:46', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (2304, 101, 1015, '1', '2023-02-09 23:49:46', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (2305, 101, 1016, '1', '2023-02-09 23:49:46', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (2306, 101, 1017, '1', '2023-02-09 23:49:46', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (2307, 101, 1018, '1', '2023-02-09 23:49:46', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (2308, 101, 1019, '1', '2023-02-09 23:49:46', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (2309, 101, 1020, '1', '2023-02-09 23:49:46', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (2310, 101, 1021, '1', '2023-02-09 23:49:46', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (2311, 101, 1022, '1', '2023-02-09 23:49:46', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (2312, 101, 1023, '1', '2023-02-09 23:49:46', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (2929, 109, 1224, '1', '2023-12-02 23:19:40', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (2930, 109, 1225, '1', '2023-12-02 23:19:40', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (2931, 109, 1226, '1', '2023-12-02 23:19:40', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (2932, 109, 1227, '1', '2023-12-02 23:19:40', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (2933, 109, 1228, '1', '2023-12-02 23:19:40', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (2934, 109, 1229, '1', '2023-12-02 23:19:40', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (2935, 109, 1138, '1', '2023-12-02 23:19:40', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (2936, 109, 1139, '1', '2023-12-02 23:19:40', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (2937, 109, 1140, '1', '2023-12-02 23:19:40', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (2938, 109, 1141, '1', '2023-12-02 23:19:40', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (2939, 109, 1142, '1', '2023-12-02 23:19:40', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (2940, 109, 1143, '1', '2023-12-02 23:19:40', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (2941, 111, 1224, '1', '2023-12-02 23:19:40', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (2942, 111, 1225, '1', '2023-12-02 23:19:40', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (2943, 111, 1226, '1', '2023-12-02 23:19:40', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (2944, 111, 1227, '1', '2023-12-02 23:19:40', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (2945, 111, 1228, '1', '2023-12-02 23:19:40', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (2946, 111, 1229, '1', '2023-12-02 23:19:40', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (2947, 111, 1138, '1', '2023-12-02 23:19:40', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (2948, 111, 1139, '1', '2023-12-02 23:19:40', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (2949, 111, 1140, '1', '2023-12-02 23:19:40', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (2950, 111, 1141, '1', '2023-12-02 23:19:40', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (2951, 111, 1142, '1', '2023-12-02 23:19:40', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (2952, 111, 1143, '1', '2023-12-02 23:19:40', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (2993, 109, 2, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (2994, 109, 1031, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (2995, 109, 1032, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (2996, 109, 1033, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (2997, 109, 1034, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (2998, 109, 1035, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (2999, 109, 1050, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (3000, 109, 1051, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (3001, 109, 1052, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (3002, 109, 1053, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (3003, 109, 1054, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (3004, 109, 1056, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (3005, 109, 1057, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (3006, 109, 1058, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (3007, 109, 1059, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (3008, 109, 1060, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (3009, 109, 1066, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (3010, 109, 1067, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (3011, 109, 1070, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (3012, 109, 1075, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (3013, 109, 1076, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (3014, 109, 1077, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (3015, 109, 1078, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (3016, 109, 1082, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (3017, 109, 1083, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (3018, 109, 1084, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (3019, 109, 1085, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (3020, 109, 1086, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (3021, 109, 1087, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (3022, 109, 1088, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (3023, 109, 1089, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (3024, 109, 1090, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (3025, 109, 1091, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (3026, 109, 1092, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (3027, 109, 106, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (3028, 109, 110, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (3029, 109, 111, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (3030, 109, 112, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (3031, 109, 113, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (3032, 109, 114, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (3033, 109, 115, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (3034, 109, 116, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (3035, 109, 2472, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (3036, 109, 2478, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (3037, 109, 2479, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (3038, 109, 2480, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (3039, 109, 2481, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (3040, 109, 2482, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (3041, 109, 2483, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (3042, 109, 2484, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (3043, 109, 2485, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (3044, 109, 2486, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (3045, 109, 2487, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (3046, 109, 2488, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (3047, 109, 2489, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (3048, 109, 2490, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (3049, 109, 2491, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (3050, 109, 2492, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (3051, 109, 2493, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (3052, 109, 2494, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (3053, 109, 2495, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (3054, 109, 2497, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (3055, 109, 1237, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (3056, 109, 1238, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (3057, 109, 1239, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (3058, 109, 1240, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (3059, 109, 1241, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (3060, 109, 1242, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (3061, 109, 1243, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (3062, 109, 2525, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (3063, 109, 1255, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (3064, 109, 1256, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (3065, 109, 1257, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (3066, 109, 1258, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (3067, 109, 1259, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (3068, 109, 1260, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (3069, 111, 2, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (3070, 111, 1031, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (3071, 111, 1032, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (3072, 111, 1033, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (3073, 111, 1034, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (3074, 111, 1035, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (3075, 111, 1050, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (3076, 111, 1051, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (3077, 111, 1052, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (3078, 111, 1053, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (3079, 111, 1054, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (3080, 111, 1056, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (3081, 111, 1057, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (3082, 111, 1058, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (3083, 111, 1059, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (3084, 111, 1060, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (3085, 111, 1066, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (3086, 111, 1067, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (3087, 111, 1070, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (3088, 111, 1075, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (3089, 111, 1076, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (3090, 111, 1077, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (3091, 111, 1078, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (3092, 111, 1082, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (3093, 111, 1083, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (3094, 111, 1084, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (3095, 111, 1085, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (3096, 111, 1086, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (3097, 111, 1087, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (3098, 111, 1088, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (3099, 111, 1089, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (3100, 111, 1090, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (3101, 111, 1091, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (3102, 111, 1092, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (3103, 111, 106, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (3104, 111, 110, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (3105, 111, 111, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (3106, 111, 112, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (3107, 111, 113, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (3108, 111, 114, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (3109, 111, 115, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (3110, 111, 116, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (3111, 111, 2472, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (3112, 111, 2478, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (3113, 111, 2479, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (3114, 111, 2480, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (3115, 111, 2481, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (3116, 111, 2482, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (3117, 111, 2483, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (3118, 111, 2484, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (3119, 111, 2485, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (3120, 111, 2486, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (3121, 111, 2487, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (3122, 111, 2488, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (3123, 111, 2489, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (3124, 111, 2490, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (3125, 111, 2491, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (3126, 111, 2492, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (3127, 111, 2493, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (3128, 111, 2494, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (3129, 111, 2495, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (3130, 111, 2497, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (3131, 111, 1237, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (3132, 111, 1238, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (3133, 111, 1239, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (3134, 111, 1240, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (3135, 111, 1241, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (3136, 111, 1242, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (3137, 111, 1243, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (3138, 111, 2525, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (3139, 111, 1255, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (3140, 111, 1256, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (3141, 111, 1257, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (3142, 111, 1258, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (3143, 111, 1259, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (3144, 111, 1260, '1', '2023-12-02 23:41:02', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (3221, 109, 102, '1', '2023-12-30 11:42:36', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (3222, 109, 1013, '1', '2023-12-30 11:42:36', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (3223, 109, 1014, '1', '2023-12-30 11:42:36', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (3224, 109, 1015, '1', '2023-12-30 11:42:36', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (3225, 109, 1016, '1', '2023-12-30 11:42:36', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (3226, 111, 102, '1', '2023-12-30 11:42:36', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (3227, 111, 1013, '1', '2023-12-30 11:42:36', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (3228, 111, 1014, '1', '2023-12-30 11:42:36', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (3229, 111, 1015, '1', '2023-12-30 11:42:36', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (3230, 111, 1016, '1', '2023-12-30 11:42:36', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (4163, 109, 5, '1', '2024-03-30 17:53:17', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (4164, 109, 1118, '1', '2024-03-30 17:53:17', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (4165, 109, 1119, '1', '2024-03-30 17:53:17', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (4166, 109, 1120, '1', '2024-03-30 17:53:17', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (4167, 109, 2713, '1', '2024-03-30 17:53:17', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (4168, 109, 2714, '1', '2024-03-30 17:53:17', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (4169, 109, 2715, '1', '2024-03-30 17:53:17', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (4170, 109, 2716, '1', '2024-03-30 17:53:17', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (4171, 109, 2717, '1', '2024-03-30 17:53:17', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (4172, 109, 2718, '1', '2024-03-30 17:53:17', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (4173, 109, 2720, '1', '2024-03-30 17:53:17', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (4174, 109, 1185, '1', '2024-03-30 17:53:17', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (4175, 109, 2721, '1', '2024-03-30 17:53:17', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (4176, 109, 1186, '1', '2024-03-30 17:53:17', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (4177, 109, 2722, '1', '2024-03-30 17:53:17', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (4178, 109, 1187, '1', '2024-03-30 17:53:17', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (4179, 109, 2723, '1', '2024-03-30 17:53:17', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (4180, 109, 1188, '1', '2024-03-30 17:53:17', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (4181, 109, 2724, '1', '2024-03-30 17:53:17', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (4182, 109, 1189, '1', '2024-03-30 17:53:17', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (4183, 109, 2725, '1', '2024-03-30 17:53:17', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (4184, 109, 1190, '1', '2024-03-30 17:53:17', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (4185, 109, 2726, '1', '2024-03-30 17:53:17', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (4186, 109, 1191, '1', '2024-03-30 17:53:17', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (4187, 109, 2727, '1', '2024-03-30 17:53:17', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (4188, 109, 1192, '1', '2024-03-30 17:53:17', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (4189, 109, 2728, '1', '2024-03-30 17:53:17', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (4190, 109, 1193, '1', '2024-03-30 17:53:17', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (4191, 109, 2729, '1', '2024-03-30 17:53:17', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (4192, 109, 1194, '1', '2024-03-30 17:53:17', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (4193, 109, 2730, '1', '2024-03-30 17:53:17', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (4194, 109, 1195, '1', '2024-03-30 17:53:17', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (4195, 109, 2731, '1', '2024-03-30 17:53:17', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (4196, 109, 1196, '1', '2024-03-30 17:53:17', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (4197, 109, 2732, '1', '2024-03-30 17:53:17', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (4198, 109, 1197, '1', '2024-03-30 17:53:17', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (4199, 109, 2733, '1', '2024-03-30 17:53:17', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (4200, 109, 1198, '1', '2024-03-30 17:53:17', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (4201, 109, 2734, '1', '2024-03-30 17:53:17', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (4202, 109, 1199, '1', '2024-03-30 17:53:17', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (4203, 109, 2735, '1', '2024-03-30 17:53:17', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (4204, 109, 1200, '1', '2024-03-30 17:53:17', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (4205, 109, 1201, '1', '2024-03-30 17:53:17', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (4206, 109, 1202, '1', '2024-03-30 17:53:17', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (4207, 109, 1207, '1', '2024-03-30 17:53:17', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (4208, 109, 1208, '1', '2024-03-30 17:53:17', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (4209, 109, 1209, '1', '2024-03-30 17:53:17', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (4210, 109, 1210, '1', '2024-03-30 17:53:17', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (4211, 109, 1211, '1', '2024-03-30 17:53:17', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (4212, 109, 1212, '1', '2024-03-30 17:53:17', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (4213, 109, 1213, '1', '2024-03-30 17:53:17', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (4214, 109, 1215, '1', '2024-03-30 17:53:17', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (4215, 109, 1216, '1', '2024-03-30 17:53:17', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (4216, 109, 1217, '1', '2024-03-30 17:53:17', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (4217, 109, 1218, '1', '2024-03-30 17:53:17', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (4218, 109, 1219, '1', '2024-03-30 17:53:17', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (4219, 109, 1220, '1', '2024-03-30 17:53:17', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (4220, 109, 1221, '1', '2024-03-30 17:53:17', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (4221, 109, 1222, '1', '2024-03-30 17:53:17', '1', '2024-05-11 06:30:37', b'1', 121);
+INSERT INTO `system_role_menu` VALUES (4222, 111, 5, '1', '2024-03-30 17:53:18', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (4223, 111, 1118, '1', '2024-03-30 17:53:18', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (4224, 111, 1119, '1', '2024-03-30 17:53:18', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (4225, 111, 1120, '1', '2024-03-30 17:53:18', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (4226, 111, 2713, '1', '2024-03-30 17:53:18', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (4227, 111, 2714, '1', '2024-03-30 17:53:18', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (4228, 111, 2715, '1', '2024-03-30 17:53:18', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (4229, 111, 2716, '1', '2024-03-30 17:53:18', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (4230, 111, 2717, '1', '2024-03-30 17:53:18', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (4231, 111, 2718, '1', '2024-03-30 17:53:18', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (4232, 111, 2720, '1', '2024-03-30 17:53:18', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (4233, 111, 1185, '1', '2024-03-30 17:53:18', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (4234, 111, 2721, '1', '2024-03-30 17:53:18', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (4235, 111, 1186, '1', '2024-03-30 17:53:18', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (4236, 111, 2722, '1', '2024-03-30 17:53:18', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (4237, 111, 1187, '1', '2024-03-30 17:53:18', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (4238, 111, 2723, '1', '2024-03-30 17:53:18', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (4239, 111, 1188, '1', '2024-03-30 17:53:18', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (4240, 111, 2724, '1', '2024-03-30 17:53:18', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (4241, 111, 1189, '1', '2024-03-30 17:53:18', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (4242, 111, 2725, '1', '2024-03-30 17:53:18', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (4243, 111, 1190, '1', '2024-03-30 17:53:18', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (4244, 111, 2726, '1', '2024-03-30 17:53:18', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (4245, 111, 1191, '1', '2024-03-30 17:53:18', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (4246, 111, 2727, '1', '2024-03-30 17:53:18', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (4247, 111, 1192, '1', '2024-03-30 17:53:18', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (4248, 111, 2728, '1', '2024-03-30 17:53:18', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (4249, 111, 1193, '1', '2024-03-30 17:53:18', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (4250, 111, 2729, '1', '2024-03-30 17:53:18', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (4251, 111, 1194, '1', '2024-03-30 17:53:18', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (4252, 111, 2730, '1', '2024-03-30 17:53:18', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (4253, 111, 1195, '1', '2024-03-30 17:53:18', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (4254, 111, 2731, '1', '2024-03-30 17:53:18', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (4255, 111, 1196, '1', '2024-03-30 17:53:18', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (4256, 111, 2732, '1', '2024-03-30 17:53:18', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (4257, 111, 1197, '1', '2024-03-30 17:53:18', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (4258, 111, 2733, '1', '2024-03-30 17:53:18', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (4259, 111, 1198, '1', '2024-03-30 17:53:18', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (4260, 111, 2734, '1', '2024-03-30 17:53:18', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (4261, 111, 1199, '1', '2024-03-30 17:53:18', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (4262, 111, 2735, '1', '2024-03-30 17:53:18', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (4263, 111, 1200, '1', '2024-03-30 17:53:18', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (4264, 111, 1201, '1', '2024-03-30 17:53:18', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (4265, 111, 1202, '1', '2024-03-30 17:53:18', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (4266, 111, 1207, '1', '2024-03-30 17:53:18', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (4267, 111, 1208, '1', '2024-03-30 17:53:18', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (4268, 111, 1209, '1', '2024-03-30 17:53:18', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (4269, 111, 1210, '1', '2024-03-30 17:53:18', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (4270, 111, 1211, '1', '2024-03-30 17:53:18', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (4271, 111, 1212, '1', '2024-03-30 17:53:18', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (4272, 111, 1213, '1', '2024-03-30 17:53:18', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (4273, 111, 1215, '1', '2024-03-30 17:53:18', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (4274, 111, 1216, '1', '2024-03-30 17:53:18', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (4275, 111, 1217, '1', '2024-03-30 17:53:18', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (4276, 111, 1218, '1', '2024-03-30 17:53:18', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (4277, 111, 1219, '1', '2024-03-30 17:53:18', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (4278, 111, 1220, '1', '2024-03-30 17:53:18', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (4279, 111, 1221, '1', '2024-03-30 17:53:18', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (4280, 111, 1222, '1', '2024-03-30 17:53:18', '1', '2024-05-11 06:30:40', b'1', 122);
+INSERT INTO `system_role_menu` VALUES (5777, 101, 2739, '1', '2024-04-30 09:38:37', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (5778, 101, 2740, '1', '2024-04-30 09:38:37', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_role_menu` VALUES (5779, 1, 1024, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5780, 1, 1, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5781, 1, 1025, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5782, 1, 2, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5783, 1, 1026, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5784, 1, 1027, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5785, 1, 1028, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5786, 1, 1029, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5787, 1, 1030, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5788, 1, 1031, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5789, 1, 1032, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5790, 1, 1033, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5791, 1, 1034, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5792, 1, 1035, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5793, 1, 1036, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5794, 1, 1037, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5795, 1, 1038, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5796, 1, 1039, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5797, 1, 1040, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5798, 1, 1042, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5799, 1, 1043, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5800, 1, 1045, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5801, 1, 1046, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5802, 1, 1048, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5803, 1, 1050, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5804, 1, 1051, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5805, 1, 1052, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5806, 1, 1053, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5807, 1, 1054, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5808, 1, 1056, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5809, 1, 1057, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5810, 1, 1058, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5811, 1, 1059, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5812, 1, 2083, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5813, 1, 1060, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5814, 1, 1063, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5815, 1, 1064, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5816, 1, 1065, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5817, 1, 1066, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5818, 1, 1067, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5819, 1, 1070, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5820, 1, 1075, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5821, 1, 1077, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5822, 1, 1078, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5823, 1, 1082, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5824, 1, 1083, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5825, 1, 1084, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5826, 1, 1085, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5827, 1, 1086, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5828, 1, 1087, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5829, 1, 1088, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5830, 1, 1089, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5831, 1, 1090, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5832, 1, 1091, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5833, 1, 1092, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5834, 1, 1093, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5835, 1, 1094, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5836, 1, 1095, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5837, 1, 1096, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5838, 1, 1097, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5839, 1, 1098, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5840, 1, 1100, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5841, 1, 1101, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5842, 1, 1102, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5843, 1, 1103, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5844, 1, 1104, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5845, 1, 1105, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5846, 1, 1106, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5847, 1, 2130, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5848, 1, 1107, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5849, 1, 2131, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5850, 1, 1108, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5851, 1, 2132, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5852, 1, 1109, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5853, 1, 2133, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5854, 1, 2134, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5855, 1, 2135, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5856, 1, 2136, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5857, 1, 2137, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5858, 1, 2138, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5859, 1, 2139, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5860, 1, 2140, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5861, 1, 2141, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5862, 1, 2142, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5863, 1, 2143, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5864, 1, 2144, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5865, 1, 2145, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5866, 1, 2146, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5867, 1, 2147, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5868, 1, 100, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5869, 1, 2148, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5870, 1, 101, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5871, 1, 2149, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5872, 1, 102, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5873, 1, 2150, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5874, 1, 103, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5875, 1, 2151, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5876, 1, 104, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5877, 1, 2152, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5878, 1, 105, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5879, 1, 106, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5880, 1, 107, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5881, 1, 108, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5882, 1, 109, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5883, 1, 110, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5884, 1, 111, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5885, 1, 112, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5886, 1, 113, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5887, 1, 114, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5888, 1, 115, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5889, 1, 116, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5890, 1, 2739, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5891, 1, 2740, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5892, 1, 2756, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5893, 1, 2757, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5894, 1, 1237, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5895, 1, 1238, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5896, 1, 2262, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5897, 1, 1239, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5898, 1, 1240, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5899, 1, 1241, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5900, 1, 1242, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5901, 1, 1243, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5902, 1, 2275, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5903, 1, 2276, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5904, 1, 2277, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5905, 1, 1255, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5906, 1, 1256, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5907, 1, 1257, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5908, 1, 2281, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5909, 1, 1258, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5910, 1, 2282, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5911, 1, 1259, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5912, 1, 2283, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5913, 1, 1260, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5914, 1, 2284, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5915, 1, 1261, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5916, 1, 2285, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5917, 1, 1263, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5918, 1, 2287, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5919, 1, 1264, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5920, 1, 2288, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5921, 1, 1265, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5922, 1, 1266, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5923, 1, 1267, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5924, 1, 2293, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5925, 1, 2294, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5926, 1, 2297, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5927, 1, 2300, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5928, 1, 2317, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5929, 1, 2318, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5930, 1, 2319, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5931, 1, 2320, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5932, 1, 2321, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5933, 1, 2322, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5934, 1, 2323, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5935, 1, 2324, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5936, 1, 2325, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5937, 1, 2326, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5938, 1, 2327, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5939, 1, 2328, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5940, 1, 2329, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5941, 1, 2330, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5942, 1, 2331, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5943, 1, 2332, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5944, 1, 2333, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5945, 1, 2334, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5946, 1, 2335, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5947, 1, 2363, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5948, 1, 2364, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5949, 1, 2447, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5950, 1, 2448, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5951, 1, 2449, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5952, 1, 2450, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5953, 1, 2451, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5954, 1, 2452, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5955, 1, 2453, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5956, 1, 2472, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5957, 1, 2478, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5958, 1, 2479, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5959, 1, 2480, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5960, 1, 2481, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5961, 1, 2482, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5962, 1, 2483, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5963, 1, 2484, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5964, 1, 2485, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5965, 1, 2486, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5966, 1, 2487, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5967, 1, 2488, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5968, 1, 2489, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5969, 1, 2490, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5970, 1, 2491, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5971, 1, 2492, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5972, 1, 2493, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5973, 1, 2494, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5974, 1, 2495, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5975, 1, 2497, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5976, 1, 1001, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5977, 1, 1002, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5978, 1, 1003, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5979, 1, 1004, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5980, 1, 1005, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5981, 1, 1006, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5982, 1, 1007, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5983, 1, 1008, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5984, 1, 1009, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5985, 1, 1010, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5986, 1, 1011, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5987, 1, 500, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5988, 1, 1012, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5989, 1, 501, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5990, 1, 1013, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5991, 1, 1014, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5992, 1, 1015, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5993, 1, 1016, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5994, 1, 1017, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5995, 1, 1018, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5996, 1, 1019, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5997, 1, 1020, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5998, 1, 1021, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (5999, 1, 1022, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+INSERT INTO `system_role_menu` VALUES (6000, 1, 1023, '1', '2024-05-11 14:31:02', '1', '2024-05-11 14:31:02', b'0', 0);
+
+-- ----------------------------
+-- Table structure for system_sms_channel
+-- ----------------------------
+DROP TABLE IF EXISTS `system_sms_channel`;
+CREATE TABLE `system_sms_channel`  (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '编号',
+  `signature` varchar(12) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '短信签名',
+  `code` varchar(63) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '渠道编码',
+  `status` tinyint NOT NULL COMMENT '开启状态',
+  `remark` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '备注',
+  `api_key` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '短信 API 的账号',
+  `api_secret` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '短信 API 的秘钥',
+  `callback_url` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '短信发送回调 URL',
+  `creator` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '创建者',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `updater` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '更新者',
+  `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `deleted` bit(1) NOT NULL DEFAULT b'0' COMMENT '是否删除',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 7 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '短信渠道' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of system_sms_channel
+-- ----------------------------
+INSERT INTO `system_sms_channel` VALUES (2, 'Ballcat', 'ALIYUN', 0, '你要改哦，只有我可以用！！！！', 'LTAI5tCnKso2uG3kJ5gRav88', 'fGJ5SNXL7P1NHNRmJ7DJaMJGPyE55C', NULL, '', '2021-03-31 11:53:10', '1', '2023-12-02 22:10:17', b'0');
+INSERT INTO `system_sms_channel` VALUES (4, '测试渠道', 'DEBUG_DING_TALK', 0, '123', '696b5d8ead48071237e4aa5861ff08dbadb2b4ded1c688a7b7c9afc615579859', 'SEC5c4e5ff888bc8a9923ae47f59e7ccd30af1f14d93c55b4e2c9cb094e35aeed67', NULL, '1', '2021-04-13 00:23:14', '1', '2022-03-27 20:29:49', b'0');
+INSERT INTO `system_sms_channel` VALUES (6, '测试演示', 'DEBUG_DING_TALK', 0, '仅测试', '696b5d8ead48071237e4aa5861ff08dbadb2b4ded1c688a7b7c9afc615579859', 'SEC5c4e5ff888bc8a9923ae47f59e7ccd30af1f14d93c55b4e2c9cb094e35aeed67', NULL, '1', '2022-04-10 23:07:59', '1', '2023-12-02 22:10:08', b'0');
+
+-- ----------------------------
+-- Table structure for system_sms_code
+-- ----------------------------
+DROP TABLE IF EXISTS `system_sms_code`;
+CREATE TABLE `system_sms_code`  (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '编号',
+  `mobile` varchar(11) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '手机号',
+  `code` varchar(6) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '验证码',
+  `create_ip` varchar(15) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '创建 IP',
+  `scene` tinyint NOT NULL COMMENT '发送场景',
+  `today_index` tinyint NOT NULL COMMENT '今日发送的第几条',
+  `used` tinyint NOT NULL COMMENT '是否使用',
+  `used_time` datetime NULL DEFAULT NULL COMMENT '使用时间',
+  `used_ip` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '使用 IP',
+  `creator` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '创建者',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `updater` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '更新者',
+  `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `deleted` bit(1) NOT NULL DEFAULT b'0' COMMENT '是否删除',
+  `tenant_id` bigint NOT NULL DEFAULT 0 COMMENT '租户编号',
+  PRIMARY KEY (`id`) USING BTREE,
+  INDEX `idx_mobile`(`mobile` ASC) USING BTREE COMMENT '手机号'
+) ENGINE = InnoDB AUTO_INCREMENT = 614 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '手机验证码' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of system_sms_code
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for system_sms_log
+-- ----------------------------
+DROP TABLE IF EXISTS `system_sms_log`;
+CREATE TABLE `system_sms_log`  (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '编号',
+  `channel_id` bigint NOT NULL COMMENT '短信渠道编号',
+  `channel_code` varchar(63) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '短信渠道编码',
+  `template_id` bigint NOT NULL COMMENT '模板编号',
+  `template_code` varchar(63) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '模板编码',
+  `template_type` tinyint NOT NULL COMMENT '短信类型',
+  `template_content` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '短信内容',
+  `template_params` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '短信参数',
+  `api_template_id` varchar(63) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '短信 API 的模板编号',
+  `mobile` varchar(11) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '手机号',
+  `user_id` bigint NULL DEFAULT NULL COMMENT '用户编号',
+  `user_type` tinyint NULL DEFAULT NULL COMMENT '用户类型',
+  `send_status` tinyint NOT NULL DEFAULT 0 COMMENT '发送状态',
+  `send_time` datetime NULL DEFAULT NULL COMMENT '发送时间',
+  `api_send_code` varchar(63) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '短信 API 发送结果的编码',
+  `api_send_msg` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '短信 API 发送失败的提示',
+  `api_request_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '短信 API 发送返回的唯一请求 ID',
+  `api_serial_no` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '短信 API 发送返回的序号',
+  `receive_status` tinyint NOT NULL DEFAULT 0 COMMENT '接收状态',
+  `receive_time` datetime NULL DEFAULT NULL COMMENT '接收时间',
+  `api_receive_code` varchar(63) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT 'API 接收结果的编码',
+  `api_receive_msg` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT 'API 接收结果的说明',
+  `creator` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '创建者',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `updater` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '更新者',
+  `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `deleted` bit(1) NOT NULL DEFAULT b'0' COMMENT '是否删除',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 962 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '短信日志' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of system_sms_log
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for system_sms_template
+-- ----------------------------
+DROP TABLE IF EXISTS `system_sms_template`;
+CREATE TABLE `system_sms_template`  (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '编号',
+  `type` tinyint NOT NULL COMMENT '模板类型',
+  `status` tinyint NOT NULL COMMENT '开启状态',
+  `code` varchar(63) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '模板编码',
+  `name` varchar(63) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '模板名称',
+  `content` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '模板内容',
+  `params` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '参数数组',
+  `remark` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '备注',
+  `api_template_id` varchar(63) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '短信 API 的模板编号',
+  `channel_id` bigint NOT NULL COMMENT '短信渠道编号',
+  `channel_code` varchar(63) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '短信渠道编码',
+  `creator` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '创建者',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `updater` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '更新者',
+  `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `deleted` bit(1) NOT NULL DEFAULT b'0' COMMENT '是否删除',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 17 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '短信模板' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of system_sms_template
+-- ----------------------------
+INSERT INTO `system_sms_template` VALUES (2, 1, 0, 'test_01', '测试验证码短信', '正在进行登录操作{operation}，您的验证码是{code}', '[\"operation\",\"code\"]', '测试备注', '4383920', 6, 'DEBUG_DING_TALK', '', '2021-03-31 10:49:38', '1', '2023-12-02 22:32:47', b'0');
+INSERT INTO `system_sms_template` VALUES (3, 1, 0, 'test_02', '公告通知', '您的验证码{code}，该验证码5分钟内有效，请勿泄漏于他人！', '[\"code\"]', NULL, 'SMS_207945135', 2, 'ALIYUN', '', '2021-03-31 11:56:30', '1', '2021-04-10 01:22:02', b'0');
+INSERT INTO `system_sms_template` VALUES (6, 3, 0, 'test-01', '测试模板', '哈哈哈 {name}', '[\"name\"]', 'f哈哈哈', '4383920', 6, 'DEBUG_DING_TALK', '1', '2021-04-10 01:07:21', '1', '2022-12-10 21:26:09', b'0');
+INSERT INTO `system_sms_template` VALUES (7, 3, 0, 'test-04', '测试下', '老鸡{name}，牛逼{code}', '[\"name\",\"code\"]', '哈哈哈哈', 'suibian', 4, 'DEBUG_DING_TALK', '1', '2021-04-13 00:29:53', '1', '2023-12-02 22:35:34', b'0');
+INSERT INTO `system_sms_template` VALUES (8, 1, 0, 'user-sms-login', '前台用户短信登录', '您的验证码是{code}', '[\"code\"]', NULL, '4372216', 6, 'DEBUG_DING_TALK', '1', '2021-10-11 08:10:00', '1', '2022-12-10 21:25:59', b'0');
+INSERT INTO `system_sms_template` VALUES (9, 2, 0, 'bpm_task_assigned', '【工作流】任务被分配', '您收到了一条新的待办任务：{processInstanceName}-{taskName}，申请人：{startUserNickname}，处理链接：{detailUrl}', '[\"processInstanceName\",\"taskName\",\"startUserNickname\",\"detailUrl\"]', NULL, 'suibian', 4, 'DEBUG_DING_TALK', '1', '2022-01-21 22:31:19', '1', '2022-01-22 00:03:36', b'0');
+INSERT INTO `system_sms_template` VALUES (10, 2, 0, 'bpm_process_instance_reject', '【工作流】流程被不通过', '您的流程被审批不通过：{processInstanceName}，原因：{reason}，查看链接：{detailUrl}', '[\"processInstanceName\",\"reason\",\"detailUrl\"]', NULL, 'suibian', 4, 'DEBUG_DING_TALK', '1', '2022-01-22 00:03:31', '1', '2022-05-01 12:33:14', b'0');
+INSERT INTO `system_sms_template` VALUES (11, 2, 0, 'bpm_process_instance_approve', '【工作流】流程被通过', '您的流程被审批通过：{processInstanceName}，查看链接：{detailUrl}', '[\"processInstanceName\",\"detailUrl\"]', NULL, 'suibian', 4, 'DEBUG_DING_TALK', '1', '2022-01-22 00:04:31', '1', '2022-03-27 20:32:21', b'0');
+INSERT INTO `system_sms_template` VALUES (12, 2, 0, 'demo', '演示模板', '我就是测试一下下', '[]', NULL, 'biubiubiu', 6, 'DEBUG_DING_TALK', '1', '2022-04-10 23:22:49', '1', '2024-05-11 06:56:46', b'1');
+INSERT INTO `system_sms_template` VALUES (14, 1, 0, 'user-update-mobile', '会员用户 - 修改手机', '您的验证码{code}，该验证码 5 分钟内有效，请勿泄漏于他人！', '[\"code\"]', '', 'null', 4, 'DEBUG_DING_TALK', '1', '2023-08-19 18:58:01', '1', '2023-08-19 11:34:04', b'0');
+INSERT INTO `system_sms_template` VALUES (15, 1, 0, 'user-update-password', '会员用户 - 修改密码', '您的验证码{code}，该验证码 5 分钟内有效，请勿泄漏于他人！', '[\"code\"]', '', 'null', 4, 'DEBUG_DING_TALK', '1', '2023-08-19 18:58:01', '1', '2023-08-19 11:34:18', b'0');
+INSERT INTO `system_sms_template` VALUES (16, 1, 0, 'user-reset-password', '会员用户 - 重置密码', '您的验证码{code}，该验证码 5 分钟内有效，请勿泄漏于他人！', '[\"code\"]', '', 'null', 4, 'DEBUG_DING_TALK', '1', '2023-08-19 18:58:01', '1', '2023-12-02 22:35:27', b'0');
+
+-- ----------------------------
+-- Table structure for system_social_client
+-- ----------------------------
+DROP TABLE IF EXISTS `system_social_client`;
+CREATE TABLE `system_social_client`  (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '编号',
+  `name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '应用名',
+  `social_type` tinyint NOT NULL COMMENT '社交平台的类型',
+  `user_type` tinyint NOT NULL COMMENT '用户类型',
+  `client_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '客户端编号',
+  `client_secret` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '客户端密钥',
+  `agent_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '代理编号',
+  `status` tinyint NOT NULL COMMENT '状态',
+  `creator` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '创建者',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `updater` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '更新者',
+  `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `deleted` bit(1) NOT NULL DEFAULT b'0' COMMENT '是否删除',
+  `tenant_id` bigint NOT NULL DEFAULT 0 COMMENT '租户编号',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 44 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '社交客户端表' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of system_social_client
+-- ----------------------------
+INSERT INTO `system_social_client` VALUES (1, '钉钉', 20, 2, 'dingvrnreaje3yqvzhxg', 'i8E6iZyDvZj51JIb0tYsYfVQYOks9Cq1lgryEjFRqC79P3iJcrxEwT6Qk2QvLrLI', NULL, 0, '', '2023-10-18 11:21:18', '1', '2023-12-20 21:28:26', b'1', 1);
+INSERT INTO `system_social_client` VALUES (2, '钉钉（王土豆）', 20, 2, 'dingtsu9hpepjkbmthhw', 'FP_bnSq_HAHKCSncmJjw5hxhnzs6vaVDSZZn3egj6rdqTQ_hu5tQVJyLMpgCakdP', NULL, 0, '', '2023-10-18 11:21:18', '', '2023-12-20 21:28:26', b'1', 121);
+INSERT INTO `system_social_client` VALUES (3, '微信公众号', 31, 1, 'wx5b23ba7a5589ecbb', '2a7b3b20c537e52e74afd395eb85f61f', NULL, 0, '', '2023-10-18 16:07:46', '1', '2023-12-20 21:28:23', b'1', 1);
+INSERT INTO `system_social_client` VALUES (43, '微信小程序', 34, 1, 'wx63c280fe3248a3e7', '6f270509224a7ae1296bbf1c8cb97aed', NULL, 0, '', '2023-10-19 13:37:41', '1', '2023-12-20 21:28:25', b'1', 1);
+
+-- ----------------------------
+-- Table structure for system_social_user
+-- ----------------------------
+DROP TABLE IF EXISTS `system_social_user`;
+CREATE TABLE `system_social_user`  (
+  `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '主键(自增策略)',
+  `type` tinyint NOT NULL COMMENT '社交平台的类型',
+  `openid` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '社交 openid',
+  `token` varchar(256) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '社交 token',
+  `raw_token_info` varchar(1024) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '原始 Token 数据，一般是 JSON 格式',
+  `nickname` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '用户昵称',
+  `avatar` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '用户头像',
+  `raw_user_info` varchar(1024) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '原始用户数据，一般是 JSON 格式',
+  `code` varchar(256) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '最后一次的认证 code',
+  `state` varchar(256) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '最后一次的认证 state',
+  `creator` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '创建者',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `updater` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '更新者',
+  `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `deleted` bit(1) NOT NULL DEFAULT b'0' COMMENT '是否删除',
+  `tenant_id` bigint NOT NULL DEFAULT 0 COMMENT '租户编号',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 36 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '社交用户表' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of system_social_user
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for system_social_user_bind
+-- ----------------------------
+DROP TABLE IF EXISTS `system_social_user_bind`;
+CREATE TABLE `system_social_user_bind`  (
+  `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '主键(自增策略)',
+  `user_id` bigint NOT NULL COMMENT '用户编号',
+  `user_type` tinyint NOT NULL COMMENT '用户类型',
+  `social_type` tinyint NOT NULL COMMENT '社交平台的类型',
+  `social_user_id` bigint NOT NULL COMMENT '社交用户的编号',
+  `creator` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '创建者',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `updater` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '更新者',
+  `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `deleted` bit(1) NOT NULL DEFAULT b'0' COMMENT '是否删除',
+  `tenant_id` bigint NOT NULL DEFAULT 0 COMMENT '租户编号',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 119 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '社交绑定表' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of system_social_user_bind
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for system_user_post
+-- ----------------------------
+DROP TABLE IF EXISTS `system_user_post`;
+CREATE TABLE `system_user_post`  (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT 'id',
+  `user_id` bigint NOT NULL DEFAULT 0 COMMENT '用户ID',
+  `post_id` bigint NOT NULL DEFAULT 0 COMMENT '岗位ID',
+  `creator` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '创建者',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `updater` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '更新者',
+  `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `deleted` bit(1) NOT NULL DEFAULT b'0' COMMENT '是否删除',
+  `tenant_id` bigint NOT NULL DEFAULT 0 COMMENT '租户编号',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 126 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '用户岗位表' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of system_user_post
+-- ----------------------------
+INSERT INTO `system_user_post` VALUES (112, 1, 1, 'admin', '2022-05-02 07:25:24', 'admin', '2022-05-02 07:25:24', b'0', 1);
+INSERT INTO `system_user_post` VALUES (113, 100, 1, 'admin', '2022-05-02 07:25:24', 'admin', '2024-05-11 06:28:12', b'1', 1);
+INSERT INTO `system_user_post` VALUES (115, 104, 1, '1', '2022-05-16 19:36:28', '1', '2022-05-16 19:36:28', b'0', 1);
+INSERT INTO `system_user_post` VALUES (116, 117, 2, '1', '2022-07-09 17:40:26', '1', '2024-05-11 06:28:50', b'1', 1);
+INSERT INTO `system_user_post` VALUES (117, 118, 1, '1', '2022-07-09 17:44:44', '1', '2024-05-11 06:28:47', b'1', 1);
+INSERT INTO `system_user_post` VALUES (119, 114, 5, '1', '2024-03-24 20:45:51', '1', '2024-05-11 06:28:55', b'1', 1);
+INSERT INTO `system_user_post` VALUES (123, 115, 1, '1', '2024-04-04 09:37:14', '1', '2024-05-11 06:28:52', b'1', 1);
+INSERT INTO `system_user_post` VALUES (124, 115, 2, '1', '2024-04-04 09:37:14', '1', '2024-05-11 06:28:52', b'1', 1);
+INSERT INTO `system_user_post` VALUES (125, 104, 2, '1', '2024-05-11 14:31:59', '1', '2024-05-11 14:31:59', b'0', 0);
+
+-- ----------------------------
+-- Table structure for system_user_role
+-- ----------------------------
+DROP TABLE IF EXISTS `system_user_role`;
+CREATE TABLE `system_user_role`  (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '自增编号',
+  `user_id` bigint NOT NULL COMMENT '用户ID',
+  `role_id` bigint NOT NULL COMMENT '角色ID',
+  `creator` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '创建者',
+  `create_time` datetime NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `updater` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '更新者',
+  `update_time` datetime NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `deleted` bit(1) NULL DEFAULT b'0' COMMENT '是否删除',
+  `tenant_id` bigint NOT NULL DEFAULT 0 COMMENT '租户编号',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 46 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '用户和角色关联表' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of system_user_role
+-- ----------------------------
+INSERT INTO `system_user_role` VALUES (1, 1, 1, '', '2022-01-11 13:19:45', '', '2022-05-12 12:35:17', b'0', 1);
+INSERT INTO `system_user_role` VALUES (2, 2, 2, '', '2022-01-11 13:19:45', '', '2022-05-12 12:35:13', b'0', 1);
+INSERT INTO `system_user_role` VALUES (4, 100, 101, '', '2022-01-11 13:19:45', '', '2024-05-11 06:28:12', b'1', 1);
+INSERT INTO `system_user_role` VALUES (5, 100, 1, '', '2022-01-11 13:19:45', '', '2024-05-11 06:28:12', b'1', 1);
+INSERT INTO `system_user_role` VALUES (6, 100, 2, '', '2022-01-11 13:19:45', '', '2024-05-11 06:28:12', b'1', 1);
+INSERT INTO `system_user_role` VALUES (10, 103, 1, '1', '2022-01-11 13:19:45', '1', '2024-05-11 06:28:17', b'1', 1);
+INSERT INTO `system_user_role` VALUES (14, 110, 109, '1', '2022-02-22 00:56:14', '1', '2024-05-11 06:29:07', b'1', 121);
+INSERT INTO `system_user_role` VALUES (15, 111, 110, '110', '2022-02-23 13:14:38', '110', '2024-05-11 06:29:04', b'1', 121);
+INSERT INTO `system_user_role` VALUES (16, 113, 111, '1', '2022-03-07 21:37:58', '1', '2024-05-11 06:28:59', b'1', 122);
+INSERT INTO `system_user_role` VALUES (18, 1, 2, '1', '2022-05-12 20:39:29', '1', '2022-05-12 20:39:29', b'0', 1);
+INSERT INTO `system_user_role` VALUES (20, 104, 101, '1', '2022-05-28 15:43:57', '1', '2024-05-11 06:29:57', b'1', 1);
+INSERT INTO `system_user_role` VALUES (22, 115, 2, '1', '2022-07-21 22:08:30', '1', '2024-05-11 06:28:52', b'1', 1);
+INSERT INTO `system_user_role` VALUES (35, 112, 1, '1', '2024-03-15 20:00:24', '1', '2024-05-11 06:29:01', b'1', 1);
+INSERT INTO `system_user_role` VALUES (36, 118, 1, '1', '2024-03-17 09:12:08', '1', '2024-05-11 06:28:47', b'1', 1);
+INSERT INTO `system_user_role` VALUES (38, 114, 101, '1', '2024-03-24 22:23:03', '1', '2024-05-11 06:28:55', b'1', 1);
+
+-- ----------------------------
+-- Table structure for system_users
+-- ----------------------------
+DROP TABLE IF EXISTS `system_users`;
+CREATE TABLE `system_users`  (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '用户ID',
+  `username` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '用户账号',
+  `password` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT '密码',
+  `nickname` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '用户昵称',
+  `remark` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '备注',
+  `dept_id` bigint NULL DEFAULT NULL COMMENT '部门ID',
+  `post_ids` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '岗位编号数组',
+  `email` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '用户邮箱',
+  `mobile` varchar(11) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '手机号码',
+  `sex` tinyint NULL DEFAULT 0 COMMENT '用户性别',
+  `avatar` varchar(512) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '头像地址',
+  `status` tinyint NOT NULL DEFAULT 0 COMMENT '帐号状态（0正常 1停用）',
+  `login_ip` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '最后登录IP',
+  `login_date` datetime NULL DEFAULT NULL COMMENT '最后登录时间',
+  `creator` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '创建者',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `updater` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '更新者',
+  `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `deleted` bit(1) NOT NULL DEFAULT b'0' COMMENT '是否删除',
+  `tenant_id` bigint NOT NULL DEFAULT 0 COMMENT '租户编号',
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE INDEX `idx_username`(`username` ASC, `update_time` ASC, `tenant_id` ASC) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 139 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '用户信息表' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of system_users
+-- ----------------------------
+INSERT INTO `system_users` VALUES (1, 'admin', '$2a$10$mRMIYLDtRHlf6.9ipiqH1.Z.bh/R9dO9d5iHiGYPigi6r5KOoR2Wm', '芋道源码', '管理员', 100, '[1]', 'aoteman@126.com', '18818260277', 2, 'http://test.yudao.iocoder.cn/96c787a2ce88bf6d0ce3cd8b6cf5314e80e7703cd41bf4af8cd2e2909dbd6b6d.png', 0, '0:0:0:0:0:0:0:1', '2024-05-11 14:17:10', 'admin', '2021-01-05 17:03:47', '1', '2024-05-11 14:32:05', b'0', 1);
+INSERT INTO `system_users` VALUES (100, 'yudao', '$2a$10$11U48RhyJ5pSBYWSn12AD./ld671.ycSzJHbyrtpeoMeYiw31eo8a', '芋道', '不要吓我', 104, '[1]', 'yudao@iocoder.cn', '15601691300', 1, '', 1, '127.0.0.1', '2022-07-09 23:03:33', '', '2021-01-07 09:07:17', NULL, '2024-05-11 06:28:12', b'1', 1);
+INSERT INTO `system_users` VALUES (103, 'yuanma', '$2a$10$YMpimV4T6BtDhIaA8jSW.u8UTGBeGhc/qwXP4oxoMr4mOw9.qttt6', '源码', NULL, 106, NULL, 'yuanma@iocoder.cn', '15601701300', 0, '', 0, '0:0:0:0:0:0:0:1', '2024-03-18 21:09:04', '', '2021-01-13 23:50:35', NULL, '2024-05-11 06:28:17', b'1', 1);
+INSERT INTO `system_users` VALUES (104, 'test', '$2a$04$KhExCYl7lx6eWWZYKsibKOZ8IBJRyuNuCcEOLQ11RYhJKgHmlSwK.', '测试号', NULL, 100, '[1,2]', '111@qq.com', '15601691200', 1, '', 0, '0:0:0:0:0:0:0:1', '2024-03-26 07:11:35', '', '2021-01-21 02:13:53', '1', '2024-05-11 14:31:59', b'0', 1);
+INSERT INTO `system_users` VALUES (107, 'admin107', '$2a$10$dYOOBKMO93v/.ReCqzyFg.o67Tqk.bbc2bhrpyBGkIw9aypCtr2pm', '芋艿', NULL, NULL, NULL, '', '15601691300', 0, '', 0, '', NULL, '1', '2022-02-20 22:59:33', '1', '2024-05-11 06:29:16', b'1', 118);
+INSERT INTO `system_users` VALUES (108, 'admin108', '$2a$10$y6mfvKoNYL1GXWak8nYwVOH.kCWqjactkzdoIDgiKl93WN3Ejg.Lu', '芋艿', NULL, NULL, NULL, '', '15601691300', 0, '', 0, '', NULL, '1', '2022-02-20 23:00:50', '1', '2024-05-11 06:29:13', b'1', 119);
+INSERT INTO `system_users` VALUES (109, 'admin109', '$2a$10$JAqvH0tEc0I7dfDVBI7zyuB4E3j.uH6daIjV53.vUS6PknFkDJkuK', '芋艿', NULL, NULL, NULL, '', '15601691300', 0, '', 0, '', NULL, '1', '2022-02-20 23:11:50', '1', '2024-05-11 06:29:10', b'1', 120);
+INSERT INTO `system_users` VALUES (110, 'admin110', '$2a$10$mRMIYLDtRHlf6.9ipiqH1.Z.bh/R9dO9d5iHiGYPigi6r5KOoR2Wm', '小王', NULL, NULL, NULL, '', '15601691300', 0, '', 0, '127.0.0.1', '2022-09-25 22:47:33', '1', '2022-02-22 00:56:14', NULL, '2024-05-11 06:29:07', b'1', 121);
+INSERT INTO `system_users` VALUES (111, 'test', '$2a$10$mRMIYLDtRHlf6.9ipiqH1.Z.bh/R9dO9d5iHiGYPigi6r5KOoR2Wm', '测试用户', NULL, NULL, '[]', '', '', 0, '', 0, '0:0:0:0:0:0:0:1', '2023-12-30 11:42:17', '110', '2022-02-23 13:14:33', NULL, '2024-05-11 06:29:04', b'1', 121);
+INSERT INTO `system_users` VALUES (112, 'newobject', '$2a$04$dB0z8Q819fJWz0hbaLe6B.VfHCjYgWx6LFfET5lyz3JwcqlyCkQ4C', '新对象', NULL, 100, '[]', '', '15601691235', 1, '', 0, '0:0:0:0:0:0:0:1', '2024-03-16 23:11:38', '1', '2022-02-23 19:08:03', NULL, '2024-05-11 06:29:01', b'1', 1);
+INSERT INTO `system_users` VALUES (113, 'aoteman', '$2a$10$0acJOIk2D25/oC87nyclE..0lzeu9DtQ/n3geP4fkun/zIVRhHJIO', '芋道', NULL, NULL, NULL, '', '15601691300', 0, '', 0, '127.0.0.1', '2022-03-19 18:38:51', '1', '2022-03-07 21:37:58', NULL, '2024-05-11 06:28:59', b'1', 122);
+INSERT INTO `system_users` VALUES (114, 'hrmgr', '$2a$10$TR4eybBioGRhBmDBWkqWLO6NIh3mzYa8KBKDDB5woiGYFVlRAi.fu', 'hr 小姐姐', NULL, NULL, '[5]', '', '15601691236', 1, '', 0, '0:0:0:0:0:0:0:1', '2024-03-24 22:21:05', '1', '2022-03-19 21:50:58', NULL, '2024-05-11 06:28:55', b'1', 1);
+INSERT INTO `system_users` VALUES (115, 'aotemane', '$2a$04$GcyP0Vyzb2F2Yni5PuIK9ueGxM0tkZGMtDwVRwrNbtMvorzbpNsV2', '阿呆', '11222', 102, '[1,2]', '7648@qq.com', '15601691229', 2, '', 0, '', NULL, '1', '2022-04-30 02:55:43', '1', '2024-05-11 06:28:52', b'1', 1);
+INSERT INTO `system_users` VALUES (117, 'admin123', '$2a$10$WI8Gg/lpZQIrOEZMHqka7OdFaD4Nx.B/qY8ZGTTUKrOJwaHFqibaC', '测试号', '1111', 100, '[2]', '', '15601691234', 1, '', 0, '', NULL, '1', '2022-07-09 17:40:26', '1', '2024-05-11 06:28:50', b'1', 1);
+INSERT INTO `system_users` VALUES (118, 'goudan', '$2a$04$OB1SuphCdiLVRpiYRKeqH.8NYS7UIp5vmIv1W7U4w6toiFeOAATVK', '狗蛋', NULL, 103, '[1]', '', '15601691239', 1, '', 0, '0:0:0:0:0:0:0:1', '2024-03-17 09:10:27', '1', '2022-07-09 17:44:43', '1', '2024-05-11 06:28:47', b'1', 1);
+INSERT INTO `system_users` VALUES (131, 'hh', '$2a$04$jyH9h6.gaw8mpOjPfHIpx.8as2Rzfcmdlj5rlJFwgCw4rsv/MTb2K', '呵呵', NULL, 100, '[]', '777@qq.com', '15601882312', 1, '', 0, '', NULL, '1', '2024-04-27 08:45:56', '1', '2024-05-11 06:28:44', b'1', 1);
+
+SET FOREIGN_KEY_CHECKS = 1;

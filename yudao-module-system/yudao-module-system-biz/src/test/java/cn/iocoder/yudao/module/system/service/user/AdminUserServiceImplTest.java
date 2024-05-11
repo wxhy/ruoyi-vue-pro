@@ -14,7 +14,6 @@ import cn.iocoder.yudao.module.system.controller.admin.user.vo.user.*;
 import cn.iocoder.yudao.module.system.dal.dataobject.dept.DeptDO;
 import cn.iocoder.yudao.module.system.dal.dataobject.dept.PostDO;
 import cn.iocoder.yudao.module.system.dal.dataobject.dept.UserPostDO;
-import cn.iocoder.yudao.module.system.dal.dataobject.tenant.TenantDO;
 import cn.iocoder.yudao.module.system.dal.dataobject.user.AdminUserDO;
 import cn.iocoder.yudao.module.system.dal.mysql.dept.UserPostMapper;
 import cn.iocoder.yudao.module.system.dal.mysql.user.AdminUserMapper;
@@ -22,7 +21,6 @@ import cn.iocoder.yudao.module.system.enums.common.SexEnum;
 import cn.iocoder.yudao.module.system.service.dept.DeptService;
 import cn.iocoder.yudao.module.system.service.dept.PostService;
 import cn.iocoder.yudao.module.system.service.permission.PermissionService;
-import cn.iocoder.yudao.module.system.service.tenant.TenantService;
 import org.junit.jupiter.api.Test;
 import org.mockito.stubbing.Answer;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -73,8 +71,6 @@ public class AdminUserServiceImplTest extends BaseDbUnitTest {
     @MockBean
     private PasswordEncoder passwordEncoder;
     @MockBean
-    private TenantService tenantService;
-    @MockBean
     private FileApi fileApi;
 
     @Test
@@ -86,11 +82,6 @@ public class AdminUserServiceImplTest extends BaseDbUnitTest {
             o.setPostIds(asSet(1L, 2L));
         }).setId(null); // 避免 id 被赋值
         // mock 账户额度充足
-        TenantDO tenant = randomPojo(TenantDO.class, o -> o.setAccountCount(1));
-        doNothing().when(tenantService).handleTenantInfo(argThat(handler -> {
-            handler.handle(tenant);
-            return true;
-        }));
         // mock deptService 的方法
         DeptDO dept = randomPojo(DeptDO.class, o -> {
             o.setId(reqVO.getDeptId());
@@ -124,12 +115,6 @@ public class AdminUserServiceImplTest extends BaseDbUnitTest {
     public void testCreatUser_max() {
         // 准备参数
         UserSaveReqVO reqVO = randomPojo(UserSaveReqVO.class);
-        // mock 账户额度不足
-        TenantDO tenant = randomPojo(TenantDO.class, o -> o.setAccountCount(-1));
-        doNothing().when(tenantService).handleTenantInfo(argThat(handler -> {
-            handler.handle(tenant);
-            return true;
-        }));
 
         // 调用，并断言异常
         assertServiceException(() -> userService.createUser(reqVO), USER_COUNT_MAX, -1);

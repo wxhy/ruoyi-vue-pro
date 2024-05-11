@@ -5,7 +5,6 @@ import cn.iocoder.yudao.framework.common.enums.UserTypeEnum;
 import cn.iocoder.yudao.framework.common.exception.ErrorCode;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.common.util.date.DateUtils;
-import cn.iocoder.yudao.framework.tenant.core.context.TenantContextHolder;
 import cn.iocoder.yudao.framework.test.core.ut.BaseDbAndRedisUnitTest;
 import cn.iocoder.yudao.module.system.controller.admin.oauth2.vo.token.OAuth2AccessTokenPageReqVO;
 import cn.iocoder.yudao.module.system.dal.dataobject.oauth2.OAuth2AccessTokenDO;
@@ -59,7 +58,6 @@ public class OAuth2TokenServiceImplTest extends BaseDbAndRedisUnitTest {
 
     @Test
     public void testCreateAccessToken() {
-        TenantContextHolder.setTenantId(0L);
         // 准备参数
         Long userId = randomLongId();
         Integer userType = UserTypeEnum.ADMIN.getValue();
@@ -147,7 +145,6 @@ public class OAuth2TokenServiceImplTest extends BaseDbAndRedisUnitTest {
 
     @Test
     public void testRefreshAccessToken_success() {
-        TenantContextHolder.setTenantId(0L);
         // 准备参数
         String refreshToken = randomString();
         String clientId = randomString();

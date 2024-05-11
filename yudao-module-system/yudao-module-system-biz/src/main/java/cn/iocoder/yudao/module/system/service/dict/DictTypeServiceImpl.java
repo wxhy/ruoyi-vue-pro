@@ -8,6 +8,7 @@ import cn.iocoder.yudao.module.system.controller.admin.dict.vo.type.DictTypePage
 import cn.iocoder.yudao.module.system.controller.admin.dict.vo.type.DictTypeSaveReqVO;
 import cn.iocoder.yudao.module.system.dal.dataobject.dict.DictTypeDO;
 import cn.iocoder.yudao.module.system.dal.mysql.dict.DictTypeMapper;
+import com.baomidou.dynamic.datasource.annotation.DSTransactional;
 import com.google.common.annotations.VisibleForTesting;
 import org.springframework.stereotype.Service;
 
@@ -76,15 +77,13 @@ public class DictTypeServiceImpl implements DictTypeService {
     }
 
     @Override
+    @DSTransactional
     public void deleteDictType(Long id) {
         // 校验是否存在
         DictTypeDO dictType = validateDictTypeExists(id);
-        // 校验是否有字典数据
-        if (dictDataService.getDictDataCountByDictType(dictType.getType()) > 0) {
-            throw exception(DICT_TYPE_HAS_CHILDREN);
-        }
         // 删除字典类型
         dictTypeMapper.updateToDelete(id, LocalDateTime.now());
+        dictDataService.removeDictDataByDictType(dictType.getType());
     }
 
     @Override

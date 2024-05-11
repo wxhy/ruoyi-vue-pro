@@ -7,7 +7,6 @@ import cn.iocoder.yudao.module.system.controller.admin.permission.vo.menu.MenuSa
 import cn.iocoder.yudao.module.system.dal.dataobject.permission.MenuDO;
 import cn.iocoder.yudao.module.system.dal.mysql.permission.MenuMapper;
 import cn.iocoder.yudao.module.system.enums.permission.MenuTypeEnum;
-import cn.iocoder.yudao.module.system.service.tenant.TenantService;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
@@ -42,8 +41,6 @@ public class MenuServiceImplTest extends BaseDbUnitTest {
 
     @MockBean
     private PermissionService permissionService;
-    @MockBean
-    private TenantService tenantService;
 
     @Test
     public void testCreateMenu_success() {
@@ -172,11 +169,6 @@ public class MenuServiceImplTest extends BaseDbUnitTest {
         MenuDO menu102 = randomPojo(MenuDO.class, o -> o.setId(102L).setStatus(CommonStatusEnum.ENABLE.getStatus()));
         menuMapper.insert(menu102);
         // mock 过滤菜单
-        Set<Long> menuIds = asSet(100L, 101L);
-        doNothing().when(tenantService).handleTenantMenu(argThat(handler -> {
-            handler.handle(menuIds);
-            return true;
-        }));
         // 准备参数
         MenuListReqVO reqVO = new MenuListReqVO().setStatus(CommonStatusEnum.ENABLE.getStatus());
 
