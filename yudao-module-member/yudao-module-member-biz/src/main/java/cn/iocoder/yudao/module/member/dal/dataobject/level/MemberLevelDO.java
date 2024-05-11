@@ -38,9 +38,9 @@ public class MemberLevelDO extends BaseDO {
      */
     private Integer level;
     /**
-     * 升级经验
+     * 最大关注数量
      */
-    private Integer experience;
+    private Integer watchCount;
     /**
      * 享受折扣
      */

@@ -17,6 +17,8 @@ import static cn.iocoder.yudao.framework.common.util.date.DateUtils.FORMAT_YEAR_
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 public class MemberUserPageReqVO extends PageParam {
+    @Schema(description = "账号", example = "admin")
+    private String username;
 
     @Schema(description = "手机号", example = "15601691300")
     private String mobile;
@@ -32,14 +34,8 @@ public class MemberUserPageReqVO extends PageParam {
     @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
     private LocalDateTime[] createTime;
 
-    @Schema(description = "会员标签编号列表", example = "[1, 2]")
-    private List<Long> tagIds;
-
     @Schema(description = "会员等级编号", example = "1")
     private Long levelId;
-
-    @Schema(description = "用户分组编号", example = "1")
-    private Long groupId;
 
     // TODO 芋艿：注册用户类型；
 

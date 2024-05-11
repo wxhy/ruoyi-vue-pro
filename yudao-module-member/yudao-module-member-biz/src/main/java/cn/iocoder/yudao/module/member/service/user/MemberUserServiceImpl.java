@@ -238,7 +238,6 @@ public class MemberUserServiceImpl implements MemberUserService {
         validateUserExists(updateReqVO.getId());
         // 校验手机唯一
         validateMobileUnique(updateReqVO.getId(), updateReqVO.getMobile());
-
         // 更新
         MemberUserDO updateObj = MemberUserConvert.INSTANCE.convert(updateReqVO);
         memberUserMapper.updateById(updateObj);
@@ -280,18 +279,13 @@ public class MemberUserServiceImpl implements MemberUserService {
     }
 
     @Override
-    public void updateUserLevel(Long id, Long levelId, Integer experience) {
+    public void updateUserLevel(Long id, Long levelId) {
         // 0 代表无等级：防止UpdateById时，会被过滤掉的问题
         levelId = ObjectUtil.defaultIfNull(levelId, 0L);
         memberUserMapper.updateById(new MemberUserDO()
                 .setId(id)
-                .setLevelId(levelId).setExperience(experience)
+                .setLevelId(levelId)
         );
-    }
-
-    @Override
-    public Long getUserCountByGroupId(Long groupId) {
-        return memberUserMapper.selectCountByGroupId(groupId);
     }
 
     @Override
@@ -299,19 +293,6 @@ public class MemberUserServiceImpl implements MemberUserService {
         return memberUserMapper.selectCountByLevelId(levelId);
     }
 
-    @Override
-    public Long getUserCountByTagId(Long tagId) {
-        return memberUserMapper.selectCountByTagId(tagId);
-    }
 
-    @Override
-    public boolean updateUserPoint(Long id, Integer point) {
-        if (point > 0) {
-            memberUserMapper.updatePointIncr(id, point);
-        } else if (point < 0) {
-            return memberUserMapper.updatePointDecr(id, point) > 0;
-        }
-        return true;
-    }
 
 }

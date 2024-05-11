@@ -6,7 +6,6 @@ import cn.iocoder.yudao.module.member.controller.admin.level.vo.level.MemberLeve
 import cn.iocoder.yudao.module.member.controller.admin.level.vo.level.MemberLevelUpdateReqVO;
 import cn.iocoder.yudao.module.member.controller.admin.user.vo.MemberUserUpdateLevelReqVO;
 import cn.iocoder.yudao.module.member.dal.dataobject.level.MemberLevelDO;
-import cn.iocoder.yudao.module.member.enums.MemberExperienceBizTypeEnum;
 
 import javax.validation.Valid;
 import java.util.Collection;
@@ -89,14 +88,5 @@ public interface MemberLevelService {
      */
     void updateUserLevel(MemberUserUpdateLevelReqVO updateReqVO);
 
-    /**
-     * 增加会员经验
-     *
-     * @param userId     会员ID
-     * @param experience 经验
-     * @param bizType    业务类型
-     * @param bizId      业务编号
-     */
-    void addExperience(Long userId, Integer experience, MemberExperienceBizTypeEnum bizType, String bizId);
 
 }
