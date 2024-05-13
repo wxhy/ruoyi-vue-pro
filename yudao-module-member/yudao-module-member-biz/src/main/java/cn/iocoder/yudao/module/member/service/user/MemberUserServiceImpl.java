@@ -5,17 +5,22 @@ import cn.hutool.core.collection.ListUtil;
 import cn.hutool.core.lang.Assert;
 import cn.hutool.core.util.*;
 import cn.iocoder.yudao.framework.common.enums.CommonStatusEnum;
+import cn.iocoder.yudao.framework.common.enums.TerminalEnum;
 import cn.iocoder.yudao.framework.common.enums.UserTypeEnum;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
+import cn.iocoder.yudao.framework.ip.core.utils.IPUtils;
+import cn.iocoder.yudao.module.member.controller.admin.user.vo.MemberUserCreateReqVO;
 import cn.iocoder.yudao.module.member.controller.admin.user.vo.MemberUserPageReqVO;
 import cn.iocoder.yudao.module.member.controller.admin.user.vo.MemberUserUpdateReqVO;
 import cn.iocoder.yudao.module.member.controller.app.user.vo.*;
 import cn.iocoder.yudao.module.member.convert.auth.AuthConvert;
 import cn.iocoder.yudao.module.member.convert.user.MemberUserConvert;
+import cn.iocoder.yudao.module.member.dal.dataobject.level.MemberLevelDO;
 import cn.iocoder.yudao.module.member.dal.dataobject.user.MemberUserDO;
 import cn.iocoder.yudao.module.member.dal.mysql.user.MemberUserMapper;
 import cn.iocoder.yudao.module.member.mq.producer.user.MemberUserProducer;
+import cn.iocoder.yudao.module.member.service.level.MemberLevelService;
 import cn.iocoder.yudao.module.system.api.sms.SmsCodeApi;
 import cn.iocoder.yudao.module.system.api.sms.dto.code.SmsCodeUseReqDTO;
 import cn.iocoder.yudao.module.system.api.social.SocialClientApi;
@@ -23,6 +28,7 @@ import cn.iocoder.yudao.module.system.api.social.dto.SocialWxPhoneNumberInfoResp
 import cn.iocoder.yudao.module.system.enums.sms.SmsSceneEnum;
 import com.google.common.annotations.VisibleForTesting;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -64,6 +70,10 @@ public class MemberUserServiceImpl implements MemberUserService {
     @Resource
     private MemberUserProducer memberUserProducer;
 
+    @Resource
+    @Lazy // 懒加载，避免循环依赖
+    private MemberLevelService memberLevelService;
+
     @Override
     public MemberUserDO getUserByMobile(String mobile) {
         return memberUserMapper.selectByMobile(mobile);
@@ -98,6 +108,7 @@ public class MemberUserServiceImpl implements MemberUserService {
         String password = IdUtil.fastSimpleUUID();
         // 插入用户
         MemberUserDO user = new MemberUserDO();
+        user.setUsername(mobile);
         user.setMobile(mobile);
         user.setStatus(CommonStatusEnum.ENABLE.getStatus()); // 默认开启
         user.setPassword(encodePassword(password)); // 加密密码
@@ -121,6 +132,36 @@ public class MemberUserServiceImpl implements MemberUserService {
         return user;
     }
 
+    /**
+     * 创建会员
+     *
+     * @param createReqVO
+     * @return
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public Long createUser(MemberUserCreateReqVO createReqVO) {
+        MemberUserDO memberUserDO = MemberUserConvert.INSTANCE.convert2(createReqVO);
+        validateMobileUnique(null, memberUserDO.getMobile());
+        validateUserNameUnique(null, memberUserDO.getUsername());
+        validateLevelExists(createReqVO.getLevelId());
+
+        memberUserDO.setPassword(encodePassword(createReqVO.getPassword())); // 加密密码
+        memberUserDO.setRegisterIp(getClientIP()).setRegisterTerminal(TerminalEnum.H5.getTerminal());
+        memberUserMapper.insert(memberUserDO);
+
+        // 发送 MQ 消息：用户创建
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+
+            @Override
+            public void afterCommit() {
+                memberUserProducer.sendUserCreateMessage(memberUserDO.getId());
+            }
+
+        });
+        return memberUserDO.getId();
+    }
+
     @Override
     public void updateUserLogin(Long id, String loginIp) {
         memberUserMapper.updateById(new MemberUserDO().setId(id)
@@ -142,7 +183,7 @@ public class MemberUserServiceImpl implements MemberUserService {
 
     @Override
     public void updateUser(Long userId, AppMemberUserUpdateReqVO reqVO) {
-        MemberUserDO updateObj = BeanUtils.toBean(reqVO, MemberUserDO.class).setId(userId);
+        MemberUserDO updateObj = BeanUtils.toBean(reqVO, MemberUserDO.class).setId(userId).setLevelId(null);
         memberUserMapper.updateById(updateObj);
     }
 
@@ -266,10 +307,36 @@ public class MemberUserServiceImpl implements MemberUserService {
         }
         // 如果 id 为空，说明不用比较是否为相同 id 的用户
         if (id == null) {
-            throw exception(USER_MOBILE_USED, mobile);
+            return;
         }
         if (!user.getId().equals(id)) {
             throw exception(USER_MOBILE_USED, mobile);
+        }
+    }
+
+    @VisibleForTesting
+    void validateUserNameUnique(Long id, String userName) {
+        if (StrUtil.isBlank(userName)) {
+            return;
+        }
+        MemberUserDO user = memberUserMapper.selectByUserName(userName);
+        if (user == null) {
+            return;
+        }
+        // 如果 id 为空，说明不用比较是否为相同 id 的用户
+        if (id == null) {
+            return;
+        }
+        if (!user.getId().equals(id)) {
+            throw exception(USER_USERNAME_USED, userName);
+        }
+    }
+
+    @VisibleForTesting
+    void validateLevelExists(Long levelId) {
+        MemberLevelDO level = memberLevelService.getLevel(levelId);
+        if (level == null) {
+            throw exception(LEVEL_NOT_EXISTS);
         }
     }
 

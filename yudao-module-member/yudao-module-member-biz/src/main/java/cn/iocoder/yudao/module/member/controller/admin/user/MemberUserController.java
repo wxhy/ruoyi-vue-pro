@@ -3,10 +3,7 @@ package cn.iocoder.yudao.module.member.controller.admin.user;
 import cn.hutool.core.collection.CollUtil;
 import cn.iocoder.yudao.framework.common.pojo.CommonResult;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
-import cn.iocoder.yudao.module.member.controller.admin.user.vo.MemberUserPageReqVO;
-import cn.iocoder.yudao.module.member.controller.admin.user.vo.MemberUserRespVO;
-import cn.iocoder.yudao.module.member.controller.admin.user.vo.MemberUserUpdateLevelReqVO;
-import cn.iocoder.yudao.module.member.controller.admin.user.vo.MemberUserUpdateReqVO;
+import cn.iocoder.yudao.module.member.controller.admin.user.vo.*;
 import cn.iocoder.yudao.module.member.convert.user.MemberUserConvert;
 import cn.iocoder.yudao.module.member.dal.dataobject.level.MemberLevelDO;
 import cn.iocoder.yudao.module.member.dal.dataobject.user.MemberUserDO;
@@ -36,6 +33,14 @@ public class MemberUserController {
     private MemberUserService memberUserService;
     @Resource
     private MemberLevelService memberLevelService;
+
+    @PostMapping("/create")
+    @Operation(summary = "更新会员用户")
+    @PreAuthorize("@ss.hasPermission('member:user:create')")
+    public CommonResult<Long> createUser(@Valid @RequestBody MemberUserCreateReqVO createReqVO) {
+        Long userId = memberUserService.createUser(createReqVO);
+        return success(userId);
+    }
 
     @PutMapping("/update")
     @Operation(summary = "更新会员用户")

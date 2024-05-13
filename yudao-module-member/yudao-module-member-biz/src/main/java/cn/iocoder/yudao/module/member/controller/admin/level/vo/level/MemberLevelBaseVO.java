@@ -10,6 +10,7 @@ import org.hibernate.validator.constraints.URL;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
+import java.math.BigDecimal;
 
 /**
  * 会员等级 Base VO，提供给添加、修改、详细的子 VO 使用
@@ -22,20 +23,20 @@ public class MemberLevelBaseVO {
     @NotBlank(message = "等级名称不能为空")
     private String name;
 
-    @Schema(description = "升级经验", requiredMode = Schema.RequiredMode.REQUIRED, example = "100")
-    @NotNull(message = "升级经验不能为空")
-    @Positive(message = "升级经验必须大于 0")
-    private Integer experience;
-
     @Schema(description = "等级", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
     @NotNull(message = "等级不能为空")
     @Positive(message = "等级必须大于 0")
     private Integer level;
 
-    @Schema(description = "享受折扣", requiredMode = Schema.RequiredMode.REQUIRED, example = "98")
-    @NotNull(message = "享受折扣不能为空")
-    @Range(min = 0, max = 100, message = "享受折扣的范围为 0-100")
-    private Integer discountPercent;
+    /**
+     * 最大关注数量
+     */
+    private Integer watchCount;
+
+    /**
+     * 享受折扣
+     */
+    private BigDecimal price;
 
     @Schema(description = "等级图标", example = "https://www.iocoder.cn/yudao.jpg")
     @URL(message = "等级图标必须是 URL 格式")

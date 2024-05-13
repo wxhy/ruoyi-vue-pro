@@ -44,7 +44,7 @@ public class MemberLevelServiceImpl implements MemberLevelService {
     @Override
     public Long createLevel(MemberLevelCreateReqVO createReqVO) {
         // 校验配置是否有效
-        validateConfigValid(null, createReqVO.getName(), createReqVO.getLevel(), createReqVO.getExperience());
+        validateConfigValid(null, createReqVO.getName(), createReqVO.getLevel());
 
         // 插入
         MemberLevelDO level = MemberLevelConvert.INSTANCE.convert(createReqVO);
@@ -58,7 +58,7 @@ public class MemberLevelServiceImpl implements MemberLevelService {
         // 校验存在
         validateLevelExists(updateReqVO.getId());
         // 校验配置是否有效
-        validateConfigValid(updateReqVO.getId(), updateReqVO.getName(), updateReqVO.getLevel(), updateReqVO.getExperience());
+        validateConfigValid(updateReqVO.getId(), updateReqVO.getName(), updateReqVO.getLevel());
 
         // 更新
         MemberLevelDO updateObj = MemberLevelConvert.INSTANCE.convert(updateReqVO);
@@ -111,7 +111,7 @@ public class MemberLevelServiceImpl implements MemberLevelService {
 
 
     @VisibleForTesting
-    void validateConfigValid(Long id, String name, Integer level, Integer experience) {
+    void validateConfigValid(Long id, String name, Integer level) {
         List<MemberLevelDO> list = memberLevelMapper.selectList();
         // 校验名称唯一
         validateNameUnique(list, id, name);

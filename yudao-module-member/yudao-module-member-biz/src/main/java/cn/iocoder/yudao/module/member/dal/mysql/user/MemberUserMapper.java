@@ -21,6 +21,10 @@ public interface MemberUserMapper extends BaseMapperX<MemberUserDO> {
         return selectOne(MemberUserDO::getMobile, mobile);
     }
 
+    default MemberUserDO selectByUserName(String userName) {
+        return selectOne(MemberUserDO::getUsername, userName);
+    }
+
     default List<MemberUserDO> selectListByNicknameLike(String nickname) {
         return selectList(new LambdaQueryWrapperX<MemberUserDO>()
                 .likeIfPresent(MemberUserDO::getNickname, nickname));

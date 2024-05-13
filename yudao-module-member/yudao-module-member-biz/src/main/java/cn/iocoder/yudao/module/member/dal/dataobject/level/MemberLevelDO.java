@@ -7,6 +7,8 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.*;
 
+import java.math.BigDecimal;
+
 /**
  * 会员等级 DO
  *
@@ -44,7 +46,7 @@ public class MemberLevelDO extends BaseDO {
     /**
      * 享受折扣
      */
-    private Integer discountPercent;
+    private BigDecimal price;
 
     /**
      * 等级图标

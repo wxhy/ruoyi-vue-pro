@@ -2,6 +2,7 @@ package cn.iocoder.yudao.module.member.convert.user;
 
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.module.member.api.user.dto.MemberUserRespDTO;
+import cn.iocoder.yudao.module.member.controller.admin.user.vo.MemberUserCreateReqVO;
 import cn.iocoder.yudao.module.member.controller.admin.user.vo.MemberUserRespVO;
 import cn.iocoder.yudao.module.member.controller.admin.user.vo.MemberUserUpdateReqVO;
 import cn.iocoder.yudao.module.member.controller.app.user.vo.AppMemberUserInfoRespVO;
@@ -31,6 +32,8 @@ public interface MemberUserConvert {
     List<MemberUserRespDTO> convertList2(List<MemberUserDO> list);
 
     MemberUserDO convert(MemberUserUpdateReqVO bean);
+
+    MemberUserDO convert2(MemberUserCreateReqVO bean);
 
     PageResult<MemberUserRespVO> convertPage(PageResult<MemberUserDO> page);
 
