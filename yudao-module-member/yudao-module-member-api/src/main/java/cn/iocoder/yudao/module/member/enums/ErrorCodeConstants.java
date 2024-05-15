@@ -30,5 +30,4 @@ public interface ErrorCodeConstants {
 
     ErrorCode EXPERIENCE_BIZ_NOT_SUPPORT = new ErrorCode(1_004_011_201, "用户经验业务类型不支持");
 
-
 }

@@ -11,6 +11,7 @@ import cn.iocoder.yudao.module.member.dal.dataobject.level.MemberLevelDO;
 import cn.iocoder.yudao.module.member.dal.dataobject.user.MemberUserDO;
 import cn.iocoder.yudao.module.member.dal.mysql.level.MemberLevelMapper;
 import cn.iocoder.yudao.module.member.service.user.MemberUserService;
+import cn.iocoder.yudao.module.member.service.userchangelog.UserChangeLogService;
 import com.google.common.annotations.VisibleForTesting;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -40,6 +41,9 @@ public class MemberLevelServiceImpl implements MemberLevelService {
 
     @Resource
     private MemberUserService memberUserService;
+
+    @Resource
+    private UserChangeLogService userChangeLogService;
 
     @Override
     public Long createLevel(MemberLevelCreateReqVO createReqVO) {
@@ -162,13 +166,15 @@ public class MemberLevelServiceImpl implements MemberLevelService {
             return;
         }
         // 复制等级配置
-        MemberLevelDO memberLevel = validateLevelExists(updateReqVO.getLevelId());
+        validateLevelExists(updateReqVO.getLevelId());
 
         // 3. 更新会员表上的等级编号、经验值
         memberUserService.updateUserLevel(user.getId(), updateReqVO.getLevelId());
+        // 记录调整原因
+        userChangeLogService.createUserChangeLog(user.getId(), 1, updateReqVO.getReason());
 
-        // 4. 给会员发送等级变动消息
-        notifyMemberLevelChange(user.getId(), memberLevel);
+        // TODO 4. 给会员发送等级变动消息
+
     }
 
 

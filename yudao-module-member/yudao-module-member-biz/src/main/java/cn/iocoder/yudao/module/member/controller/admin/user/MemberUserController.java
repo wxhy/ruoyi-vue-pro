@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Optional;
 
 import static cn.iocoder.yudao.framework.common.pojo.CommonResult.success;
 import static cn.iocoder.yudao.framework.common.util.collection.CollectionUtils.convertSet;
@@ -65,7 +66,13 @@ public class MemberUserController {
     @PreAuthorize("@ss.hasPermission('member:user:query')")
     public CommonResult<MemberUserRespVO> getUser(@RequestParam("id") Long id) {
         MemberUserDO user = memberUserService.getUser(id);
-        return success(MemberUserConvert.INSTANCE.convert03(user));
+        MemberUserRespVO memberUserRespVO = MemberUserConvert.INSTANCE.convert03(user);
+        MemberLevelDO level = memberLevelService.getLevel(memberUserRespVO.getLevelId());
+        Optional.ofNullable(level).ifPresent(levelDO -> {
+            memberUserRespVO.setLevelName(levelDO.getName());
+        });
+
+        return success(memberUserRespVO);
     }
 
     @GetMapping("/page")
