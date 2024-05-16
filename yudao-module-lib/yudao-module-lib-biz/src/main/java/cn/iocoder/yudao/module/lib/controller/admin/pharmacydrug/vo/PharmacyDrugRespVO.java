@@ -48,18 +48,6 @@ public class PharmacyDrugRespVO {
     @ExcelProperty("零售价")
     private BigDecimal retailPrice;
 
-    @Schema(description = "产品批次")
-    @ExcelProperty("产品批次")
-    private String productBatch;
-
-    @Schema(description = "生产日期")
-    @ExcelProperty("生产日期")
-    private LocalDate productionDate;
-
-    @Schema(description = "有效期至")
-    @ExcelProperty("有效期至")
-    private LocalDate indate;
-
     @Schema(description = "会员id", requiredMode = Schema.RequiredMode.REQUIRED, example = "24857")
     @ExcelProperty("会员id")
     private Long userId;

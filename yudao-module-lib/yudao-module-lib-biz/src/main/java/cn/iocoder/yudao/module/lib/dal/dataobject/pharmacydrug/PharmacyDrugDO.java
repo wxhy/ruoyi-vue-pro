@@ -29,7 +29,7 @@ public class PharmacyDrugDO extends BaseDO {
     /**
      * 药物id
      */
-    @TableId
+    @TableId(type = IdType.ASSIGN_ID)
     private Long id;
     /**
      * 批准号
@@ -59,18 +59,6 @@ public class PharmacyDrugDO extends BaseDO {
      * 零售价
      */
     private BigDecimal retailPrice;
-    /**
-     * 产品批次
-     */
-    private String productBatch;
-    /**
-     * 生产日期
-     */
-    private LocalDate productionDate;
-    /**
-     * 有效期至
-     */
-    private LocalDate indate;
     /**
      * 会员id
      */

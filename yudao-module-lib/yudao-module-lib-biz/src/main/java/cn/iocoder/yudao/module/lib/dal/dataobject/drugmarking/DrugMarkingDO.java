@@ -25,7 +25,7 @@ public class DrugMarkingDO extends BaseDO {
     /**
      * id
      */
-    @TableId
+    @TableId(type = IdType.ASSIGN_ID)
     private Long id;
     /**
      * 数据id

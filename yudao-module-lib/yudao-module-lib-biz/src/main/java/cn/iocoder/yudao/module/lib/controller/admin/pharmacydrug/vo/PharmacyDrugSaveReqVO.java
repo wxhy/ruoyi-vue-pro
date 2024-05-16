@@ -42,13 +42,4 @@ public class PharmacyDrugSaveReqVO {
     @NotNull(message = "零售价不能为空")
     private BigDecimal retailPrice;
 
-    @Schema(description = "产品批次")
-    private String productBatch;
-
-    @Schema(description = "生产日期")
-    private LocalDate productionDate;
-
-    @Schema(description = "有效期至")
-    private LocalDate indate;
-
 }

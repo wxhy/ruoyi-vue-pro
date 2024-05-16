@@ -1,5 +1,8 @@
 package cn.iocoder.yudao.module.lib.controller.admin.pharmacydrug;
 
+import cn.iocoder.yudao.framework.common.enums.CommonStatusEnum;
+import cn.iocoder.yudao.module.system.enums.common.SexEnum;
+import io.swagger.v3.oas.annotations.Parameters;
 import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import org.springframework.validation.annotation.Validated;
@@ -8,6 +11,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Operation;
 
+import javax.annotation.security.PermitAll;
 import javax.validation.constraints.*;
 import javax.validation.*;
 import javax.servlet.http.*;
@@ -28,6 +32,7 @@ import static cn.iocoder.yudao.framework.apilog.core.enums.OperateTypeEnum.*;
 import cn.iocoder.yudao.module.lib.controller.admin.pharmacydrug.vo.*;
 import cn.iocoder.yudao.module.lib.dal.dataobject.pharmacydrug.PharmacyDrugDO;
 import cn.iocoder.yudao.module.lib.service.pharmacydrug.PharmacyDrugService;
+import org.springframework.web.multipart.MultipartFile;
 
 @Tag(name = "管理后台 - 药房药品")
 @RestController
@@ -92,4 +97,23 @@ public class PharmacyDrugController {
                         BeanUtils.toBean(list, PharmacyDrugRespVO.class));
     }
 
+    @GetMapping("/get-import-template")
+    @Operation(summary = "获得导入药物模板")
+    @PermitAll
+    public void importTemplate(HttpServletResponse response) throws IOException {
+        // 输出
+        ExcelUtils.write(response, "药品导入模板.xls", "药品列表", DrugImportExcelVO.class, null);
+    }
+
+
+    @PostMapping("/import")
+    @Operation(summary = "导入药房药品")
+    @Parameters({
+            @Parameter(name = "file", description = "Excel 文件", required = true),
+    })
+    @PreAuthorize("@ss.hasPermission('lib:pharmacy-drug:import')")
+    public CommonResult<DrugImportRespVO> importExcel(@RequestParam("file") MultipartFile file) throws Exception {
+        List<DrugImportExcelVO> list = ExcelUtils.read(file, DrugImportExcelVO.class);
+        return success(pharmacyDrugService.importDrug(list));
+    }
 }

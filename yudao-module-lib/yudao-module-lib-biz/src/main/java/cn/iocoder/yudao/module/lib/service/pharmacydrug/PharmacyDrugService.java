@@ -52,4 +52,10 @@ public interface PharmacyDrugService {
      */
     PageResult<PharmacyDrugDO> getPharmacyDrugPage(PharmacyDrugPageReqVO pageReqVO);
 
+    /**
+     * 数据导入
+     * @param list
+     * @return
+     */
+    DrugImportRespVO importDrug(List<DrugImportExcelVO> list);
 }

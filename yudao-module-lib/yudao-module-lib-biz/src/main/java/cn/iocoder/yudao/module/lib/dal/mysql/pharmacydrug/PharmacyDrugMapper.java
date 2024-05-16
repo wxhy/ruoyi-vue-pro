@@ -22,11 +22,29 @@ public interface PharmacyDrugMapper extends BaseMapperX<PharmacyDrugDO> {
                 .likeIfPresent(PharmacyDrugDO::getApprovalNumber, reqVO.getApprovalNumber())
                 .likeIfPresent(PharmacyDrugDO::getCommonName, reqVO.getCommonName())
                 .likeIfPresent(PharmacyDrugDO::getManufacturer, reqVO.getManufacturer())
-                .likeIfPresent(PharmacyDrugDO::getProductBatch, reqVO.getProductBatch())
                 .eqIfPresent(PharmacyDrugDO::getUserId, reqVO.getUserId())
                 .eqIfPresent(PharmacyDrugDO::getWatch, reqVO.getWatch())
                 .betweenIfPresent(PharmacyDrugDO::getCreateTime, reqVO.getCreateTime())
                 .orderByDesc(PharmacyDrugDO::getId));
     }
 
+    /**
+     * 获取药品信息
+     *
+     * @param approvalNumber
+     * @param commonName
+     * @param manufacturer
+     * @param userId
+     * @param specifications
+     * @return
+     */
+    default PharmacyDrugDO selectDrugInfo(String approvalNumber, String commonName, String manufacturer,
+                                          Long userId, String specifications) {
+        return selectOne(new LambdaQueryWrapperX<PharmacyDrugDO>()
+                .eq(PharmacyDrugDO::getApprovalNumber, approvalNumber)
+                .eq(PharmacyDrugDO::getCommonName, commonName)
+                .eq(PharmacyDrugDO::getManufacturer, manufacturer)
+                .eq(PharmacyDrugDO::getUserId, userId)
+                .eq(PharmacyDrugDO::getSpecifications, specifications));
+    }
 }
