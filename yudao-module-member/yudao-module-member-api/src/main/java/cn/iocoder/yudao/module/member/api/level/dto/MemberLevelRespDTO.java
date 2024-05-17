@@ -23,19 +23,17 @@ public class MemberLevelRespDTO {
      * 等级
      */
     private Integer level;
-    /**
-     * 升级经验
-     */
-    private Integer experience;
-    /**
-     * 享受折扣
-     */
-    private Integer discountPercent;
+
     /**
      * 状态
      *
      * 枚举 {@link CommonStatusEnum}
      */
     private Integer status;
+
+    /**
+     * 最大关注数量
+     */
+    private Integer watchCount;
 
 }

@@ -1,8 +1,15 @@
 package cn.iocoder.yudao.module.lib.service.pharmacydrug;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.iocoder.yudao.framework.common.constant.CommonConstant;
 import cn.iocoder.yudao.framework.common.util.validation.ValidationUtils;
+import cn.iocoder.yudao.framework.mybatis.core.query.LambdaQueryWrapperX;
 import cn.iocoder.yudao.framework.security.core.util.SecurityFrameworkUtils;
+import cn.iocoder.yudao.module.member.api.level.MemberLevelApi;
+import cn.iocoder.yudao.module.member.api.level.dto.MemberLevelRespDTO;
+import cn.iocoder.yudao.module.member.api.user.MemberUserApi;
+import cn.iocoder.yudao.module.member.api.user.dto.MemberUserRespDTO;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import javax.validation.ConstraintViolationException;
@@ -39,6 +46,12 @@ public class PharmacyDrugServiceImpl implements PharmacyDrugService {
 
     @Resource
     private Validator validator;
+
+    @Resource
+    private MemberUserApi memberUserApi;
+
+    @Resource
+    private MemberLevelApi memberLevelApi;
 
     @Override
     public Long createPharmacyDrug(PharmacyDrugSaveReqVO createReqVO) {
@@ -140,5 +153,54 @@ public class PharmacyDrugServiceImpl implements PharmacyDrugService {
         drugImportRespVO.setFailureCount(failure);
         drugImportRespVO.setDataInfos(dataInfos);
         return drugImportRespVO;
+    }
+
+    /**
+     * 特别关注或关注取消
+     *
+     * @param id
+     * @return
+     */
+    @Override
+    public Boolean watchPharmacyDrug(Long id) {
+        Long loginUserId = SecurityFrameworkUtils.getLoginUserId();
+        MemberUserRespDTO user = memberUserApi.getUser(loginUserId);
+        if (Objects.isNull(user)) {
+            throw exception(MEMBER_USER_NOT_EXISTS);
+        }
+
+        // 查询该药品是否已关注
+        PharmacyDrugDO pharmacyDrugDO = pharmacyDrugMapper.selectOne(new LambdaQueryWrapperX<PharmacyDrugDO>()
+                .eq(PharmacyDrugDO::getId, id)
+                .eq(PharmacyDrugDO::getUserId, loginUserId));
+        if (Objects.isNull(pharmacyDrugDO)) {
+            throw exception(PHARMACY_DRUG_NOT_EXISTS);
+        }
+
+        if (pharmacyDrugDO.getWatch().equals(CommonConstant.INTEGER_ONE)) {
+            pharmacyDrugMapper.update(new PharmacyDrugDO(), new LambdaUpdateWrapper<PharmacyDrugDO>()
+                    .eq(PharmacyDrugDO::getId, id)
+                    .eq(PharmacyDrugDO::getUserId, loginUserId)
+                    .set(PharmacyDrugDO::getWatch, CommonConstant.INTEGER_ZERO));
+            return Boolean.TRUE;
+        }
+
+
+        MemberLevelRespDTO memberLevel = memberLevelApi.getMemberLevel(user.getLevelId());
+        if (Objects.isNull(memberLevel)) {
+            throw exception(MEMBER_LEVEL_IS_EMPTY);
+        }
+        // 查询已关注数量
+        Long watchCount = pharmacyDrugMapper.selectCount(new LambdaQueryWrapperX<PharmacyDrugDO>()
+                .eq(PharmacyDrugDO::getUserId, loginUserId)
+                .eq(PharmacyDrugDO::getWatch, CommonConstant.INTEGER_ONE));
+        if (watchCount >= memberLevel.getWatchCount()) {
+            throw exception(WATCH_DRUG_FULL);
+        }
+        pharmacyDrugMapper.update(new PharmacyDrugDO(), new LambdaUpdateWrapper<PharmacyDrugDO>()
+                .eq(PharmacyDrugDO::getId, id)
+                .eq(PharmacyDrugDO::getUserId, loginUserId)
+                .set(PharmacyDrugDO::getWatch, CommonConstant.INTEGER_ONE));
+        return Boolean.TRUE;
     }
 }

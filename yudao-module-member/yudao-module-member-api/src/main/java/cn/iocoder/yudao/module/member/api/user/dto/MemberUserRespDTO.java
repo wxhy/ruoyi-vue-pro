@@ -47,9 +47,5 @@ public class MemberUserRespDTO {
      */
     private Long levelId;
 
-    /**
-     * 积分
-     */
-    private Integer point;
 
 }

@@ -58,4 +58,11 @@ public interface PharmacyDrugService {
      * @return
      */
     DrugImportRespVO importDrug(List<DrugImportExcelVO> list);
+
+    /**
+     * 特别关注或关注取消
+     * @param id
+     * @return
+     */
+    Boolean watchPharmacyDrug(Long id);
 }

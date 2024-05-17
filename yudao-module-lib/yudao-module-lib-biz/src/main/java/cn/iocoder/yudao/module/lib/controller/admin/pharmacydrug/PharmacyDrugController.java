@@ -97,6 +97,14 @@ public class PharmacyDrugController {
                         BeanUtils.toBean(list, PharmacyDrugRespVO.class));
     }
 
+    @GetMapping("/watch")
+    @Operation(summary = "关注/取消关注药房药品")
+    @Parameter(name = "id", description = "编号", required = true, example = "1024")
+    @PreAuthorize("@ss.hasPermission('lib:pharmacy-drug:watch')")
+    public CommonResult<Boolean> watchPharmacyDrug(@RequestParam("id") Long id) {
+        return success(pharmacyDrugService.watchPharmacyDrug(id));
+    }
+
     @GetMapping("/get-import-template")
     @Operation(summary = "获得导入药物模板")
     @PermitAll
