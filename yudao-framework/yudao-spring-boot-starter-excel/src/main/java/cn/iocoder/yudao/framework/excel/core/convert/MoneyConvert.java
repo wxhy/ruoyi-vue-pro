@@ -3,6 +3,7 @@ package cn.iocoder.yudao.framework.excel.core.convert;
 import com.alibaba.excel.converters.Converter;
 import com.alibaba.excel.enums.CellDataTypeEnum;
 import com.alibaba.excel.metadata.GlobalConfiguration;
+import com.alibaba.excel.metadata.data.ReadCellData;
 import com.alibaba.excel.metadata.data.WriteCellData;
 import com.alibaba.excel.metadata.property.ExcelContentProperty;
 
@@ -11,29 +12,35 @@ import java.math.RoundingMode;
 
 /**
  * 金额转换器
- *
+ * <p>
  * 金额单位：分
  *
  * @author 芋道源码
  */
-public class MoneyConvert implements Converter<Integer> {
+public class MoneyConvert implements Converter<BigDecimal> {
 
     @Override
     public Class<?> supportJavaTypeKey() {
-        throw new UnsupportedOperationException("暂不支持，也不需要");
+        return BigDecimal.class;
     }
 
     @Override
     public CellDataTypeEnum supportExcelTypeKey() {
-        throw new UnsupportedOperationException("暂不支持，也不需要");
+        return CellDataTypeEnum.STRING;
     }
 
     @Override
-    public WriteCellData<String> convertToExcelData(Integer value, ExcelContentProperty contentProperty,
-                                                    GlobalConfiguration globalConfiguration) {
-        BigDecimal result = BigDecimal.valueOf(value)
+    public WriteCellData<?> convertToExcelData(BigDecimal value, ExcelContentProperty contentProperty,
+                                               GlobalConfiguration globalConfiguration) throws Exception {
+        BigDecimal result = value
                 .divide(new BigDecimal(100), 2, RoundingMode.HALF_UP);
         return new WriteCellData<>(result.toString());
     }
 
+
+    @Override
+    public BigDecimal convertToJavaData(ReadCellData<?> cellData, ExcelContentProperty contentProperty,
+                                        GlobalConfiguration globalConfiguration) throws Exception {
+        return cellData.getOriginalNumberValue();
+    }
 }

@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import javax.validation.ConstraintViolationException;
 import javax.validation.Validator;
+import javax.validation.groups.Default;
 
 import org.springframework.validation.annotation.Validated;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,6 +36,9 @@ public class PharmacyDrugServiceImpl implements PharmacyDrugService {
 
     @Resource
     private PharmacyDrugMapper pharmacyDrugMapper;
+
+    @Resource
+    private Validator validator;
 
     @Override
     public Long createPharmacyDrug(PharmacyDrugSaveReqVO createReqVO) {
@@ -105,12 +109,13 @@ public class PharmacyDrugServiceImpl implements PharmacyDrugService {
             dataInfo.setDrugName(item.getCommonName());
 
             try {
-                ValidationUtils.validate(item, DrugImportExcelVO.class);
+                validator.validate(item, Default.class);
 
                 PharmacyDrugDO pharmacyDrugDO = pharmacyDrugMapper.selectDrugInfo(item.getApprovalNumber(), item.getCommonName(),
                         item.getManufacturer(), loginUserId, item.getSpecifications());
                 if (Objects.isNull(pharmacyDrugDO)) {
                     pharmacyDrugDO = BeanUtils.toBean(item, PharmacyDrugDO.class);
+                    pharmacyDrugDO.setUserId(loginUserId);
                     pharmacyDrugMapper.insert(pharmacyDrugDO);
                     dataInfo.setStatus(1);
                     dataInfo.setReason("导入成功");

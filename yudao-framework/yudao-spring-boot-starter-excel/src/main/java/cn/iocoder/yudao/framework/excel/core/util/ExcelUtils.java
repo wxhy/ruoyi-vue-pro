@@ -46,7 +46,7 @@ public class ExcelUtils {
 
     public static <T> List<T> read(MultipartFile file, Class<T> head) throws IOException {
         return EasyExcel.read(file.getInputStream(), head, null)
-                .autoCloseStream(false)  // 不要自动关闭，交给 Servlet 自己处理
+                .autoCloseStream(true)  // 不要自动关闭，交给 Servlet 自己处理
                 .doReadAllSync();
     }
 
