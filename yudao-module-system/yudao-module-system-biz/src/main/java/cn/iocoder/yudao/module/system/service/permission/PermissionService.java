@@ -143,4 +143,11 @@ public interface PermissionService {
      */
     DeptDataPermissionRespDTO getDeptDataPermission(Long userId);
 
+    /**
+     * 授权用户角色
+     * @param userId
+     * @param roleCode
+     * @return
+     */
+    boolean assignUserRole(Long userId, String roleCode);
 }

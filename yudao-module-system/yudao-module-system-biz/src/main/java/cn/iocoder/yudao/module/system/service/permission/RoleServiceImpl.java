@@ -181,6 +181,16 @@ public class RoleServiceImpl implements RoleService {
         return roleMapper.selectById(id);
     }
 
+    /**
+     * 根据cod查询角色
+     *
+     * @param code
+     * @return
+     */
+    @Override
+    public RoleDO getRoleByCode(String code) {
+        return roleMapper.selectByCode(code);
+    }
 
     @Override
     public List<RoleDO> getRoleListByStatus(Collection<Integer> statuses) {

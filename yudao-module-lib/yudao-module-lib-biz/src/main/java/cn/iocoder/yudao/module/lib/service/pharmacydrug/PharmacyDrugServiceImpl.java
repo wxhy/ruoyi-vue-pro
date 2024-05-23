@@ -2,35 +2,31 @@ package cn.iocoder.yudao.module.lib.service.pharmacydrug;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.iocoder.yudao.framework.common.constant.CommonConstant;
-import cn.iocoder.yudao.framework.common.util.validation.ValidationUtils;
+import cn.iocoder.yudao.framework.common.pojo.PageResult;
+import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
 import cn.iocoder.yudao.framework.mybatis.core.query.LambdaQueryWrapperX;
 import cn.iocoder.yudao.framework.security.core.util.SecurityFrameworkUtils;
-import cn.iocoder.yudao.module.member.api.level.MemberLevelApi;
-import cn.iocoder.yudao.module.member.api.level.dto.MemberLevelRespDTO;
-import cn.iocoder.yudao.module.member.api.user.MemberUserApi;
-import cn.iocoder.yudao.module.member.api.user.dto.MemberUserRespDTO;
-import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
-import org.springframework.stereotype.Service;
-import javax.annotation.Resource;
-import javax.validation.ConstraintViolationException;
-import javax.validation.Validator;
-import javax.validation.groups.Default;
-
-import org.springframework.validation.annotation.Validated;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.*;
 import cn.iocoder.yudao.module.lib.controller.admin.pharmacydrug.vo.*;
 import cn.iocoder.yudao.module.lib.dal.dataobject.pharmacydrug.PharmacyDrugDO;
-import cn.iocoder.yudao.framework.common.pojo.PageResult;
-import cn.iocoder.yudao.framework.common.pojo.PageParam;
-import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
-
 import cn.iocoder.yudao.module.lib.dal.mysql.pharmacydrug.PharmacyDrugMapper;
+import cn.iocoder.yudao.module.system.api.level.LevelApi;
+import cn.iocoder.yudao.module.system.api.level.dto.LevelDTO;
+import cn.iocoder.yudao.module.system.api.user.AdminUserApi;
+import cn.iocoder.yudao.module.system.api.user.dto.AdminUserRespDTO;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
+
+import javax.annotation.Resource;
+import javax.validation.Validator;
+import javax.validation.groups.Default;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.module.lib.enums.ErrorCodeConstants.*;
-import static cn.iocoder.yudao.module.system.enums.ErrorCodeConstants.USER_IMPORT_LIST_IS_EMPTY;
 
 /**
  * 药房药品 Service 实现类
@@ -48,10 +44,10 @@ public class PharmacyDrugServiceImpl implements PharmacyDrugService {
     private Validator validator;
 
     @Resource
-    private MemberUserApi memberUserApi;
+    private AdminUserApi adminUserApi;
 
     @Resource
-    private MemberLevelApi memberLevelApi;
+    private LevelApi levelApi;
 
     @Override
     public Long createPharmacyDrug(PharmacyDrugSaveReqVO createReqVO) {
@@ -164,7 +160,7 @@ public class PharmacyDrugServiceImpl implements PharmacyDrugService {
     @Override
     public Boolean watchPharmacyDrug(Long id) {
         Long loginUserId = SecurityFrameworkUtils.getLoginUserId();
-        MemberUserRespDTO user = memberUserApi.getUser(loginUserId);
+        AdminUserRespDTO user = adminUserApi.getUser(loginUserId);
         if (Objects.isNull(user)) {
             throw exception(MEMBER_USER_NOT_EXISTS);
         }
@@ -186,7 +182,7 @@ public class PharmacyDrugServiceImpl implements PharmacyDrugService {
         }
 
 
-        MemberLevelRespDTO memberLevel = memberLevelApi.getMemberLevel(user.getLevelId());
+        LevelDTO memberLevel = levelApi.getLevel(user.getLevelId());
         if (Objects.isNull(memberLevel)) {
             throw exception(MEMBER_LEVEL_IS_EMPTY);
         }

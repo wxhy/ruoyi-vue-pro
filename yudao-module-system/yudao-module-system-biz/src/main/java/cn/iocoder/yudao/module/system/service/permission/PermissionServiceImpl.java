@@ -15,6 +15,7 @@ import cn.iocoder.yudao.module.system.dal.dataobject.permission.UserRoleDO;
 import cn.iocoder.yudao.module.system.dal.mysql.permission.RoleMenuMapper;
 import cn.iocoder.yudao.module.system.dal.mysql.permission.UserRoleMapper;
 import cn.iocoder.yudao.module.system.dal.redis.RedisKeyConstants;
+import cn.iocoder.yudao.module.system.enums.ErrorCodeConstants;
 import cn.iocoder.yudao.module.system.enums.permission.DataScopeEnum;
 import cn.iocoder.yudao.module.system.service.dept.DeptService;
 import cn.iocoder.yudao.module.system.service.user.AdminUserService;
@@ -33,6 +34,7 @@ import javax.annotation.Resource;
 import java.util.*;
 import java.util.function.Supplier;
 
+import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.framework.common.util.collection.CollectionUtils.convertSet;
 import static cn.iocoder.yudao.framework.common.util.json.JsonUtils.toJsonString;
 
@@ -334,4 +336,20 @@ public class PermissionServiceImpl implements PermissionService {
         return SpringUtil.getBean(getClass());
     }
 
+    /**
+     * 授权用户角色
+     *
+     * @param userId
+     * @param roleCode
+     * @return
+     */
+    @Override
+    public boolean assignUserRole(Long userId, String roleCode) {
+        RoleDO role = roleService.getRoleByCode(roleCode);
+        if (Objects.isNull(role)) {
+            throw exception(ErrorCodeConstants.ROLE_NOT_EXISTS);
+        }
+        getSelf().assignUserRole(userId, CollectionUtils.singletonSet(role.getId()));
+        return true;
+    }
 }

@@ -11,6 +11,7 @@ import cn.iocoder.yudao.module.system.controller.admin.user.vo.user.UserRespVO;
 import cn.iocoder.yudao.module.system.controller.admin.user.vo.user.UserSimpleRespVO;
 import cn.iocoder.yudao.module.system.dal.dataobject.dept.DeptDO;
 import cn.iocoder.yudao.module.system.dal.dataobject.dept.PostDO;
+import cn.iocoder.yudao.module.system.dal.dataobject.level.LevelDO;
 import cn.iocoder.yudao.module.system.dal.dataobject.permission.RoleDO;
 import cn.iocoder.yudao.module.system.dal.dataobject.social.SocialUserDO;
 import cn.iocoder.yudao.module.system.dal.dataobject.user.AdminUserDO;
@@ -55,4 +56,20 @@ public interface UserConvert {
         return userVO;
     }
 
+    default List<UserRespVO> convertList03(List<AdminUserDO> list, Map<Long, DeptDO> deptMap,
+                                           Map<Long, LevelDO> levelMap) {
+        return CollectionUtils.convertList(list, user -> convert2(user, deptMap.get(user.getDeptId()),
+                levelMap.get(user.getLevelId())));
+    }
+
+    default UserRespVO convert2(AdminUserDO user, DeptDO deptDO, LevelDO levelDO) {
+        UserRespVO userVO = BeanUtils.toBean(user, UserRespVO.class);
+        if (deptDO != null) {
+            userVO.setDeptName(deptDO.getName());
+        }
+        if (levelDO != null) {
+            userVO.setLevelName(levelDO.getName());
+        }
+        return userVO;
+    }
 }

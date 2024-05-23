@@ -10,9 +10,13 @@ import com.mzt.logapi.starter.annotation.DiffLogField;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import org.hibernate.validator.constraints.Length;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.validation.constraints.*;
+import java.time.LocalDateTime;
 import java.util.Set;
+
+import static cn.iocoder.yudao.framework.common.util.date.DateUtils.FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND;
 
 @Schema(description = "管理后台 - 用户创建/修改 Request VO")
 @Data
@@ -69,6 +73,25 @@ public class UserSaveReqVO {
     @Schema(description = "密码", requiredMode = Schema.RequiredMode.REQUIRED, example = "123456")
     @Length(min = 4, max = 16, message = "密码长度为 4-16 位")
     private String password;
+
+    /**
+     * 用户类型  1：会员 2:管理员
+     */
+    @DiffLogField(name = "用户类型")
+    private Integer userType;
+
+    /**
+     * 会员等级
+     */
+    @DiffLogField(name = "会员等级")
+    private Long levelId;
+
+    /**
+     * 会员到期时间
+     */
+    @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
+    @NotNull(message = "会员到期时间不能为空")
+    private LocalDateTime expireTime;
 
     @AssertTrue(message = "密码不能为空")
     @JsonIgnore

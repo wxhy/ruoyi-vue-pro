@@ -39,4 +39,15 @@ public class PermissionApiImpl implements PermissionApi {
         return permissionService.getDeptDataPermission(userId);
     }
 
+    /**
+     * 授权用户角色
+     *
+     * @param userId
+     * @param roleCode
+     * @return
+     */
+    @Override
+    public boolean assignUserRole(Long userId, String roleCode) {
+        return permissionService.assignUserRole(userId, roleCode);
+    }
 }

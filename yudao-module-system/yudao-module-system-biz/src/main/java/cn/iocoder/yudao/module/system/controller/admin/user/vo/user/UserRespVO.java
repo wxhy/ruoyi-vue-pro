@@ -72,4 +72,21 @@ public class UserRespVO{
     @Schema(description = "创建时间", requiredMode = Schema.RequiredMode.REQUIRED, example = "时间戳格式")
     private LocalDateTime createTime;
 
+    /**
+     * 用户类型  1：会员 2:管理员
+     */
+    private Integer userType;
+
+    /**
+     * 会员等级
+     */
+    private Long levelId;
+
+    /**
+     * 会员到期时间
+     */
+    private LocalDateTime expireTime;
+
+    private String levelName;
+
 }

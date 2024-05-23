@@ -41,4 +41,9 @@ public class AdminUserRespDTO {
      */
     private String mobile;
 
+    /**
+     * 会员等级
+     */
+    private Long levelId;
+
 }

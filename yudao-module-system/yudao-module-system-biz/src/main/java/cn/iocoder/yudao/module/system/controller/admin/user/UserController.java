@@ -10,9 +10,11 @@ import cn.iocoder.yudao.framework.excel.core.util.ExcelUtils;
 import cn.iocoder.yudao.module.system.controller.admin.user.vo.user.*;
 import cn.iocoder.yudao.module.system.convert.user.UserConvert;
 import cn.iocoder.yudao.module.system.dal.dataobject.dept.DeptDO;
+import cn.iocoder.yudao.module.system.dal.dataobject.level.LevelDO;
 import cn.iocoder.yudao.module.system.dal.dataobject.user.AdminUserDO;
 import cn.iocoder.yudao.module.system.enums.common.SexEnum;
 import cn.iocoder.yudao.module.system.service.dept.DeptService;
+import cn.iocoder.yudao.module.system.service.level.LevelService;
 import cn.iocoder.yudao.module.system.service.user.AdminUserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -45,6 +47,9 @@ public class UserController {
     private AdminUserService userService;
     @Resource
     private DeptService deptService;
+
+    @Resource
+    private LevelService levelService;
 
     @PostMapping("/create")
     @Operation(summary = "新增用户")
@@ -99,7 +104,10 @@ public class UserController {
         // 拼接数据
         Map<Long, DeptDO> deptMap = deptService.getDeptMap(
                 convertList(pageResult.getList(), AdminUserDO::getDeptId));
-        return success(new PageResult<>(UserConvert.INSTANCE.convertList(pageResult.getList(), deptMap),
+
+        Map<Long, LevelDO> levelMap = levelService.getLevelMap(convertList(pageResult.getList(),
+                AdminUserDO::getLevelId));
+        return success(new PageResult<>(UserConvert.INSTANCE.convertList03(pageResult.getList(), deptMap, levelMap),
                 pageResult.getTotal()));
     }
 
@@ -135,6 +143,8 @@ public class UserController {
         // 输出 Excel
         Map<Long, DeptDO> deptMap = deptService.getDeptMap(
                 convertList(list, AdminUserDO::getDeptId));
+
+
         ExcelUtils.write(response, "用户数据.xls", "数据", UserRespVO.class,
                 UserConvert.INSTANCE.convertList(list, deptMap));
     }
@@ -146,7 +156,8 @@ public class UserController {
         List<UserImportExcelVO> list = Arrays.asList(
                 UserImportExcelVO.builder().username("yunai").deptId(1L).email("yunai@iocoder.cn").mobile("15601691300")
                         .nickname("芋道").status(CommonStatusEnum.ENABLE.getStatus()).sex(SexEnum.MALE.getSex()).build(),
-                UserImportExcelVO.builder().username("yuanma").deptId(2L).email("yuanma@iocoder.cn").mobile("15601701300")
+                UserImportExcelVO.builder().username("yuanma").deptId(2L).email("yuanma@iocoder.cn").mobile(
+                        "15601701300")
                         .nickname("源码").status(CommonStatusEnum.DISABLE.getStatus()).sex(SexEnum.FEMALE.getSex()).build()
         );
         // 输出
@@ -161,7 +172,8 @@ public class UserController {
     })
     @PreAuthorize("@ss.hasPermission('system:user:import')")
     public CommonResult<UserImportRespVO> importExcel(@RequestParam("file") MultipartFile file,
-                                                      @RequestParam(value = "updateSupport", required = false, defaultValue = "false") Boolean updateSupport) throws Exception {
+                                                      @RequestParam(value = "updateSupport", required = false,
+                                                              defaultValue = "false") Boolean updateSupport) throws Exception {
         List<UserImportExcelVO> list = ExcelUtils.read(file, UserImportExcelVO.class);
         return success(userService.importUserList(list, updateSupport));
     }
