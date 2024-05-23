@@ -9,11 +9,13 @@ import cn.iocoder.yudao.framework.security.core.util.SecurityFrameworkUtils;
 import cn.iocoder.yudao.module.lib.controller.admin.pharmacydrug.vo.*;
 import cn.iocoder.yudao.module.lib.dal.dataobject.pharmacydrug.PharmacyDrugDO;
 import cn.iocoder.yudao.module.lib.dal.mysql.pharmacydrug.PharmacyDrugMapper;
+import cn.iocoder.yudao.module.lib.service.marking.DrugMarkingService;
 import cn.iocoder.yudao.module.system.api.level.LevelApi;
 import cn.iocoder.yudao.module.system.api.level.dto.LevelDTO;
 import cn.iocoder.yudao.module.system.api.user.AdminUserApi;
 import cn.iocoder.yudao.module.system.api.user.dto.AdminUserRespDTO;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.google.errorprone.annotations.concurrent.LazyInit;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
@@ -49,31 +51,44 @@ public class PharmacyDrugServiceImpl implements PharmacyDrugService {
     @Resource
     private LevelApi levelApi;
 
+    @Resource
+    @LazyInit
+    private DrugMarkingService drugMarkingService;
+
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public Long createPharmacyDrug(PharmacyDrugSaveReqVO createReqVO) {
         // 插入
         PharmacyDrugDO pharmacyDrug = BeanUtils.toBean(createReqVO, PharmacyDrugDO.class);
         pharmacyDrug.setUserId(SecurityFrameworkUtils.getLoginUserId());
         pharmacyDrugMapper.insert(pharmacyDrug);
+        //定标
+        drugMarkingService.markingDrug(pharmacyDrug.getId());
         // 返回
         return pharmacyDrug.getId();
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void updatePharmacyDrug(PharmacyDrugSaveReqVO updateReqVO) {
         // 校验存在
         validatePharmacyDrugExists(updateReqVO.getId());
         // 更新
         PharmacyDrugDO updateObj = BeanUtils.toBean(updateReqVO, PharmacyDrugDO.class);
         pharmacyDrugMapper.updateById(updateObj);
+
+        //定标
+        drugMarkingService.markingDrug(updateReqVO.getId());
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void deletePharmacyDrug(Long id) {
         // 校验存在
         validatePharmacyDrugExists(id);
         // 删除
         pharmacyDrugMapper.deleteById(id);
+        drugMarkingService.deleteDrugMarkingByDrugId(id);
     }
 
     private void validatePharmacyDrugExists(Long id) {
@@ -135,6 +150,7 @@ public class PharmacyDrugServiceImpl implements PharmacyDrugService {
                     dataInfo.setStatus(2);
                     dataInfo.setReason("更新成功");
                 }
+                drugMarkingService.markingDrug(pharmacyDrugDO.getId());
                 success++;
                 index++;
             } catch (Exception e) {

@@ -20,4 +20,6 @@ public interface ErrorCodeConstants {
     ErrorCode MEMBER_LEVEL_IS_EMPTY = new ErrorCode(1_003_000_006, "当前用户会员等级不足");
 
     ErrorCode WATCH_DRUG_FULL = new ErrorCode(1_003_000_007, "特别关注数量已达上限");
+
+    ErrorCode DRUG_YF_NOT_EXISTS = new ErrorCode(1_003_000_008, "药品不存在");
 }
