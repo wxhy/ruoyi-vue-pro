@@ -2,6 +2,7 @@ package cn.iocoder.yudao.module.lib.dal.mysql.drugyf;
 
 import java.util.*;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.mybatis.core.query.LambdaQueryWrapperX;
 import cn.iocoder.yudao.framework.mybatis.core.mapper.BaseMapperX;
@@ -25,7 +26,9 @@ public interface DrugYfMapper extends BaseMapperX<DrugYfDO> {
                 .eqIfPresent(DrugYfDO::getDosageForm, reqVO.getDosageForm())
                 .eqIfPresent(DrugYfDO::getProductionEnterPrise, reqVO.getProductionEnterPrise())
                 .betweenIfPresent(DrugYfDO::getCreateTime, reqVO.getCreateTime())
-                .orderByDesc(DrugYfDO::getId));
+                .inIfPresent(DrugYfDO::getId, reqVO.getDrugIds())
+                .orderByAsc(CollUtil.isNotEmpty(reqVO.getDrugIds()),DrugYfDO::getPrice)
+                .orderByDesc(CollUtil.isEmpty(reqVO.getDrugIds()), DrugYfDO::getCreateTime));
     }
 
 }

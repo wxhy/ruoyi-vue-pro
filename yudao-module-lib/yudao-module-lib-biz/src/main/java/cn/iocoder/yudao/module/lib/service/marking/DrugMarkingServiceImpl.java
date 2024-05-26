@@ -85,6 +85,10 @@ public class DrugMarkingServiceImpl implements DrugMarkingService {
         return drugMarkingMapper.selectPage(pageReqVO);
     }
 
+    @Override
+    public List<DrugMarkingDO> getDrugMarkingByPharmacyDrugId(Long pharmacyDrugId) {
+        return drugMarkingMapper.selectList(DrugMarkingDO::getDrugId, pharmacyDrugId);
+    }
 
     /**
      * 定标 药房药物

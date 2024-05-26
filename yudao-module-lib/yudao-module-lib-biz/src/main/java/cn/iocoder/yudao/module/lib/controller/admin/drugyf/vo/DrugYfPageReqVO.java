@@ -35,4 +35,14 @@ public class DrugYfPageReqVO extends PageParam {
     @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
     private LocalDateTime[] createTime;
 
+    /**
+     * 药房药品id
+     */
+    private Long pharmacyDrugId;
+
+    /**
+     * 标准药品id集合
+     */
+    private List<Long> drugIds;
+
 }

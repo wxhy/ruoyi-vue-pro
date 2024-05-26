@@ -52,7 +52,12 @@ public interface DrugMarkingService {
      */
     PageResult<DrugMarkingDO> getDrugMarkingPage(DrugMarkingPageReqVO pageReqVO);
 
-
+    /**
+     * 获取药房药品对标
+     * @param pharmacyDrugId
+     * @return
+     */
+    List<DrugMarkingDO> getDrugMarkingByPharmacyDrugId(Long pharmacyDrugId);
     /**
      * 定标 药房药物
      * @param drugId
