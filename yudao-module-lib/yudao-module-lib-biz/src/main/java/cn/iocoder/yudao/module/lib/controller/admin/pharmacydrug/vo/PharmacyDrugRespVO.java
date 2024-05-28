@@ -68,4 +68,6 @@ public class PharmacyDrugRespVO {
     @ExcelProperty("创建时间")
     private LocalDateTime createTime;
 
+    private BigDecimal otherPrice;
+
 }

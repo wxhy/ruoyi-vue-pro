@@ -3,12 +3,16 @@ package cn.iocoder.yudao.module.lib.service.pharmacydrug;
 import cn.hutool.core.collection.CollUtil;
 import cn.iocoder.yudao.framework.common.constant.CommonConstant;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
+import cn.iocoder.yudao.framework.common.util.collection.CollectionUtils;
 import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
 import cn.iocoder.yudao.framework.mybatis.core.query.LambdaQueryWrapperX;
 import cn.iocoder.yudao.framework.security.core.util.SecurityFrameworkUtils;
 import cn.iocoder.yudao.module.lib.controller.admin.pharmacydrug.vo.*;
+import cn.iocoder.yudao.module.lib.dal.dataobject.drugyf.DrugYfDO;
+import cn.iocoder.yudao.module.lib.dal.dataobject.marking.DrugMarkingDO;
 import cn.iocoder.yudao.module.lib.dal.dataobject.pharmacydrug.PharmacyDrugDO;
 import cn.iocoder.yudao.module.lib.dal.mysql.pharmacydrug.PharmacyDrugMapper;
+import cn.iocoder.yudao.module.lib.service.drugyf.DrugYfService;
 import cn.iocoder.yudao.module.lib.service.marking.DrugMarkingService;
 import cn.iocoder.yudao.module.system.api.level.LevelApi;
 import cn.iocoder.yudao.module.system.api.level.dto.LevelDTO;
@@ -23,9 +27,8 @@ import org.springframework.validation.annotation.Validated;
 import javax.annotation.Resource;
 import javax.validation.Validator;
 import javax.validation.groups.Default;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.math.BigDecimal;
+import java.util.*;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.module.lib.enums.ErrorCodeConstants.*;
@@ -55,6 +58,9 @@ public class PharmacyDrugServiceImpl implements PharmacyDrugService {
     @LazyInit
     private DrugMarkingService drugMarkingService;
 
+    @Resource
+    private DrugYfService drugYfService;
+
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Long createPharmacyDrug(PharmacyDrugSaveReqVO createReqVO) {
@@ -77,6 +83,7 @@ public class PharmacyDrugServiceImpl implements PharmacyDrugService {
         PharmacyDrugDO updateObj = BeanUtils.toBean(updateReqVO, PharmacyDrugDO.class);
         pharmacyDrugMapper.updateById(updateObj);
 
+        drugMarkingService.deleteDrugMarkingByDrugId(updateObj.getId());
         //定标
         drugMarkingService.markingDrug(updateReqVO.getId());
     }
@@ -214,5 +221,26 @@ public class PharmacyDrugServiceImpl implements PharmacyDrugService {
                 .eq(PharmacyDrugDO::getUserId, loginUserId)
                 .set(PharmacyDrugDO::getWatch, CommonConstant.INTEGER_ONE));
         return Boolean.TRUE;
+    }
+
+    /**
+     * 获取药房药品在其他店家销售价格
+     *
+     * @param id
+     * @return
+     */
+    @Override
+    public BigDecimal getDrugOtherUserSalePrice(Long id) {
+        List<DrugMarkingDO> markings = drugMarkingService.getDrugMarkingByPharmacyDrugId(id);
+        if (CollUtil.isEmpty(markings)) {
+            return null;
+        }
+        Set<Long> drugIds = CollectionUtils.convertSet(markings, DrugMarkingDO::getDataId);
+        List<DrugYfDO> drugYfList = drugYfService.getDrugYfList(drugIds);
+        drugYfList.sort(Comparator.comparing(DrugYfDO::getPrice));
+        if (CollUtil.isEmpty(drugYfList)) {
+            return null;
+        }
+        return CollectionUtils.getFirst(drugYfList).getPrice();
     }
 }

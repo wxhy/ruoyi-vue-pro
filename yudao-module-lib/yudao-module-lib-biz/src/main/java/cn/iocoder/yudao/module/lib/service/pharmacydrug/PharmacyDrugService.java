@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.lib.service.pharmacydrug;
 
+import java.math.BigDecimal;
 import java.util.*;
 import javax.validation.*;
 import cn.iocoder.yudao.module.lib.controller.admin.pharmacydrug.vo.*;
@@ -65,4 +66,11 @@ public interface PharmacyDrugService {
      * @return
      */
     Boolean watchPharmacyDrug(Long id);
+
+    /**
+     * 获取药房药品在其他店家销售价格
+     * @param id
+     * @return
+     */
+    BigDecimal getDrugOtherUserSalePrice(Long id);
 }

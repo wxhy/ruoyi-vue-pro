@@ -91,4 +91,15 @@ public class DrugYfServiceImpl implements DrugYfService {
                 .eq(DrugYfDO::getDosageForm, dosageForm)
                 .eq(DrugYfDO::getProductionEnterPrise, productionEnterPrise));
     }
+
+    /**
+     * 获取样品列表
+     *
+     * @param ids
+     * @return
+     */
+    @Override
+    public List<DrugYfDO> getDrugYfList(Collection<Long> ids) {
+        return drugYfMapper.selectBatchIds(ids);
+    }
 }

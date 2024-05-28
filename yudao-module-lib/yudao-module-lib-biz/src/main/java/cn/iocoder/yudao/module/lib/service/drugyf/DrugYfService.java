@@ -61,4 +61,10 @@ public interface DrugYfService {
     List<DrugYfDO> getDrugYfList(String drugName, String approvalNumber, String packing,
                                  String dosageForm, String productionEnterPrise);
 
+    /**
+     * 获取样品列表
+     * @param ids
+     * @return
+     */
+    List<DrugYfDO> getDrugYfList(Collection<Long> ids);
 }
