@@ -6,13 +6,14 @@ import cn.iocoder.yudao.module.lib.controller.admin.drugyf.vo.*;
 import cn.iocoder.yudao.module.lib.dal.dataobject.drugyf.DrugYfDO;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.common.pojo.PageParam;
+import com.baomidou.mybatisplus.extension.service.IService;
 
 /**
  * 药房药品 Service 接口
  *
  * @author 芋道源码
  */
-public interface DrugYfService {
+public interface DrugYfService extends IService<DrugYfDO> {
 
     /**
      * 创建药房药品
@@ -67,4 +68,11 @@ public interface DrugYfService {
      * @return
      */
     List<DrugYfDO> getDrugYfList(Collection<Long> ids);
+
+    /**
+     * 获取药品信息
+     * @param url
+     * @return
+     */
+    DrugYfDO getDrugYfByUrl(String url);
 }

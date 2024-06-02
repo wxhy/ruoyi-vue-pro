@@ -24,9 +24,12 @@ import cn.iocoder.yudao.module.system.dal.dataobject.user.AdminUserDO;
 import cn.iocoder.yudao.module.system.dal.mysql.dept.UserPostMapper;
 import cn.iocoder.yudao.module.system.dal.mysql.user.AdminUserMapper;
 import cn.iocoder.yudao.module.system.enums.permission.RoleCodeEnum;
+import cn.iocoder.yudao.module.system.enums.sms.SmsSceneEnum;
 import cn.iocoder.yudao.module.system.service.dept.DeptService;
 import cn.iocoder.yudao.module.system.service.dept.PostService;
+import cn.iocoder.yudao.module.system.service.level.LevelService;
 import cn.iocoder.yudao.module.system.service.permission.PermissionService;
+import cn.iocoder.yudao.module.system.service.sms.SmsSendService;
 import com.google.common.annotations.VisibleForTesting;
 import com.mzt.logapi.context.LogRecordContext;
 import com.mzt.logapi.service.impl.DiffParseFunction;
@@ -77,6 +80,9 @@ public class AdminUserServiceImpl implements AdminUserService {
 
     @Resource
     private FileApi fileApi;
+
+    @Resource
+    private SmsSendService smsSendService;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -477,4 +483,18 @@ public class AdminUserServiceImpl implements AdminUserService {
         return passwordEncoder.encode(password);
     }
 
+    @Override
+    public void sendMessage(List<Long> userIds) {
+        for (Long userId : userIds) {
+            AdminUserDO adminUserDO = userMapper.selectById(userId);
+            if (Objects.isNull(adminUserDO) || !UserTypeEnum.MEMBER.getValue().equals(adminUserDO.getUserType())){
+                continue;
+            }
+            if (LocalDateTime.now().isBefore(adminUserDO.getExpireTime())) {
+                continue;
+            }
+            smsSendService.sendSingleSms(adminUserDO.getMobile(), userId,
+                    adminUserDO.getUserType(), SmsSceneEnum.MEMBER_DRUG_CHANGE.getTemplateCode(),new HashMap<>());
+        }
+    }
 }

@@ -88,4 +88,8 @@ public class AdminUserApiImpl implements AdminUserApi {
         userService.validateUserList(ids);
     }
 
+    @Override
+    public void sendMessage(List<Long> userIds) {
+        userService.sendMessage(userIds);
+    }
 }

@@ -19,6 +19,7 @@ import cn.iocoder.yudao.module.system.api.level.dto.LevelDTO;
 import cn.iocoder.yudao.module.system.api.user.AdminUserApi;
 import cn.iocoder.yudao.module.system.api.user.dto.AdminUserRespDTO;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.google.errorprone.annotations.concurrent.LazyInit;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -40,7 +41,7 @@ import static cn.iocoder.yudao.module.lib.enums.ErrorCodeConstants.*;
  */
 @Service
 @Validated
-public class PharmacyDrugServiceImpl implements PharmacyDrugService {
+public class PharmacyDrugServiceImpl extends ServiceImpl<PharmacyDrugMapper, PharmacyDrugDO> implements PharmacyDrugService {
 
     @Resource
     private PharmacyDrugMapper pharmacyDrugMapper;

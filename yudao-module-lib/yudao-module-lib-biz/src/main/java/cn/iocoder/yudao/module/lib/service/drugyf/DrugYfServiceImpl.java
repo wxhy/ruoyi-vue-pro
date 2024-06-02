@@ -1,6 +1,7 @@
 package cn.iocoder.yudao.module.lib.service.drugyf;
 
 import cn.iocoder.yudao.framework.mybatis.core.query.LambdaQueryWrapperX;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import org.springframework.validation.annotation.Validated;
@@ -25,7 +26,7 @@ import static cn.iocoder.yudao.module.lib.enums.ErrorCodeConstants.*;
  */
 @Service
 @Validated
-public class DrugYfServiceImpl implements DrugYfService {
+public class DrugYfServiceImpl extends ServiceImpl<DrugYfMapper, DrugYfDO> implements DrugYfService {
 
     @Resource
     private DrugYfMapper drugYfMapper;
@@ -101,5 +102,10 @@ public class DrugYfServiceImpl implements DrugYfService {
     @Override
     public List<DrugYfDO> getDrugYfList(Collection<Long> ids) {
         return drugYfMapper.selectBatchIds(ids);
+    }
+
+    @Override
+    public DrugYfDO getDrugYfByUrl(String url) {
+        return drugYfMapper.selectOne(DrugYfDO::getUrl, url);
     }
 }

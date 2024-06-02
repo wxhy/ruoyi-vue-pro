@@ -7,13 +7,14 @@ import cn.iocoder.yudao.module.lib.controller.admin.pharmacydrug.vo.*;
 import cn.iocoder.yudao.module.lib.dal.dataobject.pharmacydrug.PharmacyDrugDO;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.common.pojo.PageParam;
+import com.baomidou.mybatisplus.extension.service.IService;
 
 /**
  * 药房药品 Service 接口
  *
  * @author 芋道源码
  */
-public interface PharmacyDrugService {
+public interface PharmacyDrugService extends IService<PharmacyDrugDO> {
 
     /**
      * 创建药房药品

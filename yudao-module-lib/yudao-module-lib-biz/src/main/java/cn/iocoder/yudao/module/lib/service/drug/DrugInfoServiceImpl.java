@@ -6,6 +6,7 @@ import cn.iocoder.yudao.module.lib.controller.admin.drug.vo.DrugInfoPageReqVO;
 import cn.iocoder.yudao.module.lib.controller.admin.drug.vo.DrugInfoSaveReqVO;
 import cn.iocoder.yudao.module.lib.dal.dataobject.drug.DrugInfoDO;
 import cn.iocoder.yudao.module.lib.dal.mysql.drug.DrugInfoMapper;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
@@ -18,7 +19,7 @@ import javax.annotation.Resource;
  */
 @Service
 @Validated
-public class DrugInfoServiceImpl implements DrugInfoService {
+public class DrugInfoServiceImpl extends ServiceImpl<DrugInfoMapper, DrugInfoDO> implements DrugInfoService {
 
     @Resource
     private DrugInfoMapper drugInfoMapper;

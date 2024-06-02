@@ -6,13 +6,14 @@ import cn.iocoder.yudao.module.lib.controller.admin.drug.vo.*;
 import cn.iocoder.yudao.module.lib.dal.dataobject.drug.DrugInfoDO;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.common.pojo.PageParam;
+import com.baomidou.mybatisplus.extension.service.IService;
 
 /**
  * 药品爬虫 Service 接口
  *
  * @author 芋道源码
  */
-public interface DrugInfoService {
+public interface DrugInfoService extends IService<DrugInfoDO> {
 
     /**
      * 创建药品爬虫
