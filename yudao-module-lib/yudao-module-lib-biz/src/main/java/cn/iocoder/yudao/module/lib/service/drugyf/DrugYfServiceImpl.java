@@ -76,20 +76,12 @@ public class DrugYfServiceImpl implements DrugYfService {
      * 获得药房药品列表
      *
      * @param drugName
-     * @param approvalNumber
-     * @param packing
-     * @param dosageForm
-     * @param productionEnterPrise
      * @return 药房药品列表
      */
     @Override
-    public List<DrugYfDO> getDrugYfList(String drugName, String approvalNumber, String packing, String dosageForm, String productionEnterPrise) {
+    public List<DrugYfDO> getDrugYfList(String drugName) {
         return drugYfMapper.selectList(new LambdaQueryWrapperX<DrugYfDO>()
-                .eq(DrugYfDO::getName, drugName)
-                .eq(DrugYfDO::getApprovalNumber, approvalNumber)
-                .eq(DrugYfDO::getPacking, packing)
-                .eq(DrugYfDO::getDosageForm, dosageForm)
-                .eq(DrugYfDO::getProductionEnterPrise, productionEnterPrise));
+                .eq(DrugYfDO::getName, drugName));
     }
 
     /**

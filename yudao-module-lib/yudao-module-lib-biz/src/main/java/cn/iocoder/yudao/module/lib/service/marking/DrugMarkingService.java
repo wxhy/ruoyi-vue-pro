@@ -36,6 +36,15 @@ public interface DrugMarkingService {
      */
     void deleteDrugMarking(Long id);
 
+
+
+    /**
+     * 删除药房药物对标
+     *
+     * @param drugIds 编号
+     */
+    void deleteDrugMarkingByDrugIds(List<Long> drugIds);
+
     /**
      * 获得药房药物对标
      *
@@ -66,5 +75,7 @@ public interface DrugMarkingService {
 
 
     void deleteDrugMarkingByDrugId(Long drugId);
+
+    List<MarkingDrugInfo> getMarkingDrugInfo(Long drugId);
 
 }

@@ -1,13 +1,20 @@
 package cn.iocoder.yudao.module.lib.controller.admin.pharmacydrug;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.iocoder.yudao.framework.apilog.core.annotation.ApiAccessLog;
 import cn.iocoder.yudao.framework.common.pojo.CommonResult;
 import cn.iocoder.yudao.framework.common.pojo.PageParam;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
+import cn.iocoder.yudao.framework.common.util.collection.CollectionUtils;
 import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
 import cn.iocoder.yudao.framework.excel.core.util.ExcelUtils;
+import cn.iocoder.yudao.module.lib.controller.admin.drugyf.vo.DrugYfRespVO;
 import cn.iocoder.yudao.module.lib.controller.admin.pharmacydrug.vo.*;
+import cn.iocoder.yudao.module.lib.dal.dataobject.drugyf.DrugYfDO;
+import cn.iocoder.yudao.module.lib.dal.dataobject.marking.DrugMarkingDO;
 import cn.iocoder.yudao.module.lib.dal.dataobject.pharmacydrug.PharmacyDrugDO;
+import cn.iocoder.yudao.module.lib.service.drugyf.DrugYfService;
+import cn.iocoder.yudao.module.lib.service.marking.DrugMarkingService;
 import cn.iocoder.yudao.module.lib.service.pharmacydrug.PharmacyDrugService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -36,6 +43,11 @@ public class PharmacyDrugController {
 
     @Resource
     private PharmacyDrugService pharmacyDrugService;
+    @Resource
+    private DrugMarkingService drugMarkingService;
+
+    @Resource
+    private DrugYfService drugYfService;
 
     @PostMapping("/create")
     @Operation(summary = "创建药房药品")
@@ -61,6 +73,18 @@ public class PharmacyDrugController {
         return success(true);
     }
 
+    @DeleteMapping("/deleteBatch")
+    @Operation(summary = "删除药房药品")
+    @Parameter(name = "ids", description = "编号集合", required = true)
+    @PreAuthorize("@ss.hasPermission('lib:pharmacy-drug:delete')")
+    public CommonResult<Boolean> deleteBatch(@RequestParam("ids") List<Long> ids) {
+        if (CollUtil.isEmpty(ids)) {
+            return success(true);
+        }
+        pharmacyDrugService.deletePharmacyDrugBatch(ids);
+        return success(true);
+    }
+
     @GetMapping("/get")
     @Operation(summary = "获得药房药品")
     @Parameter(name = "id", description = "编号", required = true, example = "1024")
@@ -78,6 +102,7 @@ public class PharmacyDrugController {
         PageResult<PharmacyDrugRespVO> result = BeanUtils.toBean(pageResult, PharmacyDrugRespVO.class);
         for (PharmacyDrugRespVO pharmacyDrugRespVO : result.getList()) {
             pharmacyDrugRespVO.setOtherPrice(pharmacyDrugService.getDrugOtherUserSalePrice(pharmacyDrugRespVO.getId()));
+            pharmacyDrugRespVO.setDrugInfos(drugMarkingService.getMarkingDrugInfo(pharmacyDrugRespVO.getId()));
         }
         return success(result);
     }

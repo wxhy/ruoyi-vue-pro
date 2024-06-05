@@ -98,6 +98,18 @@ public class PharmacyDrugServiceImpl implements PharmacyDrugService {
         drugMarkingService.deleteDrugMarkingByDrugId(id);
     }
 
+    /**
+     * 删除药房药品
+     *
+     * @param ids
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void deletePharmacyDrugBatch(List<Long> ids) {
+        pharmacyDrugMapper.deleteBatchIds(ids);
+        drugMarkingService.deleteDrugMarkingByDrugIds(ids);
+    }
+
     private void validatePharmacyDrugExists(Long id) {
         if (pharmacyDrugMapper.selectById(id) == null) {
             throw exception(PHARMACY_DRUG_NOT_EXISTS);

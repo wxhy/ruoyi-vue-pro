@@ -58,8 +58,7 @@ public interface DrugYfService {
      *
      * @return 药房药品列表
      */
-    List<DrugYfDO> getDrugYfList(String drugName, String approvalNumber, String packing,
-                                 String dosageForm, String productionEnterPrise);
+    List<DrugYfDO> getDrugYfList(String drugName);
 
     /**
      * 获取样品列表

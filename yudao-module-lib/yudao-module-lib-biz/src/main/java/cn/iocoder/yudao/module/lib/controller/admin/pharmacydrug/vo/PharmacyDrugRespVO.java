@@ -1,5 +1,7 @@
 package cn.iocoder.yudao.module.lib.controller.admin.pharmacydrug.vo;
 
+import cn.iocoder.yudao.module.lib.controller.admin.drugyf.vo.DrugYfRespVO;
+import cn.iocoder.yudao.module.lib.controller.admin.marking.vo.MarkingDrugInfo;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
@@ -69,5 +71,7 @@ public class PharmacyDrugRespVO {
     private LocalDateTime createTime;
 
     private BigDecimal otherPrice;
+
+    private List<MarkingDrugInfo> drugInfos;
 
 }

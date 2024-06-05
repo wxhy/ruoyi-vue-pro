@@ -38,6 +38,13 @@ public interface PharmacyDrugService {
     void deletePharmacyDrug(Long id);
 
     /**
+     * 删除药房药品
+     *
+     * @param id 编号
+     */
+    void deletePharmacyDrugBatch(List<Long> ids);
+
+    /**
      * 获得药房药品
      *
      * @param id 编号

@@ -1,12 +1,15 @@
 package cn.iocoder.yudao.module.lib.service.marking;
+import java.math.BigDecimal;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.iocoder.yudao.framework.common.util.collection.CollectionUtils;
+import cn.iocoder.yudao.framework.mybatis.core.query.LambdaQueryWrapperX;
 import cn.iocoder.yudao.module.lib.dal.dataobject.drugyf.DrugYfDO;
 import cn.iocoder.yudao.module.lib.dal.dataobject.pharmacydrug.PharmacyDrugDO;
 import cn.iocoder.yudao.module.lib.service.drugyf.DrugYfService;
 import cn.iocoder.yudao.module.lib.service.pharmacydrug.PharmacyDrugService;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import org.springframework.validation.annotation.Validated;
@@ -69,6 +72,17 @@ public class DrugMarkingServiceImpl implements DrugMarkingService {
         drugMarkingMapper.deleteById(id);
     }
 
+    /**
+     * 删除药房药物对标
+     *
+     * @param drugIds 编号
+     */
+    @Override
+    public void deleteDrugMarkingByDrugIds(List<Long> drugIds) {
+        drugMarkingMapper.delete(new LambdaQueryWrapperX<DrugMarkingDO>()
+                .in(DrugMarkingDO::getDrugId, drugIds));
+    }
+
     private void validateDrugMarkingExists(Long id) {
         if (drugMarkingMapper.selectById(id) == null) {
             throw exception(DRUG_MARKING_NOT_EXISTS);
@@ -101,8 +115,7 @@ public class DrugMarkingServiceImpl implements DrugMarkingService {
         if (Objects.isNull(pharmacyDrug)) {
             return;
         }
-        List<DrugYfDO> drugYfList = drugYfService.getDrugYfList(pharmacyDrug.getCommonName(), pharmacyDrug.getApprovalNumber(),
-                pharmacyDrug.getSpecifications(), pharmacyDrug.getDosageForm(), pharmacyDrug.getManufacturer());
+        List<DrugYfDO> drugYfList = drugYfService.getDrugYfList(pharmacyDrug.getCommonName());
         if (CollUtil.isEmpty(drugYfList)) {
             return;
         }
@@ -128,5 +141,34 @@ public class DrugMarkingServiceImpl implements DrugMarkingService {
     @Override
     public void deleteDrugMarkingByDrugId(Long drugId) {
         drugMarkingMapper.delete(DrugMarkingDO::getDrugId, drugId);
+    }
+
+    @Override
+    public List<MarkingDrugInfo> getMarkingDrugInfo(Long drugId) {
+        List<DrugMarkingDO> drugMarkingDOS = drugMarkingMapper.selectList(DrugMarkingDO::getDrugId, drugId);
+        if (CollUtil.isEmpty(drugMarkingDOS)) {
+            return Collections.emptyList();
+        }
+        Set<Long> dataIds = CollectionUtils.convertSet(drugMarkingDOS, DrugMarkingDO::getDataId);
+        List<DrugYfDO> drugYfList = drugYfService.getDrugYfList(dataIds);
+        Map<Long, DrugYfDO> drugYfDOMap = CollectionUtils.convertMap(drugYfList, DrugYfDO::getId);
+        List<MarkingDrugInfo> result = new ArrayList<>();
+        for (DrugMarkingDO drugMarkingDO : drugMarkingDOS) {
+            DrugYfDO drugYfDO = drugYfDOMap.get(drugMarkingDO.getDataId());
+            if (Objects.nonNull(drugYfDO)) {
+                MarkingDrugInfo markingDrugInfo = new MarkingDrugInfo();
+                markingDrugInfo.setId(drugMarkingDO.getId());
+                markingDrugInfo.setDataId(drugMarkingDO.getDataId());
+                markingDrugInfo.setName(drugYfDO.getName());
+                markingDrugInfo.setApprovalNumber(drugYfDO.getApprovalNumber());
+                markingDrugInfo.setPacking(drugYfDO.getPacking());
+                markingDrugInfo.setDosageForm(drugYfDO.getDosageForm());
+                markingDrugInfo.setProductionEnterPrise(drugYfDO.getProductionEnterPrise());
+                markingDrugInfo.setPrice(drugYfDO.getPrice());
+                markingDrugInfo.setShopCount(drugYfDO.getShopCount());
+                result.add(markingDrugInfo);
+            }
+        }
+        return result;
     }
 }
