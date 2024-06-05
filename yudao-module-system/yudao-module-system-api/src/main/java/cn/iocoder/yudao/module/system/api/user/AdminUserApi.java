@@ -86,4 +86,9 @@ public interface AdminUserApi {
      */
     void validateUserList(Collection<Long> ids);
 
+    /**
+     * 批量發送短信
+     * @param userIds
+     */
+    void sendMessage(List<Long> userIds);
 }

@@ -6,13 +6,14 @@ import cn.iocoder.yudao.module.lib.controller.admin.marking.vo.*;
 import cn.iocoder.yudao.module.lib.dal.dataobject.marking.DrugMarkingDO;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.common.pojo.PageParam;
+import com.baomidou.mybatisplus.extension.service.IService;
 
 /**
  * 药房药物对标 Service 接口
  *
  * @author 芋道源码
  */
-public interface DrugMarkingService {
+public interface DrugMarkingService extends IService<DrugMarkingDO> {
 
     /**
      * 创建药房药物对标

@@ -201,4 +201,9 @@ public interface AdminUserService {
      */
     boolean isPasswordMatch(String rawPassword, String encodedPassword);
 
+    /**
+     * 发送短信提醒
+     * @param userIds
+     */
+    void sendMessage(List<Long> userIds);
 }

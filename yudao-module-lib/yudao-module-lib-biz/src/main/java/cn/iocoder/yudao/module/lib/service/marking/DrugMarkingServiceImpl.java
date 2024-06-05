@@ -8,6 +8,7 @@ import cn.iocoder.yudao.module.lib.dal.dataobject.drugyf.DrugYfDO;
 import cn.iocoder.yudao.module.lib.dal.dataobject.pharmacydrug.PharmacyDrugDO;
 import cn.iocoder.yudao.module.lib.service.drugyf.DrugYfService;
 import cn.iocoder.yudao.module.lib.service.pharmacydrug.PharmacyDrugService;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
@@ -34,7 +35,7 @@ import static cn.iocoder.yudao.module.lib.enums.ErrorCodeConstants.*;
  */
 @Service
 @Validated
-public class DrugMarkingServiceImpl implements DrugMarkingService {
+public class DrugMarkingServiceImpl extends ServiceImpl<DrugMarkingMapper, DrugMarkingDO> implements DrugMarkingService {
 
     @Resource
     private DrugMarkingMapper drugMarkingMapper;
