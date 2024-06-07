@@ -84,7 +84,6 @@ public class DrugYfController {
 
     @GetMapping("/page")
     @Operation(summary = "获得药房药品分页")
-    @PreAuthorize("@ss.hasPermission('lib:drug-yf:query')")
     public CommonResult<PageResult<DrugYfRespVO>> getDrugYfPage(@Valid DrugYfPageReqVO pageReqVO) {
         PageResult<DrugYfDO> pageResult = drugYfService.getDrugYfPage(pageReqVO);
         return success(BeanUtils.toBean(pageResult, DrugYfRespVO.class));
