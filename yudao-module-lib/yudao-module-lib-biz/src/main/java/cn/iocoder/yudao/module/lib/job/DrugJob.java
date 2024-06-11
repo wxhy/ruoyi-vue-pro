@@ -17,6 +17,8 @@ import cn.iocoder.yudao.module.system.api.user.AdminUserApi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
@@ -44,6 +46,7 @@ public class DrugJob implements JobHandler {
 
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public String execute(String param) {
         // 获取爬取的所有药品信息
         List<DrugInfoDO> drugInfos = drugInfoService.list();
@@ -54,19 +57,32 @@ public class DrugJob implements JobHandler {
         List<Long> drugIds = new ArrayList<>();
         for (DrugInfoDO drugInfo : drugInfos) {
             try {
-                DrugYfDO drugYfDO = drugYfService.getDrugYfByUrl(drugInfo.getUrl());
+                DrugYfDO drugYfDO = drugYfService.getDrugYfByDataId(drugInfo.getDataId());
                 if (Objects.isNull(drugYfDO)) {
-                    continue;
+                    drugYfDO = new DrugYfDO();
+                    drugYfDO.setName(drugInfo.getName());
+                    drugYfDO.setApprovalNumber(drugInfo.getUrl());
+                    drugYfDO.setPacking(drugInfo.getPacking());
+                    drugYfDO.setDataId(drugInfo.getDataId());
+                    drugYfDO.setDosageForm(drugInfo.getDosageForm());
+                    drugYfDO.setPrice(new BigDecimal(drugInfo.getPrice()));
+                    drugYfDO.setProductionEnterPrise(drugInfo.getProductionEnterPrise());
+                    drugYfDO.setShopCount(drugInfo.getShopCount());
+                    drugYfDO.setImgInfo(drugInfo.getImgInfo());
+                    drugYfDO.setUrl(drugInfo.getUrl());
+                    drugYfService.save(drugYfDO);
+                } else {
+                    BigDecimal bigDecimal = new BigDecimal(drugInfo.getPrice());
+                    drugYfDO.setPrice(bigDecimal);
+                    drugYfService.updateById(drugYfDO);
+                    if (bigDecimal.compareTo(drugYfDO.getPrice()) != 0) {
+                        drugIds.add(drugYfDO.getId());
+                    }
                 }
-                BigDecimal bigDecimal = new BigDecimal(drugInfo.getPrice());
-                drugYfDO.setPrice(bigDecimal);
-                drugYfService.updateById(drugYfDO);
                 drugInfoService.deleteDrugInfo(drugInfo.getId());
-                if (bigDecimal.compareTo(drugYfDO.getPrice()) != 0) {
-                    drugIds.add(drugYfDO.getId());
-                }
             } catch (Exception e) {
                 log.error("更新药品价格报错：{}", e.getMessage());
+                TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
             }
 
         }
@@ -100,7 +116,7 @@ public class DrugJob implements JobHandler {
         }).collect(Collectors.toList());
 
         // 给用户发送短信提醒
-
+//        adminUserApi.sendMessage(userIds);
 
         return "同步药品价格变动完成";
     }

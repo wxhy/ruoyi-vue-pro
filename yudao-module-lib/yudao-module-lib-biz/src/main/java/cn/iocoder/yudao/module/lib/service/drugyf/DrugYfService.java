@@ -74,4 +74,12 @@ public interface DrugYfService extends IService<DrugYfDO> {
      * @return
      */
     DrugYfDO getDrugYfByUrl(String url);
+
+
+    /**
+     * 获取药品信息
+     * @param dataId
+     * @return
+     */
+    DrugYfDO getDrugYfByDataId(Long dataId);
 }

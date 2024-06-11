@@ -100,4 +100,15 @@ public class DrugYfServiceImpl extends ServiceImpl<DrugYfMapper, DrugYfDO> imple
     public DrugYfDO getDrugYfByUrl(String url) {
         return drugYfMapper.selectOne(DrugYfDO::getUrl, url);
     }
+
+    /**
+     * 获取药品信息
+     *
+     * @param dataId
+     * @return
+     */
+    @Override
+    public DrugYfDO getDrugYfByDataId(Long dataId) {
+        return drugYfMapper.selectOne(DrugYfDO::getDataId, dataId);
+    }
 }

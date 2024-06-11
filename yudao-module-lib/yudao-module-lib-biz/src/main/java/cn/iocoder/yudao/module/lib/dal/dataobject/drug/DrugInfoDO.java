@@ -64,4 +64,6 @@ public class DrugInfoDO extends BaseDO {
      */
     private String url;
 
+    private Long dataId;
+
 }

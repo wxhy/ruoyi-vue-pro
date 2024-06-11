@@ -65,4 +65,6 @@ public class DrugYfDO extends BaseDO {
      */
     private String url;
 
+    private Long dataId;
+
 }
