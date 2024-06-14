@@ -61,7 +61,7 @@ public class DrugJob implements JobHandler {
                 if (Objects.isNull(drugYfDO)) {
                     drugYfDO = new DrugYfDO();
                     drugYfDO.setName(drugInfo.getName());
-                    drugYfDO.setApprovalNumber(drugInfo.getUrl());
+                    drugYfDO.setApprovalNumber(drugInfo.getApprovalNumber());
                     drugYfDO.setPacking(drugInfo.getPacking());
                     drugYfDO.setDataId(drugInfo.getDataId());
                     drugYfDO.setDosageForm(drugInfo.getDosageForm());

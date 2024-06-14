@@ -28,7 +28,7 @@ public interface DrugYfMapper extends BaseMapperX<DrugYfDO> {
                 .betweenIfPresent(DrugYfDO::getCreateTime, reqVO.getCreateTime())
                 .inIfPresent(DrugYfDO::getId, reqVO.getDrugIds())
                 .orderByAsc(CollUtil.isNotEmpty(reqVO.getDrugIds()),DrugYfDO::getPrice)
-                .orderByDesc(CollUtil.isEmpty(reqVO.getDrugIds()), DrugYfDO::getCreateTime));
+                .orderByDesc(CollUtil.isEmpty(reqVO.getDrugIds()), DrugYfDO::getShopCount));
     }
 
 }
