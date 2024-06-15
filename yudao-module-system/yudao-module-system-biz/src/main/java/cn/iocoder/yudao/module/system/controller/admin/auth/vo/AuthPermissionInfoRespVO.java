@@ -1,13 +1,19 @@
 package cn.iocoder.yudao.module.system.controller.admin.auth.vo;
 
+import cn.iocoder.yudao.module.system.controller.admin.level.vo.LevelRespVO;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
+
+import static cn.iocoder.yudao.framework.common.util.date.DateUtils.FORMAT_YEAR_MONTH_DAY;
+import static cn.iocoder.yudao.framework.common.util.date.DateUtils.FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND;
 
 @Schema(description = "管理后台 - 登录用户的权限信息 Response VO，额外包括用户信息和角色列表")
 @Data
@@ -28,6 +34,11 @@ public class AuthPermissionInfoRespVO {
     @Schema(description = "菜单树", requiredMode = Schema.RequiredMode.REQUIRED)
     private List<MenuVO> menus;
 
+    /**
+     * 会员等级
+     */
+    private LevelRespVO levelInfo;
+
     @Schema(description = "用户信息 VO")
     @Data
     @NoArgsConstructor
@@ -46,6 +57,17 @@ public class AuthPermissionInfoRespVO {
 
         @Schema(description = "部门编号", requiredMode = Schema.RequiredMode.REQUIRED, example = "2048")
         private Long deptId;
+
+        /**
+         * 用户类型  1：会员 2:管理员
+         */
+        private Integer userType;
+
+        /**
+         * 会员到期时间
+         */
+        @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY)
+        private LocalDateTime expireTime;
 
     }
 
