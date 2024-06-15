@@ -97,6 +97,13 @@ public class DrugYfServiceImpl extends ServiceImpl<DrugYfMapper, DrugYfDO> imple
     }
 
     @Override
+    public List<DrugYfDO> getDrugYfList(Collection<Long> ids, String updateTime) {
+        return drugYfMapper.selectList(new LambdaQueryWrapperX<DrugYfDO>()
+                .in(DrugYfDO::getId, ids)
+                .ge(DrugYfDO::getUpdateTime, updateTime));
+    }
+
+    @Override
     public DrugYfDO getDrugYfByUrl(String url) {
         return drugYfMapper.selectOne(DrugYfDO::getUrl, url);
     }

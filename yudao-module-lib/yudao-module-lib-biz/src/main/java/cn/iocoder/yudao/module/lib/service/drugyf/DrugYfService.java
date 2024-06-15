@@ -69,6 +69,14 @@ public interface DrugYfService extends IService<DrugYfDO> {
     List<DrugYfDO> getDrugYfList(Collection<Long> ids);
 
     /**
+     * 修改时间
+     * @param ids
+     * @param updateTime
+     * @return
+     */
+    List<DrugYfDO> getDrugYfList(Collection<Long> ids, String updateTime);
+
+    /**
      * 获取药品信息
      * @param url
      * @return

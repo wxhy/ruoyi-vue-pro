@@ -11,6 +11,7 @@ import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.common.util.collection.CollectionUtils;
 import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
 import cn.iocoder.yudao.framework.datapermission.core.util.DataPermissionUtils;
+import cn.iocoder.yudao.framework.mybatis.core.query.LambdaQueryWrapperX;
 import cn.iocoder.yudao.module.infra.api.file.FileApi;
 import cn.iocoder.yudao.module.system.controller.admin.user.vo.profile.UserProfileUpdatePasswordReqVO;
 import cn.iocoder.yudao.module.system.controller.admin.user.vo.profile.UserProfileUpdateReqVO;
@@ -496,5 +497,12 @@ public class AdminUserServiceImpl implements AdminUserService {
             smsSendService.sendSingleSms(adminUserDO.getMobile(), userId,
                     adminUserDO.getUserType(), SmsSceneEnum.MEMBER_DRUG_CHANGE.getTemplateCode(),new HashMap<>());
         }
+    }
+
+    @Override
+    public List<AdminUserDO> getUserListByMemberLevel(List<Long> levelIds) {
+        return userMapper.selectList(new LambdaQueryWrapperX<AdminUserDO>()
+                .in(AdminUserDO::getLevelId, levelIds)
+                .ge(AdminUserDO::getExpireTime, LocalDateTime.now()));
     }
 }

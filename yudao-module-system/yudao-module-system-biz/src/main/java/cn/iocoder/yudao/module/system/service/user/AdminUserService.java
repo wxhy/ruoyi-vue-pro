@@ -206,4 +206,11 @@ public interface AdminUserService {
      * @param userIds
      */
     void sendMessage(List<Long> userIds);
+
+    /**
+     * 获取会员用户
+     * @param levelIds
+     * @return
+     */
+    List<AdminUserDO> getUserListByMemberLevel(List<Long> levelIds);
 }
