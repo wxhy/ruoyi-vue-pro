@@ -41,6 +41,6 @@ public class MoneyConvert implements Converter<BigDecimal> {
     @Override
     public BigDecimal convertToJavaData(ReadCellData<?> cellData, ExcelContentProperty contentProperty,
                                         GlobalConfiguration globalConfiguration) throws Exception {
-        return cellData.getOriginalNumberValue();
+        return new BigDecimal(cellData.getStringValue());
     }
 }
