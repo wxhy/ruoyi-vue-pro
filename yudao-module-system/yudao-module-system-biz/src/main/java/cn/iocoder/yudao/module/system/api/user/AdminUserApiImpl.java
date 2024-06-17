@@ -92,4 +92,10 @@ public class AdminUserApiImpl implements AdminUserApi {
     public void sendMessage(List<Long> userIds) {
         userService.sendMessage(userIds);
     }
+
+    @Override
+    public List<AdminUserRespDTO> getUserListByMemberLevel(List<Long> levelIds) {
+        List<AdminUserDO> users = userService.getUserListByMemberLevel(levelIds);
+        return BeanUtils.toBean(users, AdminUserRespDTO.class);
+    }
 }

@@ -91,4 +91,11 @@ public interface AdminUserApi {
      * @param userIds
      */
     void sendMessage(List<Long> userIds);
+
+    /**
+     * 获取会员用户
+     * @param levelIds
+     * @return
+     */
+    List<AdminUserRespDTO> getUserListByMemberLevel(List<Long> levelIds);
 }
