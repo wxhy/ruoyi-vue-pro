@@ -1,6 +1,7 @@
 package cn.iocoder.yudao.module.lib.job;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.iocoder.yudao.framework.mybatis.core.query.LambdaQueryWrapperX;
 import cn.iocoder.yudao.framework.quartz.core.handler.JobHandler;
 import cn.iocoder.yudao.module.lib.dal.dataobject.drug.DrugInfoDO;
 import cn.iocoder.yudao.module.lib.dal.dataobject.drugyf.DrugYfDO;
@@ -33,7 +34,8 @@ public class DrugJob implements JobHandler {
     @Override
     public String execute(String param) {
         // 获取爬取的所有药品信息
-        List<DrugInfoDO> drugInfos = drugInfoService.list();
+        List<DrugInfoDO> drugInfos = drugInfoService.list(new LambdaQueryWrapperX<DrugInfoDO>()
+                .last(" limit 10000"));
         if (CollUtil.isEmpty(drugInfos)) {
             return "暂无爬取药品";
         }
