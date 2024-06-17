@@ -55,7 +55,6 @@ public class DrugMarkingController {
     @DeleteMapping("/delete")
     @Operation(summary = "删除药房药物对标")
     @Parameter(name = "id", description = "编号", required = true)
-    @PreAuthorize("@ss.hasPermission('lib:drug-marking:delete')")
     public CommonResult<Boolean> deleteDrugMarking(@RequestParam("id") Long id) {
         drugMarkingService.deleteDrugMarking(id);
         return success(true);
@@ -72,11 +71,19 @@ public class DrugMarkingController {
 
     @GetMapping("/page")
     @Operation(summary = "获得药房药物对标分页")
-    @PreAuthorize("@ss.hasPermission('lib:drug-marking:query')")
     public CommonResult<PageResult<DrugMarkingRespVO>> getDrugMarkingPage(@Valid DrugMarkingPageReqVO pageReqVO) {
         PageResult<DrugMarkingDO> pageResult = drugMarkingService.getDrugMarkingPage(pageReqVO);
         return success(BeanUtils.toBean(pageResult, DrugMarkingRespVO.class));
     }
+
+    @GetMapping("/drug")
+    @Operation(summary = "药房药物对标")
+    @Parameter(name = "drugId", description = "编号", required = true, example = "1024")
+    public CommonResult<Boolean> drugMarking(@RequestParam("drugId") Long drugId) {
+        drugMarkingService.markingDrug(drugId);
+        return success(true);
+    }
+
 
     @GetMapping("/export-excel")
     @Operation(summary = "导出药房药物对标 Excel")

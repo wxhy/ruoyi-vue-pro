@@ -1,15 +1,11 @@
 package cn.iocoder.yudao.module.lib.controller.admin.pharmacydrug.vo;
 
-import cn.iocoder.yudao.module.lib.controller.admin.drugyf.vo.DrugYfRespVO;
-import cn.iocoder.yudao.module.lib.controller.admin.marking.vo.MarkingDrugInfo;
+import cn.iocoder.yudao.module.lib.controller.admin.marking.vo.DrugMarkingRespVO;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
-import java.time.LocalDate;
-import java.util.*;
 import java.util.*;
 import java.math.BigDecimal;
-import org.springframework.format.annotation.DateTimeFormat;
 import java.time.LocalDateTime;
 import com.alibaba.excel.annotation.*;
 
@@ -72,6 +68,6 @@ public class PharmacyDrugRespVO {
 
     private BigDecimal otherPrice;
 
-    private List<MarkingDrugInfo> drugInfos;
+    private List<DrugMarkingRespVO> drugInfos;
 
 }

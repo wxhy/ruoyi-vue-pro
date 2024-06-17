@@ -176,6 +176,7 @@ public class PharmacyDrugServiceImpl extends ServiceImpl<PharmacyDrugMapper, Pha
             } catch (Exception e) {
                 failure++;
                 index++;
+                log.error("导入部分失败，原因：{}", e);
                 dataInfo.setStatus(0);
                 dataInfo.setReason(e.getMessage());
             }

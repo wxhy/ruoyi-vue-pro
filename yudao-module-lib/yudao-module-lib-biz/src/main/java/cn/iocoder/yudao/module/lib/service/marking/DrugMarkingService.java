@@ -77,6 +77,6 @@ public interface DrugMarkingService extends IService<DrugMarkingDO> {
 
     void deleteDrugMarkingByDrugId(Long drugId);
 
-    List<MarkingDrugInfo> getMarkingDrugInfo(Long drugId);
+    List<DrugMarkingRespVO> getMarkingDrugInfo(Long drugId);
 
 }

@@ -1,6 +1,8 @@
 package cn.iocoder.yudao.module.lib.dal.dataobject.marking;
 
 import lombok.*;
+
+import java.math.BigDecimal;
 import java.util.*;
 import java.time.LocalDateTime;
 import java.time.LocalDateTime;
@@ -39,5 +41,38 @@ public class DrugMarkingDO extends BaseDO {
      * 药房药物ID
      */
     private Long drugId;
+
+    /**
+     * 名称
+     */
+    private String name;
+    /**
+     * 批准号
+     */
+    private String approvalNumber;
+    /**
+     * 规格
+     */
+    private String packing;
+    /**
+     * 剂型
+     */
+    private String dosageForm;
+    /**
+     * 生产厂家
+     */
+    private String productionEnterPrise;
+    /**
+     * 价格
+     */
+    private BigDecimal price;
+    /**
+     * 售卖店铺数量
+     */
+    private String shopCount;
+    /**
+     * 药品图片
+     */
+    private String imgInfo;
 
 }

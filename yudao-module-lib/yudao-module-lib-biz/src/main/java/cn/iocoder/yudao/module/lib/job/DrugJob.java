@@ -4,8 +4,11 @@ import cn.hutool.core.collection.CollUtil;
 import cn.iocoder.yudao.framework.quartz.core.handler.JobHandler;
 import cn.iocoder.yudao.module.lib.dal.dataobject.drug.DrugInfoDO;
 import cn.iocoder.yudao.module.lib.dal.dataobject.drugyf.DrugYfDO;
+import cn.iocoder.yudao.module.lib.dal.dataobject.marking.DrugMarkingDO;
 import cn.iocoder.yudao.module.lib.service.drug.DrugInfoService;
 import cn.iocoder.yudao.module.lib.service.drugyf.DrugYfService;
+import cn.iocoder.yudao.module.lib.service.marking.DrugMarkingService;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -24,6 +27,9 @@ public class DrugJob implements JobHandler {
     @Resource
     private DrugYfService drugYfService;
 
+    @Resource
+    private DrugMarkingService drugMarkingService;
+
     @Override
     public String execute(String param) {
         // 获取爬取的所有药品信息
@@ -32,7 +38,6 @@ public class DrugJob implements JobHandler {
             return "暂无爬取药品";
         }
 
-        List<Long> drugIds = new ArrayList<>();
         for (DrugInfoDO drugInfo : drugInfos) {
             try {
                 DrugYfDO drugYfDO = drugYfService.getDrugYfByDataId(drugInfo.getDataId());
@@ -52,10 +57,26 @@ public class DrugJob implements JobHandler {
                 } else {
                     BigDecimal bigDecimal = new BigDecimal(drugInfo.getPrice());
                     drugYfDO.setPrice(bigDecimal);
+                    drugYfDO.setName(drugInfo.getName());
+                    drugYfDO.setPacking(drugInfo.getPacking());
+                    drugYfDO.setApprovalNumber(drugInfo.getApprovalNumber());
+                    drugYfDO.setDosageForm(drugInfo.getDosageForm());
+                    drugYfDO.setShopCount(drugInfo.getShopCount());
+                    drugYfDO.setProductionEnterPrise(drugInfo.getProductionEnterPrise());
                     drugYfService.updateById(drugYfDO);
-                    if (bigDecimal.compareTo(drugYfDO.getPrice()) != 0) {
-                        drugIds.add(drugYfDO.getId());
-                    }
+
+                    DrugMarkingDO drugMarkingDO = new DrugMarkingDO();
+                    drugMarkingDO.setName(drugInfo.getName());
+                    drugMarkingDO.setPacking(drugInfo.getPacking());
+                    drugMarkingDO.setApprovalNumber(drugInfo.getApprovalNumber());
+                    drugMarkingDO.setDosageForm(drugInfo.getDosageForm());
+                    drugMarkingDO.setShopCount(drugInfo.getShopCount());
+                    drugMarkingDO.setProductionEnterPrise(drugInfo.getProductionEnterPrise());
+                    drugMarkingDO.setPrice(bigDecimal);
+                    drugMarkingDO.setImgInfo(drugInfo.getImgInfo());
+                    drugMarkingService.update(drugMarkingDO, new LambdaUpdateWrapper<DrugMarkingDO>()
+                            .eq(DrugMarkingDO::getDataId, drugYfDO.getId()));
+
                 }
                 drugInfoService.deleteDrugInfo(drugInfo.getId());
             } catch (Exception e) {
