@@ -19,6 +19,7 @@ import cn.iocoder.yudao.module.system.api.user.AdminUserApi;
 import cn.iocoder.yudao.module.system.api.user.dto.AdminUserRespDTO;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import java.time.LocalDateTime;
@@ -28,7 +29,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static cn.hutool.core.date.DatePattern.NORM_DATETIME_PATTERN;
-
+@Component
 public class NotifyJob implements JobHandler {
 
 
