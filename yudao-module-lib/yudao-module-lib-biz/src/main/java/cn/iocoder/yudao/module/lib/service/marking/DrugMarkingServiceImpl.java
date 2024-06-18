@@ -72,7 +72,14 @@ public class DrugMarkingServiceImpl extends ServiceImpl<DrugMarkingMapper, DrugM
     @Override
     public void deleteDrugMarking(Long id) {
         // 校验存在
-        validateDrugMarkingExists(id);
+        DrugMarkingDO drugMarkingDO = drugMarkingMapper.selectById(id);
+        if (drugMarkingDO == null) {
+            throw exception(DRUG_MARKING_NOT_EXISTS);
+        }
+        Long count = drugMarkingMapper.selectCount(DrugMarkingDO::getDrugId, drugMarkingDO.getDrugId());
+        if (count == 1) {
+            throw exception(DRUG_MARKING_LIMIT_ONE);
+        }
         // 删除
         drugMarkingMapper.deleteById(id);
     }
@@ -149,6 +156,10 @@ public class DrugMarkingServiceImpl extends ServiceImpl<DrugMarkingMapper, DrugM
             drugMarkingDO.setPrice(drugYfDO.getPrice());
             drugMarkingDO.setImgInfo(drugYfDO.getImgInfo());
             drugMarkingMapper.insert(drugMarkingDO);
+            PharmacyDrugDO pharmacyDrugDO = new PharmacyDrugDO();
+            pharmacyDrugDO.setStatus(1);
+            pharmacyDrugService.update(pharmacyDrugDO, new LambdaQueryWrapperX<PharmacyDrugDO>()
+                    .eq(PharmacyDrugDO::getId, drugId));
             return;
         }
         List<DrugMarkingDO> drugMarkingList = new ArrayList<>();
@@ -169,7 +180,12 @@ public class DrugMarkingServiceImpl extends ServiceImpl<DrugMarkingMapper, DrugM
         }
 
         if (CollUtil.isNotEmpty(drugMarkingList)) {
+            //定标失败
             drugMarkingMapper.insertBatch(drugMarkingList);
+            PharmacyDrugDO pharmacyDrugDO = new PharmacyDrugDO();
+            pharmacyDrugDO.setStatus(2);
+            pharmacyDrugService.update(pharmacyDrugDO, new LambdaQueryWrapperX<PharmacyDrugDO>()
+                    .eq(PharmacyDrugDO::getId, drugId));
         }
     }
 
@@ -185,5 +201,13 @@ public class DrugMarkingServiceImpl extends ServiceImpl<DrugMarkingMapper, DrugM
             return Collections.emptyList();
         }
         return BeanUtils.toBean(drugMarkingDOS, DrugMarkingRespVO.class);
+    }
+
+    /**
+     * 清理对标信息
+     */
+    @Override
+    public void cleanDrugMarking() {
+        drugMarkingMapper.cleanDrugMarking();
     }
 }

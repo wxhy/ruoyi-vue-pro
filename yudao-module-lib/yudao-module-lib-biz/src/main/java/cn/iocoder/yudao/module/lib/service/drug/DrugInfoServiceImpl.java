@@ -57,4 +57,11 @@ public class DrugInfoServiceImpl extends ServiceImpl<DrugInfoMapper, DrugInfoDO>
         return drugInfoMapper.selectPage(pageReqVO);
     }
 
+    /**
+     * 清理爬取的药品信息
+     */
+    @Override
+    public void cleanDrugInfo() {
+        drugInfoMapper.cleanDrugInfo();
+    }
 }

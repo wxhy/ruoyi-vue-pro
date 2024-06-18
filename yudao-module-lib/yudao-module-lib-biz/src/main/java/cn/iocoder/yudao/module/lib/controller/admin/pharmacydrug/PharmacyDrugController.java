@@ -97,7 +97,6 @@ public class PharmacyDrugController {
         PageResult<PharmacyDrugDO> pageResult = pharmacyDrugService.getPharmacyDrugPage(pageReqVO);
         PageResult<PharmacyDrugRespVO> result = BeanUtils.toBean(pageResult, PharmacyDrugRespVO.class);
         for (PharmacyDrugRespVO pharmacyDrugRespVO : result.getList()) {
-            pharmacyDrugRespVO.setOtherPrice(pharmacyDrugService.getDrugOtherUserSalePrice(pharmacyDrugRespVO.getId()));
             pharmacyDrugRespVO.setDrugInfos(drugMarkingService.getMarkingDrugInfo(pharmacyDrugRespVO.getId()));
         }
         return success(result);

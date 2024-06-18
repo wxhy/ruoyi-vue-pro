@@ -79,4 +79,8 @@ public interface DrugMarkingService extends IService<DrugMarkingDO> {
 
     List<DrugMarkingRespVO> getMarkingDrugInfo(Long drugId);
 
+    /**
+     * 清理对标信息
+     */
+    void cleanDrugMarking();
 }

@@ -6,6 +6,7 @@ import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.mybatis.core.query.LambdaQueryWrapperX;
 import cn.iocoder.yudao.framework.mybatis.core.mapper.BaseMapperX;
 import cn.iocoder.yudao.module.lib.dal.dataobject.marking.DrugMarkingDO;
+import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Mapper;
 import cn.iocoder.yudao.module.lib.controller.admin.marking.vo.*;
 
@@ -25,5 +26,8 @@ public interface DrugMarkingMapper extends BaseMapperX<DrugMarkingDO> {
                 .betweenIfPresent(DrugMarkingDO::getCreateTime, reqVO.getCreateTime())
                 .orderByDesc(DrugMarkingDO::getId));
     }
+
+    @Delete("delete from lib_drug_marking where deleted = 1")
+    void cleanDrugMarking();
 
 }

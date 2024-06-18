@@ -53,4 +53,9 @@ public interface DrugInfoService extends IService<DrugInfoDO> {
      */
     PageResult<DrugInfoDO> getDrugInfoPage(DrugInfoPageReqVO pageReqVO);
 
+    /**
+     * 清理爬取的药品信息
+     */
+    void cleanDrugInfo();
+
 }
