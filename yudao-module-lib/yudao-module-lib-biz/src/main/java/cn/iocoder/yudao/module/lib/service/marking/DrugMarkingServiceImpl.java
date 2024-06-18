@@ -131,6 +131,10 @@ public class DrugMarkingServiceImpl extends ServiceImpl<DrugMarkingMapper, DrugM
         }
         List<DrugYfDO> drugYfList = drugYfService.getDrugYfList(pharmacyDrug.getCommonName());
         if (CollUtil.isEmpty(drugYfList)) {
+            PharmacyDrugDO pharmacyDrugDO = new PharmacyDrugDO();
+            pharmacyDrugDO.setStatus(2);
+            pharmacyDrugService.update(pharmacyDrugDO, new LambdaQueryWrapperX<PharmacyDrugDO>()
+                    .eq(PharmacyDrugDO::getId, drugId));
             return;
         }
 
@@ -145,7 +149,7 @@ public class DrugMarkingServiceImpl extends ServiceImpl<DrugMarkingMapper, DrugM
             DrugYfDO drugYfDO = CollectionUtils.getFirst(drugYfDOS);
             DrugMarkingDO drugMarkingDO = new DrugMarkingDO();
             drugMarkingDO.setDrugId(drugId);
-            drugMarkingDO.setDataId(drugYfDO.getId());
+            drugMarkingDO.setDataId(drugYfDO.getDataId());
             drugMarkingDO.setUserId(pharmacyDrug.getUserId());
             drugMarkingDO.setName(drugYfDO.getName());
             drugMarkingDO.setPacking(drugYfDO.getPacking());
@@ -166,7 +170,7 @@ public class DrugMarkingServiceImpl extends ServiceImpl<DrugMarkingMapper, DrugM
         for (DrugYfDO drugYfDO : drugYfList) {
             DrugMarkingDO drugMarkingDO = new DrugMarkingDO();
             drugMarkingDO.setDrugId(drugId);
-            drugMarkingDO.setDataId(drugYfDO.getId());
+            drugMarkingDO.setDataId(drugYfDO.getDataId());
             drugMarkingDO.setUserId(pharmacyDrug.getUserId());
             drugMarkingDO.setName(drugYfDO.getName());
             drugMarkingDO.setPacking(drugYfDO.getPacking());

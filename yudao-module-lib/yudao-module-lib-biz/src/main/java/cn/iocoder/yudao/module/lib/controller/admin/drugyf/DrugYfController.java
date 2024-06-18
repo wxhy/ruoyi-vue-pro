@@ -89,7 +89,7 @@ public class DrugYfController {
         return success(BeanUtils.toBean(pageResult, DrugYfRespVO.class));
     }
 
-    @GetMapping("/marking")
+//    @GetMapping("/marking")
     @Operation(summary = "获得对标药房药品分页")
     public CommonResult<PageResult<DrugYfRespVO>> getMarkingDrugYfPage(@Valid DrugYfPageReqVO pageReqVO) {
         List<DrugMarkingDO> markingDOList = drugMarkingService.getDrugMarkingByPharmacyDrugId(pageReqVO.getPharmacyDrugId());

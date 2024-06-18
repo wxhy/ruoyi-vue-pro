@@ -77,7 +77,7 @@ public class DrugJob implements JobHandler {
                     drugMarkingDO.setPrice(bigDecimal);
                     drugMarkingDO.setImgInfo(drugInfo.getImgInfo());
                     drugMarkingService.update(drugMarkingDO, new LambdaUpdateWrapper<DrugMarkingDO>()
-                            .eq(DrugMarkingDO::getDataId, drugYfDO.getId()));
+                            .eq(DrugMarkingDO::getDataId, drugYfDO.getDataId()));
 
                 }
                 drugInfoService.deleteDrugInfo(drugInfo.getId());
