@@ -26,7 +26,7 @@ public interface PharmacyDrugMapper extends BaseMapperX<PharmacyDrugDO> {
                 .eqIfPresent(PharmacyDrugDO::getWatch, reqVO.getWatch())
                 .eqIfPresent(PharmacyDrugDO::getStatus, reqVO.getStatus())
                 .betweenIfPresent(PharmacyDrugDO::getCreateTime, reqVO.getCreateTime())
-                .orderByDesc(PharmacyDrugDO::getId));
+                .last(" ORDER BY FIELD(status, 1, 0, 2)"));
     }
 
     /**
