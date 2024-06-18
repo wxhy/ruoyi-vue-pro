@@ -35,7 +35,7 @@ public class DrugJob implements JobHandler {
     public String execute(String param) {
         // 获取爬取的所有药品信息
         List<DrugInfoDO> drugInfos = drugInfoService.list(new LambdaQueryWrapperX<DrugInfoDO>()
-                .last(" limit 10000"));
+                .last(" limit 100"));
         if (CollUtil.isEmpty(drugInfos)) {
             return "暂无爬取药品";
         }

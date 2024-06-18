@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.framework.excel.core.convert;
 
+import cn.iocoder.yudao.framework.common.util.json.JsonUtils;
 import com.alibaba.excel.converters.Converter;
 import com.alibaba.excel.enums.CellDataTypeEnum;
 import com.alibaba.excel.metadata.GlobalConfiguration;
@@ -41,6 +42,13 @@ public class MoneyConvert implements Converter<BigDecimal> {
     @Override
     public BigDecimal convertToJavaData(ReadCellData<?> cellData, ExcelContentProperty contentProperty,
                                         GlobalConfiguration globalConfiguration) throws Exception {
-        return new BigDecimal(cellData.getStringValue());
+        switch (cellData.getType()) {
+            case STRING:
+                return new BigDecimal(cellData.getStringValue());
+            case NUMBER:
+                return cellData.getNumberValue();
+            default:
+                throw new IllegalArgumentException("Unknown data type: " + cellData.getType());
+        }
     }
 }

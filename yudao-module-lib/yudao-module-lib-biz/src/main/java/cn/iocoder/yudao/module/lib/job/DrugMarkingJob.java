@@ -34,7 +34,7 @@ public class DrugMarkingJob implements JobHandler {
     @Override
     public String execute(String param) throws Exception {
         List<PharmacyDrugDO> list = pharmacyDrugService.list(new LambdaQueryWrapperX<PharmacyDrugDO>()
-                .eq(PharmacyDrugDO::getStatus, 2));
+                .in(PharmacyDrugDO::getStatus, 0, 2));
         for (PharmacyDrugDO pharmacyDrugDO : list) {
             drugMarkingService.markingDrug(pharmacyDrugDO.getId());
         }

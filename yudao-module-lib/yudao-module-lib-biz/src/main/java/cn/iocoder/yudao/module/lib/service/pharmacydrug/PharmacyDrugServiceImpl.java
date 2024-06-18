@@ -170,7 +170,6 @@ public class PharmacyDrugServiceImpl extends ServiceImpl<PharmacyDrugMapper, Pha
                     dataInfo.setStatus(2);
                     dataInfo.setReason("更新成功");
                 }
-                drugMarkingService.markingDrug(pharmacyDrugDO.getId());
                 success++;
                 index++;
             } catch (Exception e) {
