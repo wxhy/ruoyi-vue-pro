@@ -33,6 +33,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import javax.validation.Validator;
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
@@ -88,6 +89,11 @@ public class AdminAuthServiceImpl implements AdminAuthService {
         if (CommonStatusEnum.isDisable(user.getStatus())) {
             createLoginLog(user.getId(), username, logTypeEnum, LoginResultEnum.USER_DISABLED);
             throw exception(AUTH_LOGIN_USER_DISABLED);
+        }
+        // 判断会员是否过期
+        if (UserTypeEnum.MEMBER.getValue().equals(user.getUserType()) && user.getExpireTime().isBefore(LocalDateTime.now())) {
+            createLoginLog(user.getId(), username, logTypeEnum, LoginResultEnum.USER_EXPIRED);
+            throw exception(AUTH_LOGIN_USER_EXPIRED);
         }
         return user;
     }

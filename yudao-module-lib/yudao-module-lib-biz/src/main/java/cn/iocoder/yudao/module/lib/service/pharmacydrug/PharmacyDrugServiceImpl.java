@@ -146,6 +146,8 @@ public class PharmacyDrugServiceImpl extends ServiceImpl<PharmacyDrugMapper, Pha
         long failure = 0L;
         int index = 1;
         List<DrugImportDataInfo> dataInfos = new ArrayList<>();
+        List<PharmacyDrugDO> saves =new ArrayList<>();
+        List<PharmacyDrugDO> updates =new ArrayList<>();
         for (DrugImportExcelVO item : list) {
             DrugImportDataInfo dataInfo = new DrugImportDataInfo();
             dataInfo.setId(index);
@@ -154,21 +156,16 @@ public class PharmacyDrugServiceImpl extends ServiceImpl<PharmacyDrugMapper, Pha
 
             try {
                 validator.validate(item, Default.class);
-
                 PharmacyDrugDO pharmacyDrugDO = pharmacyDrugMapper.selectDrugInfo(item.getApprovalNumber(), item.getCommonName(),
                         item.getManufacturer(), loginUserId, item.getSpecifications());
                 if (Objects.isNull(pharmacyDrugDO)) {
                     pharmacyDrugDO = BeanUtils.toBean(item, PharmacyDrugDO.class);
                     pharmacyDrugDO.setUserId(loginUserId);
-                    pharmacyDrugMapper.insert(pharmacyDrugDO);
-                    dataInfo.setStatus(1);
-                    dataInfo.setReason("导入成功");
+                    saves.add(pharmacyDrugDO);
                 } else {
                     PharmacyDrugDO bean = BeanUtils.toBean(item, PharmacyDrugDO.class);
                     bean.setId(pharmacyDrugDO.getId());
-                    pharmacyDrugMapper.updateById(bean);
-                    dataInfo.setStatus(2);
-                    dataInfo.setReason("更新成功");
+                    updates.add(bean);
                 }
                 success++;
                 index++;
@@ -181,6 +178,8 @@ public class PharmacyDrugServiceImpl extends ServiceImpl<PharmacyDrugMapper, Pha
             }
             dataInfos.add(dataInfo);
         }
+        pharmacyDrugMapper.insertBatch(saves);
+        pharmacyDrugMapper.updateBatch(updates);
         drugImportRespVO.setSuccessCount(success);
         drugImportRespVO.setFailureCount(failure);
         drugImportRespVO.setDataInfos(dataInfos);

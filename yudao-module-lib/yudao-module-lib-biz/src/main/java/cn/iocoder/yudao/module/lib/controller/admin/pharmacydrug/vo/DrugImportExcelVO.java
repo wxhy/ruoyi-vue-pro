@@ -2,6 +2,7 @@ package cn.iocoder.yudao.module.lib.controller.admin.pharmacydrug.vo;
 
 import cn.iocoder.yudao.framework.excel.core.convert.MoneyConvert;
 import com.alibaba.excel.annotation.ExcelProperty;
+import com.alibaba.excel.annotation.format.NumberFormat;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,6 +12,7 @@ import lombok.experimental.Accessors;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
@@ -50,12 +52,14 @@ public class DrugImportExcelVO {
     private String dosageForm;
 
     @Schema(description = "进价", requiredMode = Schema.RequiredMode.REQUIRED, example = "28895")
-    @ExcelProperty(value = "进价", converter = MoneyConvert.class)
+    @ExcelProperty(value = "进价")
     @NotNull(message = "进价不能为空")
-    private BigDecimal purchasePrice;
+    @Pattern(regexp = "^(\\-)?\\d+\\.?\\d*$", message = "进价格式有误")
+    private String purchasePrice;
 
     @Schema(description = "零售价", requiredMode = Schema.RequiredMode.REQUIRED, example = "21704")
-    @ExcelProperty(value = "零售价", converter = MoneyConvert.class)
+    @ExcelProperty(value = "零售价")
     @NotNull(message = "零售价不能为空")
-    private BigDecimal retailPrice;
+    @Pattern(regexp = "^(\\-)?\\d+\\.?\\d*$", message = "零售价格式有误")
+    private String retailPrice;
 }
