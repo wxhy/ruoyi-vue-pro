@@ -33,7 +33,7 @@ public interface DrugInfoMapper extends BaseMapperX<DrugInfoDO> {
                 .orderByDesc(DrugInfoDO::getId));
     }
 
-    @Delete("delete from drug_info where deleted = 1")
+    @Delete("TRUNCATE TABLE drug_info")
     void cleanDrugInfo();
 
 }
