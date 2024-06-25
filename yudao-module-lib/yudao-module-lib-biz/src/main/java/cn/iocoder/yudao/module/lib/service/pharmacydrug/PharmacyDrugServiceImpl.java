@@ -1,7 +1,10 @@
 package cn.iocoder.yudao.module.lib.service.pharmacydrug;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.text.CharSequenceUtil;
+import cn.hutool.core.util.StrUtil;
 import cn.iocoder.yudao.framework.common.constant.CommonConstant;
+import cn.iocoder.yudao.framework.common.exception.ServiceException;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.common.util.collection.CollectionUtils;
 import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
@@ -26,6 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
 import javax.annotation.Resource;
+import javax.validation.ConstraintViolation;
 import javax.validation.Validator;
 import javax.validation.groups.Default;
 import java.math.BigDecimal;
@@ -149,18 +153,28 @@ public class PharmacyDrugServiceImpl extends ServiceImpl<PharmacyDrugMapper, Pha
         List<PharmacyDrugDO> saves =new ArrayList<>();
         List<PharmacyDrugDO> updates =new ArrayList<>();
         for (DrugImportExcelVO item : list) {
+
             DrugImportDataInfo dataInfo = new DrugImportDataInfo();
             dataInfo.setId(index);
+            if (CharSequenceUtil.isEmpty(item.getApprovalNumber())) {
+                index++;
+                continue;
+            }
+
             dataInfo.setApprovalNumber(item.getApprovalNumber());
             dataInfo.setDrugName(item.getCommonName());
 
             try {
-                validator.validate(item, Default.class);
+                Set<ConstraintViolation<DrugImportExcelVO>> validate = validator.validate(item, Default.class);
+                if (CollUtil.isNotEmpty(validate)) {
+                   throw new ServiceException(40000012, "参数有误");
+                }
                 PharmacyDrugDO pharmacyDrugDO = pharmacyDrugMapper.selectDrugInfo(item.getApprovalNumber(), item.getCommonName(),
                         item.getManufacturer(), loginUserId, item.getSpecifications());
                 if (Objects.isNull(pharmacyDrugDO)) {
                     pharmacyDrugDO = BeanUtils.toBean(item, PharmacyDrugDO.class);
                     pharmacyDrugDO.setUserId(loginUserId);
+                    pharmacyDrugDO.setId(null);
                     saves.add(pharmacyDrugDO);
                 } else {
                     PharmacyDrugDO bean = BeanUtils.toBean(item, PharmacyDrugDO.class);
@@ -178,8 +192,14 @@ public class PharmacyDrugServiceImpl extends ServiceImpl<PharmacyDrugMapper, Pha
             }
             dataInfos.add(dataInfo);
         }
-        pharmacyDrugMapper.insertBatch(saves);
-        pharmacyDrugMapper.updateBatch(updates);
+        if (CollUtil.isNotEmpty(saves)) {
+            pharmacyDrugMapper.insertBatch(saves);
+        }
+
+        if (CollUtil.isNotEmpty(updates)) {
+            pharmacyDrugMapper.updateBatch(updates);
+        }
+
         drugImportRespVO.setSuccessCount(success);
         drugImportRespVO.setFailureCount(failure);
         drugImportRespVO.setDataInfos(dataInfos);
