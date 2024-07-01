@@ -138,14 +138,17 @@ public class DrugMarkingServiceImpl extends ServiceImpl<DrugMarkingMapper, DrugM
             return;
         }
 
-        drugMarkingMapper.delete(DrugMarkingDO::getDrugId, drugId);
-        List<DrugYfDO> drugYfDOS = CollectionUtils.filterList(drugYfList, item -> Objects.equals(item.getPacking(), pharmacyDrug.getSpecifications()) &&
+
+        List<DrugYfDO> drugYfDOS = CollectionUtils.filterList(drugYfList, item -> Objects.equals(item.getPacking(),
+                pharmacyDrug.getSpecifications()) &&
                 Objects.equals(item.getProductionEnterPrise(), pharmacyDrug.getManufacturer()));
         if (CollUtil.isEmpty(drugYfDOS)) {
-            drugYfDOS = CollectionUtils.filterList(drugYfList, item -> Objects.equals(item.getProductionEnterPrise(), pharmacyDrug.getManufacturer()));
+            drugYfDOS = CollectionUtils.filterList(drugYfList, item -> Objects.equals(item.getProductionEnterPrise(),
+                    pharmacyDrug.getManufacturer()));
         }
 
         if (CollUtil.isNotEmpty(drugYfDOS)) {
+            drugMarkingMapper.delete(DrugMarkingDO::getDrugId, drugId);
             DrugYfDO drugYfDO = CollectionUtils.getFirst(drugYfDOS);
             DrugMarkingDO drugMarkingDO = new DrugMarkingDO();
             drugMarkingDO.setDrugId(drugId);
@@ -166,6 +169,7 @@ public class DrugMarkingServiceImpl extends ServiceImpl<DrugMarkingMapper, DrugM
                     .eq(PharmacyDrugDO::getId, drugId));
             return;
         }
+
         List<DrugMarkingDO> drugMarkingList = new ArrayList<>();
         for (DrugYfDO drugYfDO : drugYfList) {
             DrugMarkingDO drugMarkingDO = new DrugMarkingDO();
@@ -183,9 +187,27 @@ public class DrugMarkingServiceImpl extends ServiceImpl<DrugMarkingMapper, DrugM
             drugMarkingList.add(drugMarkingDO);
         }
 
+
         if (CollUtil.isNotEmpty(drugMarkingList)) {
-            //定标失败
-            drugMarkingMapper.insertBatch(drugMarkingList);
+
+            List<DrugMarkingDO> drugMarkingDOS = drugMarkingMapper.selectList(DrugMarkingDO::getDrugId, drugId);
+            Set<Long> dbIds = CollectionUtils.convertSet(drugMarkingDOS, DrugMarkingDO::getDataId);
+            Set<Long> dataIds = CollectionUtils.convertSet(drugMarkingList, DrugMarkingDO::getDataId);
+            Collection<Long> createIds = CollUtil.subtract(dataIds, dbIds);
+            Collection<Long> deleteIds = CollUtil.subtract(dbIds, dataIds);
+
+            if (CollUtil.isNotEmpty(createIds)) {
+                List<DrugMarkingDO> markingDOList = CollectionUtils.filterList(drugMarkingList,
+                        item -> createIds.contains(item.getDataId()));
+                //定标失败
+                drugMarkingMapper.insertBatch(markingDOList);
+            }
+            if (CollUtil.isNotEmpty(deleteIds)) {
+                drugMarkingMapper.delete(new LambdaQueryWrapperX<DrugMarkingDO>()
+                        .eq(DrugMarkingDO::getDrugId, drugId)
+                        .in(DrugMarkingDO::getDataId, deleteIds));
+            }
+
             PharmacyDrugDO pharmacyDrugDO = new PharmacyDrugDO();
             pharmacyDrugDO.setStatus(2);
             pharmacyDrugService.update(pharmacyDrugDO, new LambdaQueryWrapperX<PharmacyDrugDO>()

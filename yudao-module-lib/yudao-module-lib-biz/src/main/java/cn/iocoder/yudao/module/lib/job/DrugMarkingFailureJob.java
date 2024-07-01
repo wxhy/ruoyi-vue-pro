@@ -15,7 +15,7 @@ import java.util.List;
  * @date 2024-06-18 12:58
  */
 @Component
-public class DrugMarkingJob implements JobHandler {
+public class DrugMarkingFailureJob implements JobHandler {
 
     @Resource
     private PharmacyDrugService pharmacyDrugService;
@@ -34,7 +34,7 @@ public class DrugMarkingJob implements JobHandler {
     @Override
     public String execute(String param) throws Exception {
         List<PharmacyDrugDO> list = pharmacyDrugService.list(new LambdaQueryWrapperX<PharmacyDrugDO>()
-                .in(PharmacyDrugDO::getStatus, 0));
+                .in(PharmacyDrugDO::getStatus, 2));
         for (PharmacyDrugDO pharmacyDrugDO : list) {
             drugMarkingService.markingDrug(pharmacyDrugDO.getId());
         }
